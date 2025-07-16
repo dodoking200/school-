@@ -3,9 +3,9 @@ import SideNav from "@/components/layout/SideNav";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import { CalendarCheck, File, FileChartColumn, House } from "lucide-react";
-import ExamSchedule from "@/components/sections/ExamSchedule";
-import Schedule from "@/components/sections/Schedule";
-import Marks from "@/components/sections/Marks";
+import ExamSchedule from "@/components/student/ExamSchedule";
+import Schedule from "@/components/student/Schedule";
+import Marks from "@/components/student/Marks";
 
 export default function StudentPage() {
   const [activeButton, setActiveButton] = useState<string>("home");

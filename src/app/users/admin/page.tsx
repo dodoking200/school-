@@ -1,6 +1,6 @@
 "use client";
 import SideNav from "@/components/layout/SideNav";
-import StudentInfo from "@/components/sections/StudentsInfo";
+import StudentInfo from "@/components/teacher/StudentsInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 

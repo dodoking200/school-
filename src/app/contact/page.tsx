@@ -1,6 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import ContactUs from "@/components/sections/ContactUs";
+import ContactUs from "@/components/welcome/ContactUs";
 import React from "react";
 
 export default function ContactPage() {

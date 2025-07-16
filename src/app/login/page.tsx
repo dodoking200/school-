@@ -1,5 +1,5 @@
 import Header from "@/components/layout/Header";
-import LoginForm from "@/components/sections/LoginForm";
+import LoginForm from "@/components/loginform/LoginForm";
 import React from "react";
 
 // LoginPage component

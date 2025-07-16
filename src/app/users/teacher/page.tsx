@@ -3,8 +3,8 @@ import SideNav from "@/components/layout/SideNav";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import { House, BookCheck, NotepadText, CalendarCheck } from "lucide-react";
-import QuestionInput from "@/components/sections/QuestionInput";
-import Students from "@/components/sections/Students";
+import QuestionInput from "@/components/teacher/QuestionInput";
+import Students from "@/components/admin/Students";
 
 export default function TeacherPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
@@ -33,7 +33,7 @@ export default function TeacherPage() {
         >
           <NotepadText />
         </SideNavButton>
-      <SideNavButton
+        <SideNavButton
           icon="event"
           active={activeButton === "Schedule"}
           onClick={() => setActiveButton("Schedule")}
