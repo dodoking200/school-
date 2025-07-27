@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Table from "../ui/Table"; // Adjust the import path if needed
 
 // src/types.ts
 export interface Student {
@@ -30,75 +31,66 @@ export default function Students() {
       ? studentsData
       : studentsData.filter((student) => student.className === selectedClass);
 
+  // Define the filter dropdown
+  const classFilter = (
+    <select
+      id="classFilter"
+      className="border border-gray-300 rounded-4xl bg-gray-200 p-2"
+      value={selectedClass}
+      onChange={(e) => setSelectedClass(e.target.value)}
+    >
+      <option value="All">All Classes</option>
+      {uniqueClasses.map((className) => (
+        <option key={className} value={className}>
+          {className}
+        </option>
+      ))}
+    </select>
+  );
+
   return (
-    <div className="p-6   ">
-      <div className="mb-4">
-        {/* Class Filter Dropdown */}
-        <div className="mb-4 flex-wrap flex justify-between">
-          <h2 className="text-xl font-semibold mb-3 text-black">Student</h2>
-
-          <select
-            id="classFilter"
-            className=" border border-gray-300  rounded-4xl bg-gray-200 p-2"
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
+    <Table title="Student" filter={classFilter}>
+      <thead>
+        <tr className="bg-gray-200 border-b border-gray-300">
+          <th className="px-6 py-4 font-medium w-[20%]">Student Name</th>
+          <th className="px-6 py-4 font-medium w-[20%]">Class</th>
+          <th className="px-6 py-4 font-medium w-[20%]">Attendance</th>
+          <th className="px-6 py-4 font-medium w-[20%]">Marks</th>
+          <th className="px-6 py-4 font-medium w-[20%]">Actions</th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200 text-center">
+        {filteredStudents.map((student) => (
+          <tr
+            key={student.name}
+            className="hover:bg-gray-50 transition duration-150 ease-in-out"
           >
-            <option value="All">All Classes</option>
-            {uniqueClasses.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Students Table */}
-        <div className="bg-white rounded-4xl shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200 w-full text-left">
-            <thead>
-              <tr className="bg-gray-200 border-b border-gray-300">
-                <th className="px-6 py-4 font-medium w-[20%]">Student Name</th>
-                <th className="px-6 py-4 font-medium w-[20%]">Class</th>
-                <th className="px-6 py-4 font-medium w-[20%]">Attendance</th>
-                <th className="px-6 py-4 font-medium w-[20%]">Marks</th>
-                <th className="px-6 py-4 font-medium w-[20%]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredStudents.map((student) => (
-                <tr
-                  key={student.name}
-                  className="hover:bg-gray-50 transition duration-150 ease-in-out"
-                >
-                  <td className="px-6 py-4">{student.name}</td>
-                  <td className="px-6 py-4">{student.className}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
-                      <div
-                        className="w-24 h-2 bg-[var(--primary)]"
-                        style={{ width: `${student.attendance}%` }}
-                      />
-                      <span className="font-medium text-gray-800">
-                        {student.attendance}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-[var(--primary)]">
-                      {student.marks}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="text-[var(--primary)] hover:underline">
-                      Input Marks
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            <td className="px-6 py-4">{student.name}</td>
+            <td className="px-6 py-4">{student.className}</td>
+            <td className="px-6 py-4">
+              <div className="flex items-center space-x-2">
+                <div
+                  className="h-2 bg-[var(--primary)]"
+                  style={{ width: `${student.attendance}%` }}
+                />
+                <span className="font-medium text-gray-800">
+                  {student.attendance}%
+                </span>
+              </div>
+            </td>
+            <td className="px-6 py-4">
+              <span className="font-medium text-[var(--primary)]">
+                {student.marks}
+              </span>
+            </td>
+            <td className="px-6 py-4">
+              <button className="text-[var(--primary)] hover:underline">
+                Input Marks
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 }

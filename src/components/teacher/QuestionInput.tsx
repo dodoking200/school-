@@ -3,12 +3,9 @@ import { useState } from "react";
 export default function QuizForm() {
   const [formData, setFormData] = useState({
     quizQuestion: "",
-    choiceA: "",
-    choiceB: "",
-    choiceC: "",
-    choiceD: "",
+    choices: ["", ""], // Initial choices A and B
     correctAnswer: "",
-    questionType: "multiple-choice" as "multiple-choice" | "true-false",
+    questionType: "multiple-choice",
   });
 
   const handleChange = (
@@ -18,42 +15,74 @@ export default function QuizForm() {
 
     if (name === "questionType") {
       if (value === "true-false") {
-        // Switch to True/False mode
         setFormData((prev) => ({
           ...prev,
           questionType: "true-false",
           correctAnswer: "",
-          choiceA: "True",
-          choiceB: "False",
+          choices: ["True", "False"],
         }));
       } else {
-        // Switch back to Multiple Choice mode
         setFormData((prev) => ({
           ...prev,
           questionType: "multiple-choice",
           correctAnswer: "",
-          choiceA: "", // Reset A
-          choiceB: "", // Reset B
+          choices: prev.choices.length > 2 ? prev.choices : ["", ""],
         }));
       }
+    } else if (name === "choice") {
+      const index = parseInt(e.target.dataset.index || "0");
+      const newChoices = [...formData.choices];
+      newChoices[index] = value;
+      setFormData((prev) => ({ ...prev, choices: newChoices }));
     } else {
-      // Regular input updates
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add your submission logic here
+  const addChoice = () => {
+    if (formData.questionType === "multiple-choice") {
+      setFormData((prev) => ({
+        ...prev,
+        choices: [...prev.choices, ""],
+      }));
+    }
+  };
+
+  const removeChoice = (index: number) => {
+    if (
+      formData.questionType === "multiple-choice" &&
+      formData.choices.length > 2
+    ) {
+      const newChoices = formData.choices.filter((_, i) => i !== index);
+
+      // Update correct answer if it was pointing to removed choice
+      let newCorrectAnswer = formData.correctAnswer;
+      const removedIndex = index;
+      const correctIndex = "ABCD".indexOf(formData.correctAnswer);
+
+      if (correctIndex === removedIndex) {
+        newCorrectAnswer = "";
+      } else if (correctIndex > removedIndex) {
+        newCorrectAnswer = "ABCD"[correctIndex - 1];
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        choices: newChoices,
+        correctAnswer: newCorrectAnswer,
+      }));
+    }
   };
 
   return (
-    <div className="p-6  ">
+    <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Quiz Management</h1>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          e.preventDefault();
+          console.log("Form submitted:", formData);
+        }}
         className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-5"
       >
         {/* Question Type Selector */}
@@ -89,126 +118,87 @@ export default function QuizForm() {
           />
         </div>
 
-        {/* Choices A & B (Always visible) */}
+        {/* Choices */}
         <div className="mb-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="choiceA" className="block mb-1 font-medium">
-                {formData.questionType === "true-false" ? "True" : "Choice A"}
-              </label>
-              <input
-                type="text"
-                id="choiceA"
-                name="choiceA"
-                value={formData.choiceA}
-                onChange={handleChange}
-                placeholder={
-                  formData.questionType === "true-false"
+          {formData.choices.map((choice, index) => (
+            <div key={index} className="mb-2">
+              <label className="block mb-1 font-medium">
+                {formData.questionType === "true-false" && index < 2
+                  ? index === 0
                     ? "True"
-                    : "Enter choice A"
-                }
-                className={`w-full p-2 border border-gray-300 rounded ${
-                  formData.questionType === "true-false"
-                    ? "bg-gray-100 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={formData.questionType === "true-false"}
-              />
-            </div>
-            <div>
-              <label htmlFor="choiceB" className="block mb-1 font-medium">
-                {formData.questionType === "true-false" ? "False" : "Choice B"}
+                    : "False"
+                  : `Choice ${String.fromCharCode(65 + index)}`}
               </label>
-              <input
-                type="text"
-                id="choiceB"
-                name="choiceB"
-                value={formData.choiceB}
-                onChange={handleChange}
-                placeholder={
-                  formData.questionType === "true-false"
-                    ? "False"
-                    : "Enter choice B"
-                }
-                className={`w-full p-2 border border-gray-300 rounded ${
-                  formData.questionType === "true-false"
-                    ? "bg-gray-100 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={formData.questionType === "true-false"}
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  data-index={index}
+                  value={choice}
+                  onChange={handleChange}
+                  placeholder={
+                    formData.questionType === "true-false" && index < 2
+                      ? index === 0
+                        ? "True"
+                        : "False"
+                      : `Enter choice ${String.fromCharCode(65 + index)}`
+                  }
+                  className={`w-full p-2 border border-gray-300 rounded ${
+                    formData.questionType === "true-false" && index < 2
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={formData.questionType === "true-false" && index < 2}
+                />
+                {formData.questionType === "multiple-choice" && index >= 2 && (
+                  <button
+                    type="button"
+                    onClick={() => removeChoice(index)}
+                    className="px-3 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          ))}
 
-        {/* Choices C & D (Only for multiple choice) */}
-        {formData.questionType === "multiple-choice" && (
-          <div className="mb-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="choiceC" className="block mb-1 font-medium">
-                  Choice C
-                </label>
-                <input
-                  type="text"
-                  id="choiceC"
-                  name="choiceC"
-                  value={formData.choiceC}
-                  onChange={handleChange}
-                  placeholder="Enter choice C"
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label htmlFor="choiceD" className="block mb-1 font-medium">
-                  Choice D
-                </label>
-                <input
-                  type="text"
-                  id="choiceD"
-                  name="choiceD"
-                  value={formData.choiceD}
-                  onChange={handleChange}
-                  placeholder="Enter choice D"
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+          {formData.questionType === "multiple-choice" && (
+            <button
+              type="button"
+              onClick={addChoice}
+              className="mt-2 px-3 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+            >
+              Add Choice
+            </button>
+          )}
+        </div>
 
         {/* Correct Answer */}
         <div className="mb-4">
           <label htmlFor="correctAnswer" className="block mb-1 font-medium">
             Correct Answer
           </label>
-          {formData.questionType === "multiple-choice" ? (
-            <select
-              id="correctAnswer"
-              name="correctAnswer"
-              value={formData.correctAnswer}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">Select correct answer</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-            </select>
-          ) : (
-            <select
-              id="correctAnswer"
-              name="correctAnswer"
-              value={formData.correctAnswer}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">Select correct answer</option>
-              <option value="True">True</option>
-              <option value="False">False</option>
-            </select>
-          )}
+          <select
+            id="correctAnswer"
+            name="correctAnswer"
+            value={formData.correctAnswer}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="">Select correct answer</option>
+            {formData.questionType === "true-false" ? (
+              <>
+                <option value="True">True</option>
+                <option value="False">False</option>
+              </>
+            ) : (
+              formData.choices.map((_, index) => (
+                <option key={index} value={String.fromCharCode(65 + index)}>
+                  {String.fromCharCode(65 + index)}
+                </option>
+              ))
+            )}
+          </select>
         </div>
 
         <button
