@@ -1,4 +1,5 @@
 import React from "react";
+import Table from "../ui/Table";
 
 // Define types
 interface TimeSlot {
@@ -46,53 +47,46 @@ export default function Schedule() {
   ];
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold mb-3 text-black">Schedule</h2>
-        <div className="bg-white rounded-4xl shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr className="bg-gray-200">
-                <th
-                  scope="col"
-                  className="px-6 py-4  text-left text-sm  text-black font-bold uppercase tracking-wider"
-                >
-                  Day
-                </th>
-                {timeSlots.map((slot) => (
-                  <th
-                    key={slot.id}
-                    scope="col"
-                    className="px-6 py-4  text-left text-sm font-medium text-black uppercase tracking-wider"
-                  >
-                    {slot.time}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {days.map((day, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition duration-150 ease-in-out"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
-                    {day.day}
-                  </td>
-                  {day.subjects.map((subject, idx) => (
-                    <td
-                      key={idx}
-                      className="px-6 py-4 whitespace-nowrap  text-gray-500"
-                    >
-                      {subject}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <Table title="Schedule">
+      <thead>
+        <tr className="bg-gray-200">
+          <th
+            scope="col"
+            className="px-6 py-4  text-left text-sm  text-black font-bold uppercase tracking-wider"
+          >
+            Day
+          </th>
+          {timeSlots.map((slot) => (
+            <th
+              key={slot.id}
+              scope="col"
+              className="px-6 py-4  text-left text-sm font-medium text-black uppercase tracking-wider"
+            >
+              {slot.time}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {days.map((day, index) => (
+          <tr
+            key={index}
+            className="hover:bg-gray-50 transition duration-150 ease-in-out"
+          >
+            <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
+              {day.day}
+            </td>
+            {day.subjects.map((subject, idx) => (
+              <td
+                key={idx}
+                className="px-6 py-4 whitespace-nowrap  text-gray-500"
+              >
+                {subject}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 }

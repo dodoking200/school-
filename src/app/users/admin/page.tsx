@@ -1,6 +1,6 @@
 "use client";
 import SideNav from "@/components/layout/SideNav";
-import StudentInfo from "@/components/teacher/StudentsInfo";
+import StudentInfo from "@/components/admin/StudentsInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 
@@ -39,7 +39,8 @@ export default function AdminPage() {
           Schedule
         </SideNavButton>
       </SideNav>
-      <main className="flex-1 bg-white p-4 ml-64">
+      <main className="flex-1 bg-white p-4 ml-64 ">
+        <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
         {activeButton == "Schedule" && <StudentInfo />}
       </main>
     </div>

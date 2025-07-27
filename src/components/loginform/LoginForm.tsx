@@ -8,6 +8,7 @@ import { RememberMeCheckbox } from "./RememberMeCheckbox";
 import { SubmitButton } from "./SubmitButton";
 import { ErrorText } from "./ErrorText";
 import { apiClient } from "@/lib/apiClient";
+import { API_ENDPOINTS } from "@/lib/constants";
 import { User } from "@/types";
 
 export default function LoginForm() {
@@ -30,7 +31,7 @@ export default function LoginForm() {
 
     await submitForm(async () => {
       const data = await apiClient<{ token: string; user: User }>(
-        "http://localhost:3000/users/signin",
+        API_ENDPOINTS.AUTH.SIGNIN,
         {
           method: "POST",
           body: JSON.stringify({ email, password }),
@@ -78,7 +79,8 @@ export default function LoginForm() {
           <RememberMeCheckbox />
         </div>
 
-        <ErrorText message={errors.password} />
+        {/* Display general form errors that aren't field-specific */}
+        {errors.general && <ErrorText message={errors.general} />}
 
         <div>
           <SubmitButton isLoading={isLoading} />

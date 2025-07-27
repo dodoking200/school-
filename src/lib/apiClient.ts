@@ -1,15 +1,35 @@
 // src/lib/apiClient.ts
 import { ApiResponse } from "@/types"; // ✅ Import the type
 
+// Get the base URL from environment variables
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
+/**
+ * Builds a full API URL by combining the base URL with the endpoint
+ * @param endpoint - The API endpoint (e.g., '/users/signin')
+ * @returns Full API URL
+ */
+export function buildApiUrl(endpoint: string): string {
+  // Remove leading slash if present to avoid double slashes
+  const cleanEndpoint = endpoint.startsWith("/")
+    ? endpoint.substring(1)
+    : endpoint;
+  return `${API_BASE_URL}/${cleanEndpoint}`;
+}
+
 export async function apiClient<T>(
-  url: string,
+  endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const defaultHeaders = {
     "Content-Type": "application/json",
   };
 
-  const response = await fetch(url, {
+  // Build the full URL using the base URL and endpoint
+  const fullUrl = buildApiUrl(endpoint);
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       ...defaultHeaders,
@@ -18,8 +38,29 @@ export async function apiClient<T>(
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `API Error: ${response.statusText}`);
+    let errorMessage;
+
+    try {
+      // Attempt to parse error response as JSON
+      const errorData = await response.json();
+      errorMessage = errorData.message || response.statusText;
+    } catch {
+      // Handle non-JSON error responses based on status code
+      if (response.status === 401) {
+        errorMessage = "Authentication failed. Please check your credentials.";
+      } else if (response.status === 403) {
+        errorMessage = "You do not have permission to access this resource.";
+      } else if (response.status === 404) {
+        errorMessage = "The requested resource was not found.";
+      } else if (response.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else {
+        errorMessage = response.statusText || "Unknown error occurred";
+      }
+    }
+
+    // Throw a formatted error with the determined message
+    throw new Error(`API Error: ${errorMessage}`);
   }
 
   const data = await response.json();

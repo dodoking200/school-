@@ -4,7 +4,7 @@ import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import { House, BookCheck, NotepadText, CalendarCheck } from "lucide-react";
 import QuestionInput from "@/components/teacher/QuestionInput";
-import Students from "@/components/admin/Students";
+import Students from "@/components/teacher/Students";
 
 export default function TeacherPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");

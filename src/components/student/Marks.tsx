@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Table from "../ui/Table";
 interface MarksTypes {
   id: number;
   type: string;
@@ -63,82 +64,72 @@ export default function Marks() {
   ];
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <div className=" flex-wrap flex justify-between">
-          <div>
-            <h2 className="text-xl font-semibold mb-3 text-black">Marks</h2>
-          </div>
-          <div className=" text-black">
-            <select
-              name="semester"
-              className="  rounded-4xl bg-gray-200 p-2"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
+    <Table
+      title="Marks"
+      filter={
+        <select
+          name="semester"
+          className="  rounded-4xl bg-gray-200 p-2"
+          value={semester}
+          onChange={(e) => setSemester(e.target.value)}
+        >
+          <option value="1">first semester</option>
+          <option value="2">second semester</option>
+        </select>
+      }
+    >
+      <thead>
+        <tr className="bg-gray-200">
+          <th
+            scope="col"
+            className="px-6 py-4 w-[20%] text-left text-sm  text-black font-bold uppercase tracking-wider"
+          >
+            Subject
+          </th>
+          {markstypes.map((type) => (
+            <th
+              key={type.id}
+              scope="col"
+              className="px-6 py-4  w-[20%] text-left text-sm font-medium text-black uppercase tracking-wider"
             >
-              <option value="1">first semester</option>
-              <option value="2">second semester</option>
-            </select>
-          </div>
-        </div>
+              {type.type}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {subjectsmark.map((subject, index) => (
+          <tr
+            key={index}
+            className="hover:bg-gray-50 transition duration-150 ease-in-out"
+          >
+            <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
+              {subject.subject}
+            </td>
 
-        <div className="bg-white rounded-4xl shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr className="bg-gray-200">
-                <th
-                  scope="col"
-                  className="px-6 py-4 w-[20%] text-left text-sm  text-black font-bold uppercase tracking-wider"
-                >
-                  Subject
-                </th>
-                {markstypes.map((type) => (
-                  <th
-                    key={type.id}
-                    scope="col"
-                    className="px-6 py-4  w-[20%] text-left text-sm font-medium text-black uppercase tracking-wider"
-                  >
-                    {type.type}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {subjectsmark.map((subject, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition duration-150 ease-in-out"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
-                    {subject.subject}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-                    {semester == "1"
-                      ? subject.firstHalf.oralExam
-                      : subject.secondHalf.oralExam}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-                    {semester == "1"
-                      ? subject.firstHalf.quiz
-                      : subject.secondHalf.quiz}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-                    {semester == "1"
-                      ? subject.firstHalf.test
-                      : subject.secondHalf.test}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-                    {semester == "1"
-                      ? subject.firstHalf.midTermExam
-                      : subject.secondHalf.midTermExam}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+              {semester == "1"
+                ? subject.firstHalf.oralExam
+                : subject.secondHalf.oralExam}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+              {semester == "1"
+                ? subject.firstHalf.quiz
+                : subject.secondHalf.quiz}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+              {semester == "1"
+                ? subject.firstHalf.test
+                : subject.secondHalf.test}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+              {semester == "1"
+                ? subject.firstHalf.midTermExam
+                : subject.secondHalf.midTermExam}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
   );
 }

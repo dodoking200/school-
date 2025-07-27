@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import LoginForm from "@/components/loginform/LoginForm";
+import TestNavigation from "@/components/loginform/TestNavigation";
 import React from "react";
 
 // LoginPage component
@@ -10,11 +11,13 @@ export default function LoginPage() {
       <Header />
 
       {/* Main Content Area for Login Form */}
-
       <main className="flex-grow flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         {/* Login Form Container */}
         <LoginForm />
       </main>
+      
+      {/* Developer Tools Navigation */}
+      <TestNavigation />
     </div>
   );
 }
