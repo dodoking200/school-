@@ -47,12 +47,13 @@ export default function Schedule() {
   ];
 
   return (
-    <Table title="Schedule">
-      <thead>
-        <tr className="bg-gray-200">
+    <Table
+      title="Schedule"
+      tableHeader={
+        <>
           <th
             scope="col"
-            className="px-6 py-4  text-left text-sm  text-black font-bold uppercase tracking-wider"
+            className="px-6 py-4  text-center text-sm  text-black font-bold uppercase tracking-wider"
           >
             Day
           </th>
@@ -60,33 +61,35 @@ export default function Schedule() {
             <th
               key={slot.id}
               scope="col"
-              className="px-6 py-4  text-left text-sm font-medium text-black uppercase tracking-wider"
+              className="px-6 py-4  text-center text-sm font-medium text-black uppercase tracking-wider"
             >
               {slot.time}
             </th>
           ))}
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {days.map((day, index) => (
-          <tr
-            key={index}
-            className="hover:bg-gray-50 transition duration-150 ease-in-out"
-          >
-            <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
-              {day.day}
-            </td>
-            {day.subjects.map((subject, idx) => (
-              <td
-                key={idx}
-                className="px-6 py-4 whitespace-nowrap  text-gray-500"
-              >
-                {subject}
+        </>
+      }
+      tableContent={
+        <>
+          {days.map((day, index) => (
+            <tr
+              key={index}
+              className="hover:bg-gray-50 transition duration-150 ease-in-out"
+            >
+              <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
+                {day.day}
               </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+              {day.subjects.map((subject, idx) => (
+                <td
+                  key={idx}
+                  className="px-6 py-4 whitespace-nowrap  text-gray-500"
+                >
+                  {subject}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </>
+      }
+    />
   );
 }

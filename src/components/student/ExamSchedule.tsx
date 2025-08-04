@@ -18,42 +18,45 @@ const quizzes: Quiz[] = [
 
 export default function ExamSchedule() {
   return (
-    <Table title={"Upcoming Quizzes"}>
-      <thead className="bg-gray-200">
-        <tr>
+    <Table
+      title={"Upcoming Quizzes"}
+      tableHeader={
+        <>
           <th
             scope="col"
-            className="  px-6 py-4 text-left text-sm  uppercase tracking-wider"
+            className="  px-6 py-4 text-center text-sm  uppercase tracking-wider"
           >
             Subject
           </th>
           <th
             scope="col"
-            className="px-6 py-4 text-left text-sm  uppercase tracking-wider"
+            className="px-6 py-4 text-center text-sm  uppercase tracking-wider"
           >
             Date
           </th>
           <th
             scope="col"
-            className="px-6 py-4 text-left text-sm  uppercase tracking-wider"
+            className="px-6 py-4 text-center text-sm  uppercase tracking-wider"
           >
             Time
           </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200 bg-white">
-        {quizzes.map((quiz, index) => (
-          <tr key={index} className="hover:bg-gray-50">
-            <td className="px-6 py-4 whitespace-nowrap">{quiz.subject}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-              {quiz.date}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-              {quiz.time}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+        </>
+      }
+      tableContent={
+        <>
+          {quizzes.map((quiz, index) => (
+            <tr key={index} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap">{quiz.subject}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                {quiz.date}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                {quiz.time}
+              </td>
+            </tr>
+          ))}
+        </>
+      }
+    />
   );
 }

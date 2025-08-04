@@ -63,26 +63,30 @@ export default function Marks() {
     },
   ];
 
+  // Define actions component with print button
+
   return (
     <Table
       title="Marks"
       filter={
         <select
           name="semester"
-          className="  rounded-4xl bg-gray-200 p-2"
+          className="rounded-4xl bg-gray-200 p-2"
           value={semester}
           onChange={(e) => setSemester(e.target.value)}
         >
-          <option value="1">first semester</option>
-          <option value="2">second semester</option>
+          <option value="1">First Semester</option>
+          <option value="2">Second Semester</option>
         </select>
       }
-    >
-      <thead>
-        <tr className="bg-gray-200">
+      responsive={true}
+      emptyMessage="No marks available"
+      tableWrapperClassName="bg-white shadow-lg"
+      tableHeader={
+        <>
           <th
             scope="col"
-            className="px-6 py-4 w-[20%] text-left text-sm  text-black font-bold uppercase tracking-wider"
+            className="px-6 py-4 w-[20%] text-center text-sm  text-black font-bold uppercase tracking-wider"
           >
             Subject
           </th>
@@ -90,46 +94,48 @@ export default function Marks() {
             <th
               key={type.id}
               scope="col"
-              className="px-6 py-4  w-[20%] text-left text-sm font-medium text-black uppercase tracking-wider"
+              className="px-6 py-4  w-[20%] text-center text-sm font-medium text-black uppercase tracking-wider"
             >
               {type.type}
             </th>
           ))}
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {subjectsmark.map((subject, index) => (
-          <tr
-            key={index}
-            className="hover:bg-gray-50 transition duration-150 ease-in-out"
-          >
-            <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
-              {subject.subject}
-            </td>
+        </>
+      }
+      tableContent={
+        <>
+          {subjectsmark.map((subject, index) => (
+            <tr
+              key={index}
+              className="hover:bg-gray-50 transition duration-150 ease-in-out"
+            >
+              <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
+                {subject.subject}
+              </td>
 
-            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-              {semester == "1"
-                ? subject.firstHalf.oralExam
-                : subject.secondHalf.oralExam}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-              {semester == "1"
-                ? subject.firstHalf.quiz
-                : subject.secondHalf.quiz}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-              {semester == "1"
-                ? subject.firstHalf.test
-                : subject.secondHalf.test}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-              {semester == "1"
-                ? subject.firstHalf.midTermExam
-                : subject.secondHalf.midTermExam}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+              <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+                {semester == "1"
+                  ? subject.firstHalf.oralExam
+                  : subject.secondHalf.oralExam}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+                {semester == "1"
+                  ? subject.firstHalf.quiz
+                  : subject.secondHalf.quiz}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+                {semester == "1"
+                  ? subject.firstHalf.test
+                  : subject.secondHalf.test}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
+                {semester == "1"
+                  ? subject.firstHalf.midTermExam
+                  : subject.secondHalf.midTermExam}
+              </td>
+            </tr>
+          ))}
+        </>
+      }
+    />
   );
 }

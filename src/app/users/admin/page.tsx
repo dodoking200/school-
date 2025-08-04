@@ -32,16 +32,16 @@ export default function AdminPage() {
           Quizzes
         </SideNavButton>
         <SideNavButton
-          icon="event"
-          active={activeButton === "Schedule"}
-          onClick={() => setActiveButton("Schedule")}
+          icon="student"
+          active={activeButton === "student"}
+          onClick={() => setActiveButton("student")}
         >
-          Schedule
+          Students
         </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64 ">
         <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
-        {activeButton == "Schedule" && <StudentInfo />}
+        {activeButton == "student" && <StudentInfo />}
       </main>
     </div>
   );
