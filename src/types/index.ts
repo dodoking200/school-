@@ -9,6 +9,14 @@ export type User = {
   created_at: string;
   updated_at: string;
 };
+
+export type AcademicYear = {
+  id: number;
+  name: string;
+  tuition_fee: number;
+  created_at: string;
+  updated_at: string;
+};
 export type ApiResponse<T> = {
   data: T;
   success: boolean;

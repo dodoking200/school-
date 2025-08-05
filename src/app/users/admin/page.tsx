@@ -3,6 +3,7 @@ import SideNav from "@/components/layout/SideNav";
 import StudentInfo from "@/components/admin/StudentsInfo";
 import UserInfo from "@/components/admin/UserInfo";
 import RolesInfo from "@/components/admin/RolesInfo";
+import AcademicYearInfo from "@/components/admin/AcademicYearInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 
@@ -54,12 +55,20 @@ export default function AdminPage() {
         >
           Roles
         </SideNavButton>
+        <SideNavButton
+          icon="calendar"
+          active={activeButton === "academic_year"}
+          onClick={() => setActiveButton("academic_year")}
+        >
+          Academic Year
+        </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64 ">
         <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
         {activeButton === "student" && <StudentInfo />}
         {activeButton === "user" && <UserInfo />}
         {activeButton === "roles" && <RolesInfo />}
+        {activeButton === "academic_year" && <AcademicYearInfo />}
       </main>
     </div>
   );
