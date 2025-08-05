@@ -1,6 +1,5 @@
 import Header from "@/components/layout/Header";
 import LoginForm from "@/components/loginform/LoginForm";
-import TestNavigation from "@/components/loginform/TestNavigation";
 import React from "react";
 
 // LoginPage component
@@ -15,9 +14,6 @@ export default function LoginPage() {
         {/* Login Form Container */}
         <LoginForm />
       </main>
-      
-      {/* Developer Tools Navigation */}
-      <TestNavigation />
     </div>
   );
 }

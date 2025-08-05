@@ -7,7 +7,6 @@ import Header from "@/components/layout/Header";
 import HeroSection from "@/components/welcome/HeroSection";
 import NewsEventsSection from "@/components/welcome/NewsEventsSection";
 import TeachersSection from "@/components/welcome/TeachersSection";
-import DevNavigation from "@/components/layout/DevNavigation";
 
 export default function HomePage() {
   return (
@@ -19,7 +18,6 @@ export default function HomePage() {
       <NewsEventsSection />
       <ConnectWithUS />
       <Footer />
-      <DevNavigation />
     </div>
   );
 }
