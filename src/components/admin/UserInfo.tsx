@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import UserModal from "./UserModal";
 import { User } from "@/types";
+import { Can } from "../auth/Can";
 
 
 export default function UserInfo() {
@@ -110,12 +111,14 @@ export default function UserInfo() {
       <Table
       title="User Info"
       actions={
-        <button
-          onClick={handleAddUser}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
-        >
-          Add User
-        </button>
+        <Can permission="create_user">
+          <button
+            onClick={handleAddUser}
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+          >
+            Add User
+          </button>
+        </Can>
       }
       filter={
         <select
@@ -194,12 +197,14 @@ _            Actions
                 {user.birth_date}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <button
-                  className="text-indigo-600 hover:text-indigo-900"
-                  onClick={() => handleEditUser(user)}
-                >
-                  Edit
-                </button>
+                <Can permission="update_user">
+                  <button
+                    className="text-indigo-600 hover:text-indigo-900"
+                    onClick={() => handleEditUser(user)}
+                  >
+                    Edit
+                  </button>
+                </Can>
               </td>
             </tr>
           ))}

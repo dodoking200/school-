@@ -21,13 +21,9 @@ export type ApiResponse<T> = {
   data: T;
   success: boolean;
 };
-export type Permission =
-  | "view_users"
-  | "edit_users"
-  | "delete_users"
-  | "view_roles"
-  | "edit_roles"
-  | "delete_roles";
+import { AllPermissions } from "@/lib/permissions";
+
+export type Permission = (typeof AllPermissions)[number];
 
 export type Role = {
   id: number;

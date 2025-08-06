@@ -22,9 +22,17 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const defaultHeaders = {
+  const defaultHeaders: HeadersInit = {
     "Content-Type": "application/json",
   };
+
+  // Get token from localStorage
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  if (token) {
+    defaultHeaders["Authorization"] = `Bearer ${token}`;
+  }
 
   // Build the full URL using the base URL and endpoint
   const fullUrl = buildApiUrl(endpoint);

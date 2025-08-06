@@ -9,10 +9,12 @@ import { SubmitButton } from "./SubmitButton";
 import { ErrorText } from "./ErrorText";
 import { apiClient } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/lib/constants";
-import { User } from "@/types";
+import { User, Permission } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const {
     email,
     setEmail,
@@ -30,20 +32,22 @@ export default function LoginForm() {
     if (!validateForm()) return;
 
     await submitForm(async () => {
-      const data = await apiClient<{ token: string; user: User }>(
-        API_ENDPOINTS.AUTH.SIGNIN,
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await apiClient<{
+        token: string;
+        user: User;
+        permissions: Permission[];
+      }>(API_ENDPOINTS.AUTH.SIGNIN, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
 
-      localStorage.setItem("token", data.data.token);
-      // Get user role
-      const role = data.data.user.role;
+      const { token, user, permissions } = response.data;
+
+      localStorage.setItem("token", token);
+      login(user, permissions);
 
       // Redirect based on role
-      switch (role) {
+      switch (user.role) {
         case "student":
           router.push("/users/student");
           break;
