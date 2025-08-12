@@ -10,6 +10,14 @@ export type User = {
   updated_at: string;
 };
 
+export type Question = {
+  id: number;
+  quizQuestion: string;
+  choices: string[];
+  correctAnswer: string;
+  questionType: "multiple-choice" | "true-false";
+};
+
 export type AcademicYear = {
   id: number;
   name: string;
