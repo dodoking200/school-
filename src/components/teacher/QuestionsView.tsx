@@ -29,6 +29,21 @@ export default function QuestionsView() {
   const [expandedQuestionId, setExpandedQuestionId] = useState<number | null>(
     null
   );
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
+
+  const handleSelectQuestion = (id: number) => {
+    setSelectedQuestionIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllQuestions = () => {
+    if (selectedQuestionIds.length === questions.length) {
+      setSelectedQuestionIds([]);
+    } else {
+      setSelectedQuestionIds(questions.map((q) => q.id));
+    }
+  };
 
   const handleQuestionClick = (id: number) => {
     setExpandedQuestionId(expandedQuestionId === id ? null : id);
@@ -68,9 +83,25 @@ export default function QuestionsView() {
 
   const tableHeader = (
     <>
-      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
-      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+      <th className="p-4">
+        <input
+          type="checkbox"
+          checked={
+            questions.length > 0 &&
+            selectedQuestionIds.length === questions.length
+          }
+          onChange={handleSelectAllQuestions}
+        />
+      </th>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Question
+      </th>
+      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Type
+      </th>
+      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Actions
+      </th>
     </>
   );
 
@@ -82,6 +113,14 @@ export default function QuestionsView() {
         onClick={() => handleQuestionClick(question.id)}
         className="cursor-pointer hover:bg-gray-50"
       >
+        <td className="p-4">
+          <input
+            type="checkbox"
+            checked={selectedQuestionIds.includes(question.id)}
+            onChange={() => handleSelectQuestion(question.id)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </td>
         <td className="px-6 py-4 whitespace-nowrap text-left">
           {question.quizQuestion}
         </td>
@@ -111,7 +150,7 @@ export default function QuestionsView() {
       </tr>,
       isExpanded && (
         <tr key={`${question.id}-expanded`}>
-          <td colSpan={3} className="p-4 bg-gray-100 text-left">
+          <td colSpan={4} className="p-4 bg-gray-100 text-left">
             <div className="font-bold mb-2">Options:</div>
             <ul className="list-disc pl-5">
               {question.choices.map((choice, index) => {
@@ -142,12 +181,26 @@ export default function QuestionsView() {
         tableHeader={tableHeader}
         tableContent={tableContent}
         actions={
-          <button
-            onClick={handleAddQuestionClick}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Add Question
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                console.log("Selected question IDs:", selectedQuestionIds);
+                alert(
+                  `Creating exam with ${selectedQuestionIds.length} questions.`
+                );
+              }}
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400"
+              disabled={selectedQuestionIds.length === 0}
+            >
+              Create Exam ({selectedQuestionIds.length})
+            </button>
+            <button
+              onClick={handleAddQuestionClick}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Add Question
+            </button>
+          </div>
         }
       />
       {isModalOpen && (
