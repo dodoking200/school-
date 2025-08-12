@@ -26,6 +26,13 @@ export default function QuestionsView() {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [expandedQuestionId, setExpandedQuestionId] = useState<number | null>(
+    null
+  );
+
+  const handleQuestionClick = (id: number) => {
+    setExpandedQuestionId(expandedQuestionId === id ? null : id);
+  };
 
   const handleAddQuestionClick = () => {
     setEditingQuestion(null);
@@ -67,26 +74,66 @@ export default function QuestionsView() {
     </>
   );
 
-  const tableContent = questions.map((question) => (
-    <tr key={question.id}>
-      <td className="px-6 py-4 whitespace-nowrap text-left">{question.quizQuestion}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-left">{question.questionType}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button
-          onClick={() => handleEditQuestionClick(question)}
-          className="text-indigo-600 hover:text-indigo-900"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => handleDeleteQuestion(question.id)}
-          className="ml-4 text-red-600 hover:text-red-900"
-        >
-          Remove
-        </button>
-      </td>
-    </tr>
-  ));
+  const tableContent = questions.flatMap((question) => {
+    const isExpanded = expandedQuestionId === question.id;
+    return [
+      <tr
+        key={question.id}
+        onClick={() => handleQuestionClick(question.id)}
+        className="cursor-pointer hover:bg-gray-50"
+      >
+        <td className="px-6 py-4 whitespace-nowrap text-left">
+          {question.quizQuestion}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-left">
+          {question.questionType}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditQuestionClick(question);
+            }}
+            className="text-indigo-600 hover:text-indigo-900"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteQuestion(question.id);
+            }}
+            className="ml-4 text-red-600 hover:text-red-900"
+          >
+            Remove
+          </button>
+        </td>
+      </tr>,
+      isExpanded && (
+        <tr key={`${question.id}-expanded`}>
+          <td colSpan={3} className="p-4 bg-gray-100 text-left">
+            <div className="font-bold mb-2">Options:</div>
+            <ul className="list-disc pl-5">
+              {question.choices.map((choice, index) => {
+                const isCorrect =
+                  choice === question.correctAnswer ||
+                  String.fromCharCode(65 + index) === question.correctAnswer;
+                return (
+                  <li
+                    key={index}
+                    className={isCorrect ? "text-green-600 font-bold" : ""}
+                  >
+                    {choice}
+                    {isCorrect ? " (Correct)" : ""}
+                  </li>
+                );
+              })}
+            </ul>
+          </td>
+        </tr>
+      ),
+    ];
+  });
 
   return (
     <div>
