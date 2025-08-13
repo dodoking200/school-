@@ -6,6 +6,7 @@ import RolesInfo from "@/components/admin/RolesInfo";
 import AcademicYearInfo from "@/components/admin/AcademicYearInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
+import TeacherInfo from "@/components/admin/TeacherInfo";
 
 export default function AdminPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
@@ -42,6 +43,13 @@ export default function AdminPage() {
           Students
         </SideNavButton>
         <SideNavButton
+          icon="teacher"
+          active={activeButton === "teacher"}
+          onClick={() => setActiveButton("teacher")}
+        >
+          Teachers
+        </SideNavButton>
+        <SideNavButton
           icon="user"
           active={activeButton === "user"}
           onClick={() => setActiveButton("user")}
@@ -66,6 +74,7 @@ export default function AdminPage() {
       <main className="flex-1 bg-white p-4 ml-64 ">
         <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
         {activeButton === "student" && <StudentInfo />}
+        {activeButton === "teacher" && <TeacherInfo />}
         {activeButton === "user" && <UserInfo />}
         {activeButton === "roles" && <RolesInfo />}
         {activeButton === "academic_year" && <AcademicYearInfo />}

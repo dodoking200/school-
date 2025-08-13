@@ -10,6 +10,10 @@ export type User = {
   updated_at: string;
 };
 
+export type Teacher = User & {
+  subjects: string[];
+};
+
 export type Question = {
   id: number;
   quizQuestion: string;
