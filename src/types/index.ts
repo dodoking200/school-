@@ -10,8 +10,14 @@ export type User = {
   updated_at: string;
 };
 
+<<<<<<< HEAD
 export type Teacher = User & {
   subjects: string[];
+=======
+export type Subject = {
+  id: number;
+  name: string;
+>>>>>>> feature/subject-management-table
 };
 
 export type Question = {
