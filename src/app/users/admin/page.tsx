@@ -4,6 +4,7 @@ import StudentInfo from "@/components/admin/StudentsInfo";
 import UserInfo from "@/components/admin/UserInfo";
 import RolesInfo from "@/components/admin/RolesInfo";
 import AcademicYearInfo from "@/components/admin/AcademicYearInfo";
+import SubjectsInfo from "@/components/admin/SubjectsInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 
@@ -62,6 +63,13 @@ export default function AdminPage() {
         >
           Academic Year
         </SideNavButton>
+        <SideNavButton
+          icon="auto_stories"
+          active={activeButton === "subjects"}
+          onClick={() => setActiveButton("subjects")}
+        >
+          Subjects
+        </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64 ">
         <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
@@ -69,6 +77,7 @@ export default function AdminPage() {
         {activeButton === "user" && <UserInfo />}
         {activeButton === "roles" && <RolesInfo />}
         {activeButton === "academic_year" && <AcademicYearInfo />}
+        {activeButton === "subjects" && <SubjectsInfo />}
       </main>
     </div>
   );
