@@ -7,10 +7,19 @@ interface ScheduleInputTableProps {
   classData: Class;
 }
 
+interface ScheduleData {
+  [day: string]: {
+    [timeSlot: string]: {
+      subject: string;
+      teacher: string;
+    };
+  };
+}
+
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const timeSlots = ["8:00 - 9:00", "9:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 1:00"];
 
-const initialScheduleData = {
+const initialScheduleData: ScheduleData = {
   "Monday": {
     "8:00 - 9:00": { subject: "Math", teacher: "Mr. Smith" },
     "9:00 - 10:00": { subject: "Science", teacher: "Ms. Jones" },
@@ -23,7 +32,7 @@ const initialScheduleData = {
 const ScheduleInputTable: React.FC<ScheduleInputTableProps> = ({ classData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCell, setSelectedCell] = useState<{ day: string, timeSlot: string } | null>(null);
-  const [scheduleData, setScheduleData] = useState(initialScheduleData);
+  const [scheduleData, setScheduleData] = useState<ScheduleData>(initialScheduleData);
 
   const handleOpenModal = (day: string, timeSlot: string) => {
     setSelectedCell({ day, timeSlot });
@@ -56,21 +65,21 @@ const ScheduleInputTable: React.FC<ScheduleInputTableProps> = ({ classData }) =>
       <Table
         tableHeader={
           <>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Slot</th>
-            {days.map(day => (
-              <th key={day} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{day}</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
+            {timeSlots.map(timeSlot => (
+              <th key={timeSlot} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{timeSlot}</th>
             ))}
           </>
         }
         tableContent={
           <>
-            {timeSlots.map(timeSlot => (
-              <tr key={timeSlot}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{timeSlot}</td>
-                {days.map(day => {
+            {days.map(day => (
+              <tr key={day}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{day}</td>
+                {timeSlots.map(timeSlot => {
                   const cellData = scheduleData[day]?.[timeSlot];
                   return (
-                    <td key={day} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td key={timeSlot} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {cellData ? (
                         <div>
                           <p>{cellData.subject}</p>
