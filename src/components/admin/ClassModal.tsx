@@ -16,7 +16,11 @@ export default function ClassModal({
   classData,
   title,
 }: ClassModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    floor: number | "";
+    grade: number | "";
+  }>({
     name: "",
     floor: 0,
     grade: 9,
@@ -40,19 +44,28 @@ export default function ClassModal({
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === "floor" || name === "grade" ? parseInt(value) : value,
-    });
+    if (name === "floor" || name === "grade") {
+      const numValue = parseInt(value, 10);
+      setFormData({ ...formData, [name]: isNaN(numValue) ? "" : numValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = {
+      ...formData,
+      floor: Number(formData.floor),
+      grade: Number(formData.grade),
+    };
     onSubmit({
       ...(classData ? { id: classData.id } : {}),
-      ...formData,
+      ...payload,
     });
     onClose();
   };
