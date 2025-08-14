@@ -2,10 +2,12 @@ import { useState } from "react";
 import Table from "../ui/Table";
 import ClassModal from "./ClassModal";
 import { Class } from "@/types";
+import ScheduleInputTable from "./ScheduleInputTable";
 
 export default function ClassesInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedScheduleClass, setSelectedScheduleClass] = useState<Class | null>(null);
   const [classes, setClasses] = useState<Class[]>([
     {
       id: 1,
@@ -51,6 +53,28 @@ export default function ClassesInfo() {
       setClasses([...classes, { ...classData, id: newId } as Class]);
     }
   };
+
+  const handleScheduleClick = (classData: Class) => {
+    setSelectedScheduleClass(classData);
+  };
+
+  const handleBackToClasses = () => {
+    setSelectedScheduleClass(null);
+  };
+
+  if (selectedScheduleClass) {
+    return (
+      <div>
+        <button
+          onClick={handleBackToClasses}
+          className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-md mb-4"
+        >
+          Back to Classes
+        </button>
+        <ScheduleInputTable classData={selectedScheduleClass} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -127,6 +151,12 @@ export default function ClassesInfo() {
                     onClick={() => handleDeleteClass(classData.id)}
                   >
                     Remove
+                  </button>
+                  <button
+                    className="text-blue-600 hover:text-blue-900 ml-4"
+                    onClick={() => handleScheduleClick(classData)}
+                  >
+                    Schedule
                   </button>
                 </td>
               </tr>
