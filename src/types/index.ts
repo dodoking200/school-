@@ -10,14 +10,13 @@ export type User = {
   updated_at: string;
 };
 
-<<<<<<< HEAD
 export type Teacher = User & {
   subjects: string[];
-=======
+};
+
 export type Subject = {
   id: number;
   name: string;
->>>>>>> feature/subject-management-table
 };
 
 export type Question = {
@@ -35,6 +34,14 @@ export type AcademicYear = {
   created_at: string;
   updated_at: string;
 };
+
+export type Class = {
+  id: number;
+  name: string;
+  floor: number;
+  grade: number;
+};
+
 export type ApiResponse<T> = {
   data: T;
   success: boolean;
