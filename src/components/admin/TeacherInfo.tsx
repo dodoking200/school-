@@ -187,13 +187,16 @@ export default function TeacherInfo() {
             >
               Actions
             </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-          >
-            <input type="checkbox" onChange={handleSelectAll} className="form-checkbox h-5 w-5 text-indigo-600 mr-2" />
-            Attendance
-          </th>
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              <input
+                type="checkbox"
+                onChange={handleSelectAll}
+                className="form-checkbox h-5 w-5 text-indigo-600 mr-2"
+              />
+            </th>
           </>
         }
         tableContent={
@@ -232,14 +235,14 @@ export default function TeacherInfo() {
                     Remove
                   </button>
                 </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                  checked={selectedTeacherIds.includes(teacher.id)}
-                  onChange={() => handleCheckboxChange(teacher.id)}
-                />
-              </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-indigo-600"
+                    checked={selectedTeacherIds.includes(teacher.id)}
+                    onChange={() => handleCheckboxChange(teacher.id)}
+                  />
+                </td>
               </tr>
             ))}
           </>
