@@ -16,10 +16,9 @@ export default function StudentInfo() {
   const [selectedGrade, setSelectedGrade] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [students, setStudents] = useState<Student[]>([
+  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
 
-    ]);  
-  
   // Initialize students data
   useEffect(() => {
     setStudents([
@@ -113,6 +112,24 @@ export default function StudentInfo() {
     }
   };
 
+  const handleCheckboxChange = (studentId: number) => {
+    setSelectedStudentIds((prevSelectedIds) => {
+      if (prevSelectedIds.includes(studentId)) {
+        return prevSelectedIds.filter((id) => id !== studentId);
+      } else {
+        return [...prevSelectedIds, studentId];
+      }
+    });
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedStudentIds(filteredStudents.map((student) => student.id));
+    } else {
+      setSelectedStudentIds([]);
+    }
+  };
+
   return (
     <>
       <StudentModal
@@ -190,6 +207,13 @@ export default function StudentInfo() {
           >
             Actions
           </th>
+          <th
+            scope="col"
+            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <input type="checkbox" onChange={handleSelectAll} className="form-checkbox h-5 w-5 text-indigo-600 mr-2" />
+            Attendance
+          </th>
         </>
       }
       tableContent={
@@ -224,6 +248,14 @@ export default function StudentInfo() {
                 >
                   Edit
                 </button>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-indigo-600"
+                  checked={selectedStudentIds.includes(student.id)}
+                  onChange={() => handleCheckboxChange(student.id)}
+                />
               </td>
             </tr>
           ))}

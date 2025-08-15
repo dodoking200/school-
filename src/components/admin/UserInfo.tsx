@@ -9,6 +9,7 @@ export default function UserInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
 
   // Initialize users data
   useEffect(() => {
@@ -98,6 +99,24 @@ export default function UserInfo() {
     }
   };
 
+  const handleCheckboxChange = (userId: number) => {
+    setSelectedUserIds((prevSelectedIds) => {
+      if (prevSelectedIds.includes(userId)) {
+        return prevSelectedIds.filter((id) => id !== userId);
+      } else {
+        return [...prevSelectedIds, userId];
+      }
+    });
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedUserIds(filteredUsers.map((user) => user.id));
+    } else {
+      setSelectedUserIds([]);
+    }
+  };
+
   return (
     <>
       <UserModal
@@ -167,7 +186,14 @@ export default function UserInfo() {
             scope="col"
             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
           >
-_            Actions
+            Actions
+          </th>
+          <th
+            scope="col"
+            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <input type="checkbox" onChange={handleSelectAll} className="form-checkbox h-5 w-5 text-indigo-600 mr-2" />
+            Attendance
           </th>
         </>
       }
@@ -200,6 +226,14 @@ _            Actions
                 >
                   Edit
                 </button>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-indigo-600"
+                  checked={selectedUserIds.includes(user.id)}
+                  onChange={() => handleCheckboxChange(user.id)}
+                />
               </td>
             </tr>
           ))}

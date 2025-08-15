@@ -7,6 +7,7 @@ export default function TeacherInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
 
   // Initialize teachers data
   useEffect(() => {
@@ -94,6 +95,24 @@ export default function TeacherInfo() {
     setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
   };
 
+  const handleCheckboxChange = (teacherId: number) => {
+    setSelectedTeacherIds((prevSelectedIds) => {
+      if (prevSelectedIds.includes(teacherId)) {
+        return prevSelectedIds.filter((id) => id !== teacherId);
+      } else {
+        return [...prevSelectedIds, teacherId];
+      }
+    });
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedTeacherIds(teachers.map((teacher) => teacher.id));
+    } else {
+      setSelectedTeacherIds([]);
+    }
+  };
+
   return (
     <>
       <TeacherModal
@@ -155,6 +174,13 @@ export default function TeacherInfo() {
             >
               Actions
             </th>
+          <th
+            scope="col"
+            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <input type="checkbox" onChange={handleSelectAll} className="form-checkbox h-5 w-5 text-indigo-600 mr-2" />
+            Attendance
+          </th>
           </>
         }
         tableContent={
@@ -193,6 +219,14 @@ export default function TeacherInfo() {
                     Remove
                   </button>
                 </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-indigo-600"
+                  checked={selectedTeacherIds.includes(teacher.id)}
+                  onChange={() => handleCheckboxChange(teacher.id)}
+                />
+              </td>
               </tr>
             ))}
           </>
