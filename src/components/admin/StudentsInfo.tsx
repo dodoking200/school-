@@ -130,6 +130,11 @@ export default function StudentInfo() {
     }
   };
 
+  const handleSubmitAttendance = () => {
+    console.log("Selected Student IDs:", selectedStudentIds);
+    alert(`Selected Student IDs: ${selectedStudentIds.join(", ")}`);
+  };
+
   return (
     <>
       <StudentModal
@@ -142,12 +147,20 @@ export default function StudentInfo() {
       <Table
       title="Student Info"
       actions={
-        <button
-          onClick={handleAddStudent}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
-        >
-          Add Student
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleAddStudent}
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+          >
+            Add Student
+          </button>
+          <button
+            onClick={handleSubmitAttendance}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+          >
+            Submit Attendance
+          </button>
+        </div>
       }
       filter={
         <select

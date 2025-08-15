@@ -117,6 +117,11 @@ export default function UserInfo() {
     }
   };
 
+  const handleSubmitAttendance = () => {
+    console.log("Selected User IDs:", selectedUserIds);
+    alert(`Selected User IDs: ${selectedUserIds.join(", ")}`);
+  };
+
   return (
     <>
       <UserModal
@@ -129,12 +134,20 @@ export default function UserInfo() {
       <Table
       title="User Info"
       actions={
-        <button
-          onClick={handleAddUser}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
-        >
-          Add User
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleAddUser}
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+          >
+            Add User
+          </button>
+          <button
+            onClick={handleSubmitAttendance}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+          >
+            Submit Attendance
+          </button>
+        </div>
       }
       filter={
         <select

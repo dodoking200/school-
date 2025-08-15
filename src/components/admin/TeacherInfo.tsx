@@ -113,6 +113,11 @@ export default function TeacherInfo() {
     }
   };
 
+  const handleSubmitAttendance = () => {
+    console.log("Selected Teacher IDs:", selectedTeacherIds);
+    alert(`Selected Teacher IDs: ${selectedTeacherIds.join(", ")}`);
+  };
+
   return (
     <>
       <TeacherModal
@@ -129,12 +134,20 @@ export default function TeacherInfo() {
       <Table
         title="Teacher Info"
         actions={
-          <button
-            onClick={handleAddTeacher}
-            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
-          >
-            Add Teacher
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleAddTeacher}
+              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+            >
+              Add Teacher
+            </button>
+            <button
+              onClick={handleSubmitAttendance}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+            >
+              Submit Attendance
+            </button>
+          </div>
         }
         tableHeader={
           <>
