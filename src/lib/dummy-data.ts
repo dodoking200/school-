@@ -32,7 +32,7 @@ export const dummyQuiz = {
         { id: "b", text: "J.K. Rowling" },
         { id: "c", text: "Ernest Hemingway" },
         { id: "d", text: "F. Scott Fitzgerald" },
-        { id: "e", text: "your ancle abdullah" },
+        { id: "e", text: "your uncle abdullah" },
         { id: "f", text: "no one" },
       ],
       correctAnswer: "a",
