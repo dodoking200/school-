@@ -11,6 +11,7 @@ export function useLoginForm() {
     general?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const validateForm = () => {
     // Clear any previous general errors
@@ -73,5 +74,7 @@ export function useLoginForm() {
     isLoading,
     validateForm,
     submitForm,
+    rememberMe,
+    setRememberMe,
   };
 }

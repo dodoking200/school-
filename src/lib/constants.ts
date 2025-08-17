@@ -5,13 +5,14 @@ export const API_ENDPOINTS = {
   AUTH: {
     SIGNIN: "users/signin",
     SIGNOUT: "users/signout",
-    RESET_PASSWORD: "users/reset-password",
+    RESET_PASSWORD: "",
   },
 
   USERS: {
     CREATE: "users",
     GET_ALL: "users/employees",
     DELETE: (id: number) => `users/${id}`,
+    UPDATE: (id: number) => `users/${id}`,
   },
 
   STUDENTS: {
@@ -33,5 +34,9 @@ export const API_ENDPOINTS = {
   TEACHER: {
     SCHEDULE: "teachers/subjects",
     GET_QUESTIONS: "teachers/questions",
+  },
+
+  ROLES: {
+    GET_ALL: "roles",
   },
 };

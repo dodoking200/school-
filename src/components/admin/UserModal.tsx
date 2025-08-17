@@ -1,3 +1,4 @@
+import { Role } from "@/types";
 import React, { useState, useEffect } from "react";
 
 interface UserModalProps {
@@ -20,6 +21,7 @@ interface UserModalProps {
     birthdate: string;
   } | null;
   title: string;
+  roles: Role[];
 }
 
 export default function UserModal({
@@ -28,11 +30,12 @@ export default function UserModal({
   onSubmit,
   user,
   title,
+  roles,
 }: UserModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    role: "student",
+    role: "",
     phone: "",
     birthdate: "",
   });
@@ -52,16 +55,18 @@ export default function UserModal({
       setFormData({
         name: "",
         email: "",
-        role: "student",
+        role: roles.length > 0 ? roles[0].name : "",
         phone: "",
         birthdate: "",
       });
     }
-  }, [user]);
+  }, [user, roles]);
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -154,9 +159,15 @@ export default function UserModal({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="admin">Admin</option>
+              {roles.length > 0 ? (
+                roles.map((role) => (
+                  <option key={role.id} value={role.name}>
+                    {role.name}
+                  </option>
+                ))
+              ) : (
+                <option value="">Loading roles...</option>
+              )}
             </select>
           </div>
 

@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import UserModal from "./UserModal";
-import { User } from "@/types";
+import { Role, User } from "@/types";
+import { apiClient } from "@/lib/apiClient";
+import { API_ENDPOINTS } from "@/lib/constants";
+import { toast } from "react-toastify";
 
 export default function UserInfo() {
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -9,51 +12,48 @@ export default function UserInfo() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [roles, setRoles] = useState<Role[]>([]);
   // Initialize users data
   useEffect(() => {
-    setUsers([
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john.doe@example.com",
-        role: "admin",
-        phone: "(555) 111-1111",
-        birth_date: "1990-01-01",
-        created_at: "2023-01-01",
-        updated_at: "2023-01-01",
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane.smith@example.com",
-        role: "teacher",
-        phone: "(555) 222-2222",
-        birth_date: "1985-05-05",
-        created_at: "2023-01-01",
-        updated_at: "2023-01-01",
-      },
-      {
-        id: 3,
-        name: "Peter Jones",
-        email: "peter.jones@example.com",
-        role: "student",
-        phone: "(555) 333-3333",
-        birth_date: "2005-10-10",
-        created_at: "2023-01-01",
-        updated_at: "2023-01-01",
-      },
-      {
-        id: 4,
-        name: "Mary Williams",
-        email: "mary.williams@example.com",
-        role: "student",
-        phone: "(555) 444-4444",
-        birth_date: "2006-11-11",
-        created_at: "2023-01-01",
-        updated_at: "2023-01-01",
-      },
-    ]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch users
+        const usersResponse = await apiClient<User[]>(
+          API_ENDPOINTS.USERS.GET_ALL,
+          { method: "GET" }
+        );
+        const formattedUsers = usersResponse.data.map((user) => ({
+          ...user,
+          birth_date: user.birth_date.split("T")[0],
+        }));
+        setUsers(formattedUsers);
+        // Fetch roles
+        const rolesResponse = await apiClient<Role[]>(
+          API_ENDPOINTS.ROLES.GET_ALL,
+          { method: "GET" }
+        );
+        setRoles(rolesResponse.data);
+
+        setError(null);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+            ? err
+            : "An unknown error occurred";
+        setError(errorMessage);
+        toast.error(`Failed to load data: ${errorMessage}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Get unique roles for filter options
@@ -76,8 +76,29 @@ export default function UserInfo() {
     setIsModalOpen(true);
   };
 
+  const handleDeleteUser = async (userId: number) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        await apiClient(API_ENDPOINTS.USERS.DELETE(userId), {
+          method: "DELETE",
+        });
+
+        // Remove user from local state
+        setUsers(users.filter((user) => user.id !== userId));
+        toast.success("User deleted successfully");
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+            ? err
+            : "Failed to delete user";
+        toast.error(errorMessage);
+      }
+    }
+  };
   // Handle submitting the user form
-  const handleSubmitUser = (userData: {
+  const handleSubmitUser = async (userData: {
     id?: number;
     name: string;
     email: string;
@@ -85,34 +106,66 @@ export default function UserInfo() {
     phone: string;
     birthdate: string;
   }) => {
-    const now = new Date().toISOString();
-    if (userData.id) {
-      // Update existing user
-      setUsers(
-        users.map((user) =>
-          user.id === userData.id
-            ? {
-                ...user,
-                ...userData,
-                birth_date: userData.birthdate,
-                updated_at: now,
-              }
-            : user
-        )
-      );
-    } else {
-      // Add new user with a new ID
-      const newId = Math.max(0, ...users.map((u) => u.id)) + 1;
-      setUsers([
-        ...users,
-        {
-          ...userData,
-          id: newId,
-          birth_date: userData.birthdate,
-          created_at: now,
-          updated_at: now,
-        },
-      ]);
+    try {
+      if (userData.id) {
+        // Update existing user
+        const response = await apiClient<User>(
+          API_ENDPOINTS.USERS.UPDATE(userData.id),
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              name: userData.name,
+              email: userData.email,
+              role: userData.role,
+              phone: userData.phone,
+              birth_date: userData.birthdate,
+            }),
+          }
+        );
+
+        // Update user in local state
+        setUsers(
+          users.map((user) =>
+            user.id === userData.id
+              ? {
+                  ...response.data,
+                  birth_date: response.data.birth_date.split("T")[0],
+                }
+              : user
+          )
+        );
+        toast.success("User updated successfully");
+      } else {
+        // Create new user
+        const response = await apiClient<User>(API_ENDPOINTS.USERS.CREATE, {
+          method: "POST",
+          body: JSON.stringify({
+            name: userData.name,
+            email: userData.email,
+            role: userData.role,
+            phone: userData.phone,
+            birth_date: userData.birthdate,
+          }),
+        });
+        setUsers([
+          ...users,
+          {
+            ...response.data,
+            birth_date: response.data.birth_date.split("T")[0],
+          },
+        ]);
+        toast.success("User created successfully");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : userData.id
+          ? "Failed to update user"
+          : "Failed to create user";
+      toast.error(errorMessage);
     }
   };
 
@@ -142,6 +195,7 @@ export default function UserInfo() {
   return (
     <>
       <UserModal
+        roles={roles}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitUser}
@@ -236,44 +290,72 @@ export default function UserInfo() {
         }
         tableContent={
           <>
-            {filteredUsers.map((user) => (
-              <tr
-                key={user.id}
-                className=" text-left hover:bg-gray-50 transition duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {user.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.role}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.phone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.birth_date}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    Edit
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-5 w-5 text-indigo-600"
-                    checked={selectedUserIds.includes(user.id)}
-                    onChange={() => handleCheckboxChange(user.id)}
-                  />
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4">
+                  Loading users...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4 text-red-500">
+                  Error: {error}
+                </td>
+              </tr>
+            ) : filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4">
+                  No users found
+                </td>
+              </tr>
+            ) : (
+              filteredUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="text-left hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {user.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.role}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.phone}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.birth_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex space-x-2">
+                      <button
+                        className="text-indigo-600 hover:text-indigo-900"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-900"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-5 w-5 text-indigo-600"
+                      checked={selectedUserIds.includes(user.id)}
+                      onChange={() => handleCheckboxChange(user.id)}
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
           </>
         }
       />

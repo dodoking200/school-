@@ -1,5 +1,6 @@
 // src/lib/apiClient.ts
 import { ApiResponse } from "@/types"; // ✅ Import the type
+// import { API_ENDPOINTS } from "./constants";
 
 // Get the base URL from environment variables
 const API_BASE_URL =
@@ -18,60 +19,87 @@ export function buildApiUrl(endpoint: string): string {
   return `${cleanBase}/${cleanEndpoint}`;
 }
 
+function getToken(): string | null {
+  // Client-side check
+  if (typeof window === "undefined") return null;
+
+  try {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  } catch (error) {
+    console.error("Token access error:", error);
+    return null;
+  }
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const defaultHeaders = {
-    "Content-Type": "application/json",
-  };
+  const token = getToken();
+
+  const headers = new Headers(options.headers);
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  // Add token if available
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   // Build the full URL using the base URL and endpoint
   const fullUrl = buildApiUrl(endpoint);
-  console.log("API URL:", fullUrl);
-  const response = await fetch(fullUrl, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  });
+  try {
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    let errorMessage;
+    // Add debug logging for non-JSON responses
+    if (!response.ok) {
+      let errorMessage;
+      let responseText = "";
 
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || response.statusText;
+      try {
+        // Try to get response text for debugging
+        responseText = await response.text();
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || response.statusText;
+      } catch (parseError) {
+        console.error("Failed to parse error response:", parseError);
+        console.error("Raw response:", responseText.substring(0, 500));
 
-      // Handle 400 Bad Request specifically
-      if (response.status === 400) {
-        errorMessage = "Invalid email or password";
+        // Handle non-JSON responses
+        if (response.status === 401) {
+          errorMessage = "Authentication failed. Please login again.";
+        } else if (response.status === 403) {
+          errorMessage = "You don't have permission for this action.";
+        } else if (response.status === 404) {
+          errorMessage = "Resource not found.";
+        } else if (response.status >= 500) {
+          errorMessage = "Server error. Please try again later.";
+        } else {
+          errorMessage = response.statusText || "Unknown error occurred";
+        }
       }
-    } catch {
-      // Handle non-JSON error responses based on status code
 
-      if (response.status === 401) {
-        errorMessage = "Authentication failed. Please check your credentials.";
-      } else if (response.status === 403) {
-        errorMessage = "You do not have permission to access this resource.";
-      } else if (response.status === 404) {
-        errorMessage = "The requested resource was not found.";
-      } else if (response.status >= 500) {
-        errorMessage = "Server error. Please try again later.";
-      } else {
-        errorMessage = response.statusText || "Unknown error occurred";
-      }
+      // Log full error details
+      console.error(`API Error: ${errorMessage}`, {
+        status: response.status,
+        endpoint,
+        fullUrl,
+      });
+
+      throw new Error(errorMessage);
     }
 
-    // Throw a formatted error with the determined message
-    throw new Error(errorMessage);
+    const data = await response.json();
+    return {
+      data,
+      success: true,
+    };
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
   }
-
-  const data = await response.json();
-
-  return {
-    data,
-    success: true,
-  };
 }

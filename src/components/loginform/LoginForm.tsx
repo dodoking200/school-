@@ -7,12 +7,11 @@ import { FormFields } from "./FormFields";
 import { RememberMeCheckbox } from "./RememberMeCheckbox";
 import { SubmitButton } from "./SubmitButton";
 import { ErrorText } from "./ErrorText";
-import { apiClient } from "@/lib/apiClient";
-import { API_ENDPOINTS } from "@/lib/constants";
-import { User } from "@/types";
+import { useAuth } from "@/lib/useAuth"; // Updated import
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth(); // Use the login function from useAuth
   const {
     email,
     setEmail,
@@ -22,6 +21,8 @@ export default function LoginForm() {
     isLoading,
     validateForm,
     submitForm,
+    rememberMe,
+    setRememberMe,
   } = useLoginForm();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,20 +31,11 @@ export default function LoginForm() {
     if (!validateForm()) return;
 
     await submitForm(async () => {
-      const data = await apiClient<{ token: string; user: User }>(
-        API_ENDPOINTS.AUTH.SIGNIN,
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      localStorage.setItem("token", data.data.token);
-      // Get user role
-      const role = data.data.user.role;
+      // Call the centralized login function
+      const user = await login(email, password, rememberMe);
 
       // Redirect based on role
-      switch (role) {
+      switch (user.role) {
         case "student":
           router.push("/users/student");
           break;
@@ -76,10 +68,9 @@ export default function LoginForm() {
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <RememberMeCheckbox />
+          <RememberMeCheckbox checked={rememberMe} onChange={setRememberMe} />
         </div>
 
-        {/* Display general form errors that aren't field-specific */}
         {errors.general && <ErrorText message={errors.general} />}
 
         <div>
