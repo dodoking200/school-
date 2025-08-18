@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import UserModal from "./UserModal";
 import { Role, User } from "@/types";
-import { apiClient } from "@/lib/apiClient";
-import { API_ENDPOINTS } from "@/lib/constants";
 import { toast } from "react-toastify";
+import { userService } from "@/lib/services/userService";
+import { roleService } from "@/lib/services/roleService";
 
 export default function UserInfo() {
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -15,62 +15,46 @@ export default function UserInfo() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
-  // Initialize users data
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [usersData, rolesData] = await Promise.all([
+        userService.getUsers(),
+        roleService.getRoles(),
+      ]);
+      setUsers(usersData);
+      setRoles(rolesData);
+      setError(null);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : "An unknown error occurred";
+      setError(errorMessage);
+      toast.error(`Failed to load data: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch users
-        const usersResponse = await apiClient<User[]>(
-          API_ENDPOINTS.USERS.GET_ALL,
-          { method: "GET" }
-        );
-        const formattedUsers = usersResponse.data.map((user) => ({
-          ...user,
-          birth_date: user.birth_date.split("T")[0],
-        }));
-        setUsers(formattedUsers);
-        // Fetch roles
-        const rolesResponse = await apiClient<Role[]>(
-          API_ENDPOINTS.ROLES.GET_ALL,
-          { method: "GET" }
-        );
-        setRoles(rolesResponse.data);
-
-        setError(null);
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : typeof err === "string"
-            ? err
-            : "An unknown error occurred";
-        setError(errorMessage);
-        toast.error(`Failed to load data: ${errorMessage}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  // Get unique roles for filter options
   const uniqueRoles = [...new Set(users.map((user) => user.role))];
 
-  // Filter users based on selected role
   const filteredUsers = selectedRole
     ? users.filter((user) => user.role === selectedRole)
     : users;
 
-  // Handle opening the modal for adding a new user
   const handleAddUser = () => {
     setSelectedUser(null);
     setIsModalOpen(true);
   };
 
-  // Handle opening the modal for editing an existing user
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -79,13 +63,13 @@ export default function UserInfo() {
   const handleDeleteUser = async (userId: number) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await apiClient(API_ENDPOINTS.USERS.DELETE(userId), {
-          method: "DELETE",
-        });
-
-        // Remove user from local state
-        setUsers(users.filter((user) => user.id !== userId));
-        toast.success("User deleted successfully");
+        await userService.deleteUser(userId);
+        toast.success(
+          "Delete request sent. Note: Data will not change as per current implementation."
+        );
+        // We no longer update local state as the API does not confirm the change.
+        // To see changes, a full refetch would be needed.
+        fetchData();
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -97,7 +81,7 @@ export default function UserInfo() {
       }
     }
   };
-  // Handle submitting the user form
+
   const handleSubmitUser = async (userData: {
     id?: number;
     name: string;
@@ -107,55 +91,28 @@ export default function UserInfo() {
     birthdate: string;
   }) => {
     try {
-      if (userData.id) {
-        // Update existing user
-        const response = await apiClient<User>(
-          API_ENDPOINTS.USERS.UPDATE(userData.id),
-          {
-            method: "PUT",
-            body: JSON.stringify({
-              name: userData.name,
-              email: userData.email,
-              role: userData.role,
-              phone: userData.phone,
-              birth_date: userData.birthdate,
-            }),
-          }
-        );
+      const userPayload = {
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        phone: userData.phone,
+        birth_date: userData.birthdate,
+      };
 
-        // Update user in local state
-        setUsers(
-          users.map((user) =>
-            user.id === userData.id
-              ? {
-                  ...response.data,
-                  birth_date: response.data.birth_date.split("T")[0],
-                }
-              : user
-          )
+      if (userData.id) {
+        await userService.updateUser(userData.id, userPayload);
+        toast.success(
+          "Update request sent. Note: Data will not change as per current implementation."
         );
-        toast.success("User updated successfully");
       } else {
-        // Create new user
-        const response = await apiClient<User>(API_ENDPOINTS.USERS.CREATE, {
-          method: "POST",
-          body: JSON.stringify({
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-            phone: userData.phone,
-            birth_date: userData.birthdate,
-          }),
-        });
-        setUsers([
-          ...users,
-          {
-            ...response.data,
-            birth_date: response.data.birth_date.split("T")[0],
-          },
-        ]);
-        toast.success("User created successfully");
+        await userService.createUser(userPayload);
+        toast.success(
+          "Create request sent. Note: Data will not change as per current implementation."
+        );
       }
+      // We no longer update local state as the API does not return the new/updated user.
+      // To see changes, a full refetch would be needed.
+      fetchData();
     } catch (err) {
       const errorMessage =
         err instanceof Error

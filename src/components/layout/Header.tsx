@@ -13,18 +13,18 @@ export default function Header() {
       </div>
       <div className=" flex justify-center items-center gap-5">
         <nav className="hidden md:flex gap-6 text-gray-600 font-medium">
-          <a href="/quiz" className="hover:text-[var(--primary)]">
+          <Link href="/quiz" className="hover:text-[var(--primary)]">
             Quiz
-          </a>
-          <a href="/about" className="hover:text-[var(--primary)]">
+          </Link>
+          <Link href="/about" className="hover:text-[var(--primary)]">
             About
-          </a>
-          <a href="/contact" className="hover:text-[var(--primary)]">
+          </Link>
+          <Link href="/contact" className="hover:text-[var(--primary)]">
             Contact
-          </a>
-          <a href="/news" className="hover:text-[var(--primary)]">
+          </Link>
+          <Link href="/news" className="hover:text-[var(--primary)]">
             News & Events
-          </a>
+          </Link>
           <Link href="/" className="hover:text-[var(--primary)]">
             Home
           </Link>
