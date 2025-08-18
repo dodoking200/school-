@@ -3,14 +3,7 @@ import React, { useState, useEffect } from "react";
 interface TeacherModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (teacher: {
-    id?: number;
-    name: string;
-    email: string;
-    phone: string;
-    birthdate: string;
-    subjects: string[];
-  }) => void;
+  onSubmit: (teacher: any) => void;
   teacher?: {
     id: number;
     name: string;
@@ -18,6 +11,10 @@ interface TeacherModalProps {
     phone: string;
     birthdate: string;
     subjects: string[];
+    subject_ids?: number[];
+    specialization?: string;
+    hire_date?: string;
+    qualification?: string;
   } | null;
   title: string;
 }
@@ -29,15 +26,28 @@ export default function TeacherModal({
   teacher,
   title,
 }: TeacherModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: "",
     email: "",
     phone: "",
     birthdate: "",
-    subjects: "",
+    specialization: "",
+    hire_date: "",
+    qualification: "",
+    subject_ids: [] as number[],
   });
+  const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
 
-  // Initialize form data when editing a teacher
+  // Fetch subjects and initialize form
+  useEffect(() => {
+    const load = async () => {
+      const { subjectService } = await import("@/lib/services/subjectService");
+      const list = await subjectService.getSubjectsList();
+      setSubjects(list);
+    };
+    load();
+  }, []);
+
   useEffect(() => {
     if (teacher) {
       setFormData({
@@ -45,16 +55,21 @@ export default function TeacherModal({
         email: teacher.email,
         phone: teacher.phone,
         birthdate: teacher.birthdate,
-        subjects: teacher.subjects.join(", "),
+        specialization: teacher.specialization || "",
+        hire_date: teacher.hire_date || "",
+        qualification: teacher.qualification || "",
+        subject_ids: teacher.subject_ids || [],
       });
     } else {
-      // Reset form when adding a new teacher
       setFormData({
         name: "",
         email: "",
         phone: "",
         birthdate: "",
-        subjects: "",
+        specialization: "",
+        hire_date: "",
+        qualification: "",
+        subject_ids: [],
       });
     }
   }, [teacher]);
@@ -69,12 +84,23 @@ export default function TeacherModal({
     });
   };
 
+  const handleSubjectsChange = (id: number) => {
+    setFormData((prev: any) => {
+      const exists = prev.subject_ids.includes(id);
+      return {
+        ...prev,
+        subject_ids: exists
+          ? prev.subject_ids.filter((sid: number) => sid !== id)
+          : [...prev.subject_ids, id],
+      };
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
       ...(teacher ? { id: teacher.id } : {}),
       ...formData,
-      subjects: formData.subjects.split(",").map((s) => s.trim()),
     });
     onClose();
   };
@@ -177,22 +203,60 @@ export default function TeacherModal({
             />
           </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="subjects"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Subjects (comma-separated)
-            </label>
+          <div className="mb-4 grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+              <input
+                type="text"
+                id="specialization"
+                name="specialization"
+                value={formData.specialization}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="qualification" className="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+              <input
+                type="text"
+                id="qualification"
+                name="qualification"
+                value={formData.qualification}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="hire_date" className="block text-sm font-medium text-gray-700 mb-1">Hire date</label>
             <input
-              type="text"
-              id="subjects"
-              name="subjects"
-              value={formData.subjects}
+              type="date"
+              id="hire_date"
+              name="hire_date"
+              value={formData.hire_date}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
             />
+          </div>
+
+          <div className="mb-6">
+            <div className="block text-sm font-medium text-gray-700 mb-1">Subjects</div>
+            <div className="max-h-40 overflow-auto border rounded p-2">
+              {subjects.map((s) => (
+                <label key={s.id} className="flex items-center space-x-2 py-1">
+                  <input
+                    type="checkbox"
+                    checked={formData.subject_ids.includes(s.id)}
+                    onChange={() => handleSubjectsChange(s.id)}
+                  />
+                  <span>{s.name}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3">

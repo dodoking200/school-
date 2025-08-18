@@ -25,6 +25,9 @@ export const API_ENDPOINTS = {
     GET_ALL: "teachers",
     GET_BY_ID: (id: number) => `teachers/${id}`,
     COURSES: (id: number) => `teachers/${id}/courses`,
+    CREATE: "teachers",
+    UPDATE: (id: number) => `teachers/${id}`,
+    DELETE: (id: number) => `teachers/${id}`,
   },
 
   STUDENT: {
@@ -39,5 +42,8 @@ export const API_ENDPOINTS = {
   ROLES: {
     GET_ALL: "roles",
     GET_ALL_EMP: "roles/employees",
+  },
+  SUBJECTS: {
+    LIST: "subjects/list",
   },
 };

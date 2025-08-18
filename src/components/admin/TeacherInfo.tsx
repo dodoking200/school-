@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import TeacherModal from "./TeacherModal";
 import { Teacher } from "@/types";
+import { teacherService, UpsertTeacherPayload } from "@/lib/services/teacherService";
 
 export default function TeacherInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -9,32 +10,12 @@ export default function TeacherInfo() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
 
-  // Initialize teachers data
   useEffect(() => {
-    setTeachers([
-      {
-        id: 1,
-        name: "Dr. Evelyn Reed",
-        email: "evelyn.reed@example.com",
-        role: "teacher",
-        phone: "(555) 123-4567",
-        birth_date: "1980-08-15",
-        subjects: ["Mathematics", "Physics"],
-        created_at: "2023-01-10",
-        updated_at: "2023-01-10",
-      },
-      {
-        id: 2,
-        name: "Mr. Samuel Grant",
-        email: "samuel.grant@example.com",
-        role: "teacher",
-        phone: "(555) 987-6543",
-        birth_date: "1975-03-22",
-        subjects: ["History", "Geography"],
-        created_at: "2023-02-15",
-        updated_at: "2023-02-15",
-      },
-    ]);
+    const fetchTeachers = async () => {
+      const data = await teacherService.getTeachers();
+      setTeachers(data);
+    };
+    fetchTeachers();
   }, []);
 
   // Handle opening the modal for adding a new teacher
@@ -50,49 +31,37 @@ export default function TeacherInfo() {
   };
 
   // Handle submitting the teacher form
-  const handleSubmitTeacher = (teacherData: {
-    id?: number;
-    name: string;
-    email: string;
-    phone: string;
-    birthdate: string;
-    subjects: string[];
-  }) => {
-    const now = new Date().toISOString();
+  const handleSubmitTeacher = async (teacherData: any) => {
     if (teacherData.id) {
-      // Update existing teacher
-      setTeachers(
-        teachers.map((teacher) =>
-          teacher.id === teacherData.id
-            ? {
-                ...teacher,
-                ...teacherData,
-                birth_date: teacherData.birthdate,
-                updated_at: now,
-              }
-            : teacher
-        )
-      );
+      await teacherService.updateTeacher(teacherData.id, {
+        name: teacherData.name,
+        email: teacherData.email,
+        phone: teacherData.phone,
+        birth_date: teacherData.birthdate,
+        // subject_ids may be provided from modal if changed
+        subject_ids: teacherData.subject_ids,
+      });
     } else {
-      // Add new teacher with a new ID
-      const newId = Math.max(0, ...teachers.map((t) => t.id)) + 1;
-      setTeachers([
-        ...teachers,
-        {
-          ...teacherData,
-          id: newId,
-          role: "teacher",
-          birth_date: teacherData.birthdate,
-          created_at: now,
-          updated_at: now,
-        },
-      ]);
+      const payload: UpsertTeacherPayload = {
+        name: teacherData.name,
+        email: teacherData.email,
+        phone: teacherData.phone,
+        birth_date: teacherData.birthdate,
+        specialization: teacherData.specialization,
+        hire_date: teacherData.hire_date,
+        qualification: teacherData.qualification,
+        subject_ids: teacherData.subject_ids,
+      };
+      await teacherService.createTeacher(payload);
     }
+    const refreshed = await teacherService.getTeachers();
+    setTeachers(refreshed);
   };
 
   // Handle removing a teacher
-  const handleRemoveTeacher = (teacherId: number) => {
-    setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
+  const handleRemoveTeacher = async (teacherId: number) => {
+    await teacherService.deleteTeacher(teacherId);
+    setTeachers((prev) => prev.filter((t) => t.id !== teacherId));
   };
 
   const handleCheckboxChange = (teacherId: number) => {
@@ -126,7 +95,14 @@ export default function TeacherInfo() {
         onSubmit={handleSubmitTeacher}
         teacher={
           selectedTeacher
-            ? { ...selectedTeacher, birthdate: selectedTeacher.birth_date }
+            ? {
+                ...selectedTeacher,
+                birthdate: selectedTeacher.birth_date,
+                subject_ids: selectedTeacher.subject_ids,
+                specialization: selectedTeacher.specialization,
+                hire_date: selectedTeacher.hire_date,
+                qualification: selectedTeacher.qualification,
+              }
             : null
         }
         title={selectedTeacher ? "Edit Teacher" : "Add New Teacher"}

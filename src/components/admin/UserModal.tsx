@@ -55,7 +55,7 @@ export default function UserModal({
       setFormData({
         name: "",
         email: "",
-        role_id: roles.length > 0 ? roles[0].id : 0,
+        role_id: 0, // Don't auto-select a role
         phone: "",
         birthdate: "",
       });

@@ -11,6 +11,10 @@ export type User = {
 
 export type Teacher = User & {
   subjects: string[];
+  subject_ids?: number[];
+  specialization?: string;
+  hire_date?: string;
+  qualification?: string;
 };
 
 export type Subject = {

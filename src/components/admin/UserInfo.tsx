@@ -64,9 +64,7 @@ export default function UserInfo() {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await userService.deleteUser(userId);
-        toast.success(
-          "Delete request sent. Note: Data will not change as per current implementation."
-        );
+        toast.success("User deleted successfully!");
         // We no longer update local state as the API does not confirm the change.
         // To see changes, a full refetch would be needed.
         fetchData();
@@ -90,30 +88,29 @@ export default function UserInfo() {
     phone: string;
     birthdate: string;
   }) => {
-    try {
-      const userPayload = {
-        name: userData.name,
-        email: userData.email,
-        role_id: userData.role_id,
-        phone: userData.phone,
-        birth_date: userData.birthdate,
-      };
+    const userPayload = {
+      name: userData.name,
+      email: userData.email,
+      role_id: userData.role_id,
+      phone: userData.phone,
+      birth_date: userData.birthdate,
+    };
 
+    try {
       if (userData.id) {
         await userService.updateUser(userData.id, userPayload);
-        toast.success(
-          "Update request sent. Note: Data will not change as per current implementation."
-        );
+        toast.success("User updated successfully!");
       } else {
         await userService.createUser(userPayload);
-        toast.success(
-          "Create request sent. Note: Data will not change as per current implementation."
-        );
+        toast.success("User created successfully! A password has been generated and sent via WhatsApp.");
       }
       // We no longer update local state as the API does not return the new/updated user.
       // To see changes, a full refetch would be needed.
       fetchData();
     } catch (err) {
+      console.error("User creation/update error:", err);
+      console.error("Payload sent:", userPayload);
+      
       const errorMessage =
         err instanceof Error
           ? err.message
