@@ -42,8 +42,15 @@ export const API_ENDPOINTS = {
   ROLES: {
     GET_ALL: "roles",
     GET_ALL_EMP: "roles/employees",
+    CREATE: "roles",
+    UPDATE_PERMISSIONS: "roles/update-role",
+    GET_ROLE_PERMISSIONS: (id: number) => `roles/${id}/permissions`,
+    DELETE: (id: number) => `roles/${id}`,
   },
   SUBJECTS: {
     LIST: "subjects/list",
+  },
+  PERMISSIONS: {
+    GET_ALL: "permissions",
   },
 };

@@ -1,26 +1,14 @@
 import { useState, useEffect } from "react";
-import { Role, Permission } from "@/types";
+import { Role } from "@/types";
+import { roleService } from "@/lib/services/roleService";
 
 interface RoleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (roleData: {
-    id?: number;
-    name: string;
-    permissions: Permission[];
-  }) => void;
+  onSubmit: (roleData: { id?: number; name: string; permissionIds: number[] }) => void;
   role: Role | null;
   title: string;
 }
-
-const allPermissions: Permission[] = [
-  "view_users",
-  "edit_users",
-  "delete_users",
-  "view_roles",
-  "edit_roles",
-  "delete_roles",
-];
 
 export default function RoleModal({
   isOpen,
@@ -30,29 +18,34 @@ export default function RoleModal({
   title,
 }: RoleModalProps) {
   const [name, setName] = useState("");
-  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [allPermissions, setAllPermissions] = useState<{ id: number; name: string }[]>([]);
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([]);
 
   useEffect(() => {
-    if (role) {
-      setName(role.name);
-      setPermissions(role.permissions);
-    } else {
-      setName("");
-      setPermissions([]);
-    }
-  }, [role]);
+    const init = async () => {
+      const perms = await roleService.getAllPermissions();
+      setAllPermissions(perms);
+      if (role) {
+        setName(role.name);
+        const rolePerms = await roleService.getRolePermissions(role.id);
+        setSelectedPermissionIds(rolePerms.map((p) => p.id));
+      } else {
+        setName("");
+        setSelectedPermissionIds([]);
+      }
+    };
+    if (isOpen) init();
+  }, [role, isOpen]);
 
-  const handlePermissionChange = (permission: Permission) => {
-    setPermissions((prev) =>
-      prev.includes(permission)
-        ? prev.filter((p) => p !== permission)
-        : [...prev, permission]
+  const togglePermission = (id: number) => {
+    setSelectedPermissionIds((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ id: role?.id, name, permissions });
+    onSubmit({ id: role?.id, name, permissionIds: selectedPermissionIds });
     onClose();
   };
 
@@ -79,17 +72,17 @@ export default function RoleModal({
             <label className="block text-sm font-medium text-gray-700">
               Permissions
             </label>
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 grid grid-cols-2 gap-2 max-h-56 overflow-auto border rounded p-2">
               {allPermissions.map((permission) => (
-                <label key={permission} className="flex items-center">
+                <label key={permission.id} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={permissions.includes(permission)}
-                    onChange={() => handlePermissionChange(permission)}
+                    checked={selectedPermissionIds.includes(permission.id)}
+                    onChange={() => togglePermission(permission.id)}
                     className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                   />
                   <span className="ml-2 text-sm text-gray-600">
-                    {permission}
+                    {permission.name}
                   </span>
                 </label>
               ))}
