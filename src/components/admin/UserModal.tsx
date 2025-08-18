@@ -76,6 +76,33 @@ export default function UserModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!formData.name || formData.name.length < 3) {
+      alert("Name must be at least 3 characters long");
+      return;
+    }
+    
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    
+    if (!formData.phone || formData.phone.length < 10) {
+      alert("Phone number must be at least 10 characters long");
+      return;
+    }
+    
+    if (!formData.birthdate) {
+      alert("Please select a birth date");
+      return;
+    }
+    
+    if (!formData.role_id || formData.role_id === 0) {
+      alert("Please select a valid role");
+      return;
+    }
+    
     onSubmit({
       ...(user ? { id: user.id } : {}),
       ...formData,
@@ -158,7 +185,9 @@ export default function UserModal({
               value={formData.role_id}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              required
             >
+              <option value={0}>Select a role...</option>
               {roles.length > 0 ? (
                 roles.map((role) => (
                   <option key={role.id} value={role.id}>
@@ -166,7 +195,7 @@ export default function UserModal({
                   </option>
                 ))
               ) : (
-                <option value="">Loading roles...</option>
+                <option value={0}>Loading roles...</option>
               )}
             </select>
           </div>

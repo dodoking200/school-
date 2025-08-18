@@ -158,7 +158,7 @@ export default function UserInfo() {
         onSubmit={handleSubmitUser}
         user={
           selectedUser
-            ? { ...selectedUser, birthdate: selectedUser.birth_date }
+            ? { ...selectedUser, birthdate: selectedUser.birth_date, role: selectedUser.role || '' }
             : null
         }
         title={selectedUser ? "Edit User" : "Add New User"}
@@ -189,9 +189,11 @@ export default function UserInfo() {
           >
             <option value="">All Roles</option>
             {uniqueRoles.map((role) => (
-              <option key={role} value={role}>
-                {role.charAt(0).toUpperCase() + role.slice(1)}
-              </option>
+              role && (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </option>
+              )
             ))}
           </select>
         }
