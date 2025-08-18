@@ -86,6 +86,7 @@ export default function UserInfo() {
     id?: number;
     name: string;
     email: string;
+    role_id: string;
     role: string;
     phone: string;
     birthdate: string;
@@ -94,7 +95,8 @@ export default function UserInfo() {
       const userPayload = {
         name: userData.name,
         email: userData.email,
-        role: userData.role,
+        role_id: userData.role_id,
+
         phone: userData.phone,
         birth_date: userData.birthdate,
       };
@@ -156,11 +158,7 @@ export default function UserInfo() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitUser}
-        user={
-          selectedUser
-            ? { ...selectedUser, birthdate: selectedUser.birth_date }
-            : null
-        }
+        user={{ ...selectedUser, birthdate: selectedUser?.birth_date || "" }}
         title={selectedUser ? "Edit User" : "Add New User"}
       />
       <Table

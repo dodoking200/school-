@@ -9,6 +9,7 @@ interface UserModalProps {
     name: string;
     email: string;
     role: string;
+    role_id: string;
     phone: string;
     birthdate: string;
   }) => void;
@@ -16,6 +17,7 @@ interface UserModalProps {
     id: number;
     name: string;
     email: string;
+    role_id: string;
     role: string;
     phone: string;
     birthdate: string;

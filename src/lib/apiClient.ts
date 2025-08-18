@@ -4,7 +4,7 @@ import { ApiResponse } from "@/types"; // ✅ Import the type
 
 // Get the base URL from environment variables
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
 
 /**
  * Builds a full API URL by combining the base URL with the endpoint
