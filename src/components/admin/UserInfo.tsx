@@ -86,8 +86,7 @@ export default function UserInfo() {
     id?: number;
     name: string;
     email: string;
-    role_id: string;
-    role: string;
+    role_id: number;
     phone: string;
     birthdate: string;
   }) => {
@@ -96,7 +95,6 @@ export default function UserInfo() {
         name: userData.name,
         email: userData.email,
         role_id: userData.role_id,
-
         phone: userData.phone,
         birth_date: userData.birthdate,
       };
@@ -158,7 +156,11 @@ export default function UserInfo() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitUser}
-        user={{ ...selectedUser, birthdate: selectedUser?.birth_date || "" }}
+        user={
+          selectedUser
+            ? { ...selectedUser, birthdate: selectedUser.birth_date }
+            : null
+        }
         title={selectedUser ? "Edit User" : "Add New User"}
       />
       <Table

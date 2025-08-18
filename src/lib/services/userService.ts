@@ -2,6 +2,14 @@ import { apiClient } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/lib/constants";
 import type { User } from "@/types";
 
+type UpsertUserPayload = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  birth_date?: string;
+  role_id?: number;
+};
+
 export const userService = {
   getUsers: async (): Promise<User[]> => {
     const response = await apiClient<User[]>(API_ENDPOINTS.USERS.GET_ALL, {
@@ -11,7 +19,7 @@ export const userService = {
     return response.data;
   },
 
-  createUser: async (userData: Omit<User, "id">): Promise<void> => {
+  createUser: async (userData: UpsertUserPayload): Promise<void> => {
     await apiClient(API_ENDPOINTS.USERS.CREATE, {
       method: "POST",
       body: JSON.stringify(userData),
@@ -21,7 +29,7 @@ export const userService = {
 
   updateUser: async (
     id: number,
-    userData: Partial<Omit<User, "id">>
+    userData: UpsertUserPayload
   ): Promise<void> => {
     await apiClient(API_ENDPOINTS.USERS.UPDATE(id), {
       method: "PUT",

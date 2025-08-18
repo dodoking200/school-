@@ -38,5 +38,6 @@ export const API_ENDPOINTS = {
 
   ROLES: {
     GET_ALL: "roles",
+    GET_ALL_EMP: "roles/employees",
   },
 };

@@ -8,8 +8,7 @@ interface UserModalProps {
     id?: number;
     name: string;
     email: string;
-    role: string;
-    role_id: string;
+    role_id: number;
     phone: string;
     birthdate: string;
   }) => void;
@@ -17,7 +16,6 @@ interface UserModalProps {
     id: number;
     name: string;
     email: string;
-    role_id: string;
     role: string;
     phone: string;
     birthdate: string;
@@ -37,7 +35,7 @@ export default function UserModal({
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    role: "",
+    role_id: 0 as number,
     phone: "",
     birthdate: "",
   });
@@ -48,7 +46,7 @@ export default function UserModal({
       setFormData({
         name: user.name,
         email: user.email,
-        role: user.role,
+        role_id: roles.find((r) => r.name === user.role)?.id || 0,
         phone: user.phone,
         birthdate: user.birthdate,
       });
@@ -57,7 +55,7 @@ export default function UserModal({
       setFormData({
         name: "",
         email: "",
-        role: roles.length > 0 ? roles[0].name : "",
+        role_id: roles.length > 0 ? roles[0].id : 0,
         phone: "",
         birthdate: "",
       });
@@ -72,7 +70,7 @@ export default function UserModal({
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: name === "role_id" ? Number(value) : value,
     });
   };
 
@@ -149,21 +147,21 @@ export default function UserModal({
 
           <div className="mb-4">
             <label
-              htmlFor="role"
+              htmlFor="role_id"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Role
             </label>
             <select
-              id="role"
-              name="role"
-              value={formData.role}
+              id="role_id"
+              name="role_id"
+              value={formData.role_id}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             >
               {roles.length > 0 ? (
                 roles.map((role) => (
-                  <option key={role.id} value={role.name}>
+                  <option key={role.id} value={role.id}>
                     {role.name}
                   </option>
                 ))
