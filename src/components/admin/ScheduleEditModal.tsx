@@ -19,7 +19,7 @@ const ScheduleEditModal: React.FC<ScheduleEditModalProps> = ({ isOpen, onClose, 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-md">
         <h2 className="text-xl font-semibold mb-4">Edit Schedule for {day} at {timeSlot}</h2>
         <div className="mb-4">

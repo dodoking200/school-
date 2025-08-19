@@ -5,7 +5,11 @@ import { roleService } from "@/lib/services/roleService";
 interface RoleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (roleData: { id?: number; name: string; permissionIds: number[] }) => void;
+  onSubmit: (roleData: {
+    id?: number;
+    name: string;
+    permissionIds: number[];
+  }) => void;
   role: Role | null;
   title: string;
 }
@@ -18,8 +22,12 @@ export default function RoleModal({
   title,
 }: RoleModalProps) {
   const [name, setName] = useState("");
-  const [allPermissions, setAllPermissions] = useState<{ id: number; name: string }[]>([]);
-  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([]);
+  const [allPermissions, setAllPermissions] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>(
+    []
+  );
 
   useEffect(() => {
     const init = async () => {
@@ -52,7 +60,7 @@ export default function RoleModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">{title}</h2>
         <form onSubmit={handleSubmit}>
