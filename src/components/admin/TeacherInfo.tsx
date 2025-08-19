@@ -31,14 +31,25 @@ export default function TeacherInfo() {
   };
 
   // Handle submitting the teacher form
-  const handleSubmitTeacher = async (teacherData: any) => {
+  type SubmitTeacherData = {
+    id?: number;
+    name: string;
+    email: string;
+    phone: string;
+    birthdate: string;
+    specialization?: string;
+    hire_date?: string;
+    qualification?: string;
+    subject_ids?: number[];
+  };
+
+  const handleSubmitTeacher = async (teacherData: SubmitTeacherData) => {
     if (teacherData.id) {
       await teacherService.updateTeacher(teacherData.id, {
         name: teacherData.name,
         email: teacherData.email,
         phone: teacherData.phone,
         birth_date: teacherData.birthdate,
-        // subject_ids may be provided from modal if changed
         subject_ids: teacherData.subject_ids,
       });
     } else {
@@ -47,9 +58,9 @@ export default function TeacherInfo() {
         email: teacherData.email,
         phone: teacherData.phone,
         birth_date: teacherData.birthdate,
-        specialization: teacherData.specialization,
-        hire_date: teacherData.hire_date,
-        qualification: teacherData.qualification,
+        specialization: teacherData.specialization ?? "",
+        hire_date: teacherData.hire_date ?? "",
+        qualification: teacherData.qualification ?? "",
         subject_ids: teacherData.subject_ids,
       };
       await teacherService.createTeacher(payload);

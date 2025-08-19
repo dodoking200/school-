@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import RoleModal from "./RoleModal";
-import { Role, Permission } from "@/types";
+import { Role } from "@/types";
 import { roleService } from "@/lib/services/roleService";
 
 export default function RolesInfo() {
@@ -14,17 +14,19 @@ export default function RolesInfo() {
   useEffect(() => {
     const fetchRoles = async () => {
       const data = await roleService.getRoles();
-      setRoles(
-        (data as any[]).map((r) => ({
-          id: r.id,
-          name: r.name,
-          permissions: Array.isArray((r as any).permissions)
-            ? (r as any).permissions.map((p: any) => p.permission_name)
-            : [],
-          created_at: (r as any).created_at,
-          updated_at: (r as any).updated_at,
-        })) as Role[]
-      );
+      type ApiPermission = { permission_id?: number; permission_name?: string };
+      type ApiRole = { id: number; name: string; permissions?: ApiPermission[] };
+      const apiRoles = data as unknown as ApiRole[];
+      const mapped: Role[] = apiRoles.map((r) => ({
+        id: r.id,
+        name: r.name,
+        permissions: Array.isArray(r.permissions)
+          ? r.permissions
+              .map((p) => p.permission_name || "")
+              .filter((n): n is string => Boolean(n))
+          : [],
+      }));
+      setRoles(mapped);
     };
     fetchRoles();
   }, []);
@@ -52,22 +54,26 @@ export default function RolesInfo() {
     permissionIds: number[];
   }) => {
     if (roleData.id) {
+      // update name first if changed
+      await roleService.updateRoleName(roleData.id, roleData.name);
       await roleService.updateRolePermissions(roleData.id, roleData.permissionIds);
     } else {
       await roleService.createRole(roleData.name, roleData.permissionIds);
     }
     const refreshed = await roleService.getRoles();
-    setRoles(
-      (refreshed as any[]).map((r) => ({
-        id: r.id,
-        name: r.name,
-        permissions: Array.isArray((r as any).permissions)
-          ? (r as any).permissions.map((p: any) => p.permission_name)
-          : [],
-        created_at: (r as any).created_at,
-        updated_at: (r as any).updated_at,
-      })) as Role[]
-    );
+    type ApiPermission = { permission_id?: number; permission_name?: string };
+    type ApiRole = { id: number; name: string; permissions?: ApiPermission[] };
+    const apiRoles = refreshed as unknown as ApiRole[];
+    const mapped: Role[] = apiRoles.map((r) => ({
+      id: r.id,
+      name: r.name,
+      permissions: Array.isArray(r.permissions)
+        ? r.permissions
+            .map((p) => p.permission_name || "")
+            .filter((n): n is string => Boolean(n))
+        : [],
+    }));
+    setRoles(mapped);
   };
 
   return (

@@ -46,6 +46,7 @@ export const API_ENDPOINTS = {
     UPDATE_PERMISSIONS: "roles/update-role",
     GET_ROLE_PERMISSIONS: (id: number) => `roles/${id}/permissions`,
     DELETE: (id: number) => `roles/${id}`,
+    UPDATE: (id: number) => `roles/${id}`,
   },
   SUBJECTS: {
     LIST: "subjects/list",
