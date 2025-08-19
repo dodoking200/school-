@@ -1,36 +1,15 @@
 import { apiClient } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/lib/constants";
-import type { Teacher } from "@/types";
-
-export type UpsertTeacherPayload = {
-  name: string;
-  email: string;
-  phone: string;
-  birth_date: string;
-  specialization: string;
-  hire_date: string;
-  qualification: string;
-  subject_ids?: number[];
-};
+import type { Teacher, TeacherCreatePayload } from "@/types";
 
 export const teacherService = {
   getTeachers: async (): Promise<Teacher[]> => {
-    type ApiSubject = { id: number; name: string };
-    type ApiTeacher = {
-      id: number;
-      name: string;
-      email: string;
-      phone: string;
-      birth_date: string;
-      specialization?: string;
-      hire_date?: string;
-      qualification?: string;
-      subjects?: ApiSubject[];
-    };
-
-    const response = await apiClient<ApiTeacher[]>(API_ENDPOINTS.TEACHERS.GET_ALL, {
-      method: "GET",
-    });
+    const response = await apiClient<Teacher[]>(
+      API_ENDPOINTS.TEACHERS.GET_ALL,
+      {
+        method: "GET",
+      }
+    );
     return response.data.map((t) => ({
       id: t.id,
       name: t.name,
@@ -38,15 +17,19 @@ export const teacherService = {
       phone: t.phone,
       birth_date: t.birth_date,
       role: "teacher",
-      subjects: Array.isArray(t.subjects) ? t.subjects.map((s) => s.name) : [],
-      subject_ids: Array.isArray(t.subjects) ? t.subjects.map((s) => s.id) : [],
+      subjects:
+        t.subjects?.map((s) => ({
+          id: s.id,
+          name: s.name,
+        })) || [],
+
       specialization: t.specialization,
       hire_date: t.hire_date,
       qualification: t.qualification,
     }));
   },
 
-  createTeacher: async (payload: UpsertTeacherPayload): Promise<void> => {
+  createTeacher: async (payload: TeacherCreatePayload): Promise<void> => {
     await apiClient(API_ENDPOINTS.TEACHERS.CREATE, {
       method: "POST",
       body: JSON.stringify(payload),
@@ -55,7 +38,7 @@ export const teacherService = {
 
   updateTeacher: async (
     id: number,
-    payload: Partial<UpsertTeacherPayload>
+    payload: Partial<Teacher>
   ): Promise<void> => {
     await apiClient(API_ENDPOINTS.TEACHERS.UPDATE(id), {
       method: "PUT",
@@ -69,5 +52,3 @@ export const teacherService = {
     });
   },
 };
-
-

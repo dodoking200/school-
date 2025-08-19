@@ -1,21 +1,46 @@
 import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import TeacherModal from "./TeacherModal";
-import { Teacher } from "@/types";
-import { teacherService, UpsertTeacherPayload } from "@/lib/services/teacherService";
+import { Teacher, TeacherCreatePayload } from "@/types";
+import { teacherService } from "@/lib/services/teacherService";
+import { subjectService } from "@/lib/services/subjectService";
+import { toast } from "react-toastify";
 
 export default function TeacherInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [techerData, subjectData] = await Promise.all([
+        teacherService.getTeachers(),
+        subjectService.getSubjectsList(),
+      ]);
+      setTeachers(techerData);
+      setSubjects(subjectData);
+      setError(null);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : "An unknown error occurred";
+      setError(errorMessage);
+      toast.error(`Failed to load data: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      const data = await teacherService.getTeachers();
-      setTeachers(data);
-    };
-    fetchTeachers();
+    fetchData();
   }, []);
 
   // Handle opening the modal for adding a new teacher
@@ -30,38 +55,27 @@ export default function TeacherInfo() {
     setIsModalOpen(true);
   };
 
-  // Handle submitting the teacher form
-  type SubmitTeacherData = {
-    id?: number;
-    name: string;
-    email: string;
-    phone: string;
-    birthdate: string;
-    specialization?: string;
-    hire_date?: string;
-    qualification?: string;
-    subject_ids?: number[];
-  };
-
-  const handleSubmitTeacher = async (teacherData: SubmitTeacherData) => {
-    if (teacherData.id) {
+  const handleSubmitTeacher = async (
+    teacherData: Teacher | TeacherCreatePayload
+  ) => {
+    if ("id" in teacherData) {
       await teacherService.updateTeacher(teacherData.id, {
         name: teacherData.name,
         email: teacherData.email,
         phone: teacherData.phone,
-        birth_date: teacherData.birthdate,
-        subject_ids: teacherData.subject_ids,
+        birth_date: teacherData.birth_date,
+        subjects: teacherData.subjects,
       });
     } else {
-      const payload: UpsertTeacherPayload = {
+      const payload: TeacherCreatePayload = {
         name: teacherData.name,
         email: teacherData.email,
         phone: teacherData.phone,
-        birth_date: teacherData.birthdate,
+        birth_date: teacherData.birth_date,
         specialization: teacherData.specialization ?? "",
         hire_date: teacherData.hire_date ?? "",
         qualification: teacherData.qualification ?? "",
-        subject_ids: teacherData.subject_ids,
+        subject_ids: teacherData.subject_ids ?? [],
       };
       await teacherService.createTeacher(payload);
     }
@@ -101,21 +115,11 @@ export default function TeacherInfo() {
   return (
     <>
       <TeacherModal
+        subjects={subjects}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitTeacher}
-        teacher={
-          selectedTeacher
-            ? {
-                ...selectedTeacher,
-                birthdate: selectedTeacher.birth_date,
-                subject_ids: selectedTeacher.subject_ids,
-                specialization: selectedTeacher.specialization,
-                hire_date: selectedTeacher.hire_date,
-                qualification: selectedTeacher.qualification,
-              }
-            : null
-        }
+        teacher={selectedTeacher}
         title={selectedTeacher ? "Edit Teacher" : "Add New Teacher"}
       />
       <Table
@@ -188,50 +192,70 @@ export default function TeacherInfo() {
         }
         tableContent={
           <>
-            {teachers.map((teacher) => (
-              <tr
-                key={teacher.id}
-                className=" text-left hover:bg-gray-50 transition duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {teacher.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {teacher.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {teacher.phone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {teacher.birth_date}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-.500">
-                  {teacher.subjects.join(", ")}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900"
-                    onClick={() => handleEditTeacher(teacher)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-900 ml-4"
-                    onClick={() => handleRemoveTeacher(teacher.id)}
-                  >
-                    Remove
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-5 w-5 text-indigo-600"
-                    checked={selectedTeacherIds.includes(teacher.id)}
-                    onChange={() => handleCheckboxChange(teacher.id)}
-                  />
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4">
+                  Loading users...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4 text-red-500">
+                  Error: {error}
+                </td>
+              </tr>
+            ) : teachers.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-4">
+                  No users found
+                </td>
+              </tr>
+            ) : (
+              teachers.map((teacher) => (
+                <tr
+                  key={teacher.id}
+                  className=" text-left hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {teacher.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {teacher.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {teacher.phone}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {teacher.birth_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-.500">
+                    {teacher.subjects?.map((subject) => subject.name).join(",")}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      className="text-indigo-600 hover:text-indigo-900"
+                      onClick={() => handleEditTeacher(teacher)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-900 ml-4"
+                      onClick={() => handleRemoveTeacher(teacher.id)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-5 w-5 text-indigo-600"
+                      checked={selectedTeacherIds.includes(teacher.id)}
+                      onChange={() => handleCheckboxChange(teacher.id)}
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
           </>
         }
       />

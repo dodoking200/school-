@@ -1,4 +1,9 @@
 // src/types/index.ts
+export type Subject = {
+  id: number;
+  name: string;
+};
+
 export type User = {
   id: number;
   name: string;
@@ -10,16 +15,21 @@ export type User = {
 };
 
 export type Teacher = User & {
-  subjects: string[];
-  subject_ids?: number[];
+  subjects?: Subject[];
   specialization?: string;
   hire_date?: string;
   qualification?: string;
 };
 
-export type Subject = {
-  id: number;
+export type TeacherCreatePayload = {
   name: string;
+  email: string;
+  phone: string;
+  birth_date: string;
+  specialization: string;
+  hire_date: string;
+  qualification: string;
+  subject_ids: number[];
 };
 
 export type Question = {

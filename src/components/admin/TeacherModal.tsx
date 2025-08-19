@@ -1,22 +1,13 @@
+import { Subject, Teacher, TeacherCreatePayload } from "@/types";
 import React, { useState, useEffect } from "react";
 
 interface TeacherModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (teacher: any) => void;
-  teacher?: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    birthdate: string;
-    subjects: string[];
-    subject_ids?: number[];
-    specialization?: string;
-    hire_date?: string;
-    qualification?: string;
-  } | null;
+  onSubmit: (teacher: Teacher | TeacherCreatePayload) => void;
+  teacher?: Teacher | null;
   title: string;
+  subjects: Subject[];
 }
 
 export default function TeacherModal({
@@ -25,47 +16,39 @@ export default function TeacherModal({
   onSubmit,
   teacher,
   title,
+  subjects,
 }: TeacherModalProps) {
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    birthdate: "",
+    birth_date: "",
     specialization: "",
     hire_date: "",
     qualification: "",
     subject_ids: [] as number[],
   });
-  const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
 
-  // Fetch subjects and initialize form
-  useEffect(() => {
-    const load = async () => {
-      const { subjectService } = await import("@/lib/services/subjectService");
-      const list = await subjectService.getSubjectsList();
-      setSubjects(list);
-    };
-    load();
-  }, []);
-
+  // Initialize form data when editing a teacher
   useEffect(() => {
     if (teacher) {
       setFormData({
         name: teacher.name,
         email: teacher.email,
         phone: teacher.phone,
-        birthdate: teacher.birthdate,
+        birth_date: teacher.birth_date,
         specialization: teacher.specialization || "",
         hire_date: teacher.hire_date || "",
         qualification: teacher.qualification || "",
-        subject_ids: teacher.subject_ids || [],
+        subject_ids: teacher.subjects ? teacher.subjects.map((s) => s.id) : [],
       });
     } else {
+      // Reset form when adding a new teacher
       setFormData({
         name: "",
         email: "",
         phone: "",
-        birthdate: "",
+        birth_date: "",
         specialization: "",
         hire_date: "",
         qualification: "",
@@ -85,12 +68,12 @@ export default function TeacherModal({
   };
 
   const handleSubjectsChange = (id: number) => {
-    setFormData((prev: any) => {
+    setFormData((prev) => {
       const exists = prev.subject_ids.includes(id);
       return {
         ...prev,
         subject_ids: exists
-          ? prev.subject_ids.filter((sid: number) => sid !== id)
+          ? prev.subject_ids.filter((sid) => sid !== id)
           : [...prev.subject_ids, id],
       };
     });
@@ -98,6 +81,48 @@ export default function TeacherModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (!formData.name || formData.name.length < 3) {
+      alert("Name must be at least 3 characters long");
+      return;
+    }
+
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    if (!formData.phone || formData.phone.length < 10) {
+      alert("Phone number must be at least 10 characters long");
+      return;
+    }
+
+    if (!formData.birth_date) {
+      alert("Please select a birth date");
+      return;
+    }
+
+    if (!formData.specialization) {
+      alert("Please enter a specialization");
+      return;
+    }
+
+    if (!formData.qualification) {
+      alert("Please enter a qualification");
+      return;
+    }
+
+    if (!formData.hire_date) {
+      alert("Please select a hire date");
+      return;
+    }
+
+    if (formData.subject_ids.length === 0) {
+      alert("Please select at least one subject");
+      return;
+    }
+
     onSubmit({
       ...(teacher ? { id: teacher.id } : {}),
       ...formData,
@@ -187,16 +212,16 @@ export default function TeacherModal({
 
           <div className="mb-4">
             <label
-              htmlFor="birthdate"
+              htmlFor="birth_date"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Birthdate
             </label>
             <input
               type="date"
-              id="birthdate"
-              name="birthdate"
-              value={formData.birthdate}
+              id="birth_date"
+              name="birth_date"
+              value={formData.birth_date}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
@@ -205,7 +230,12 @@ export default function TeacherModal({
 
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+              <label
+                htmlFor="specialization"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Specialization
+              </label>
               <input
                 type="text"
                 id="specialization"
@@ -217,7 +247,12 @@ export default function TeacherModal({
               />
             </div>
             <div>
-              <label htmlFor="qualification" className="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+              <label
+                htmlFor="qualification"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Qualification
+              </label>
               <input
                 type="text"
                 id="qualification"
@@ -231,7 +266,12 @@ export default function TeacherModal({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="hire_date" className="block text-sm font-medium text-gray-700 mb-1">Hire date</label>
+            <label
+              htmlFor="hire_date"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Hire date
+            </label>
             <input
               type="date"
               id="hire_date"
@@ -244,7 +284,9 @@ export default function TeacherModal({
           </div>
 
           <div className="mb-6">
-            <div className="block text-sm font-medium text-gray-700 mb-1">Subjects</div>
+            <div className="block text-sm font-medium text-gray-700 mb-1">
+              Subjects
+            </div>
             <div className="max-h-40 overflow-auto border rounded p-2">
               {subjects.map((s) => (
                 <label key={s.id} className="flex items-center space-x-2 py-1">
