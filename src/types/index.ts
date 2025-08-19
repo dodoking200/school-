@@ -42,10 +42,15 @@ export type Question = {
 
 export type AcademicYear = {
   id: number;
-  name: string;
-  tuition_fee: number;
-  created_at: string;
-  updated_at: string;
+  start_year: string;
+  end_year: string;
+  full_tuition: number;
+};
+
+export type AcademicYearCreatePayload = {
+  start_year: string;
+  end_year: string;
+  full_tuition: number;
 };
 
 export type Class = {

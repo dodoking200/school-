@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { AcademicYear } from "@/types";
+import { AcademicYear, AcademicYearCreatePayload } from "@/types";
 
 interface AcademicYearModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (academicYearData: {
-    id?: number;
-    name: string;
-    tuition_fee: number;
-  }) => void;
+  onSubmit: (
+    academicYearData: AcademicYearCreatePayload & { id?: number }
+  ) => void;
   academicYear: AcademicYear | null;
   title: string;
 }
@@ -20,22 +18,30 @@ export default function AcademicYearModal({
   academicYear,
   title,
 }: AcademicYearModalProps) {
-  const [name, setName] = useState("");
-  const [tuitionFee, setTuitionFee] = useState<number>(0);
+  const [startYear, setStartYear] = useState("");
+  const [endYear, setEndYear] = useState("");
+  const [fullTuition, setFullTuition] = useState<number>(0);
 
   useEffect(() => {
     if (academicYear) {
-      setName(academicYear.name);
-      setTuitionFee(academicYear.tuition_fee);
+      setStartYear(academicYear.start_year);
+      setEndYear(academicYear.end_year);
+      setFullTuition(academicYear.full_tuition);
     } else {
-      setName("");
-      setTuitionFee(0);
+      setStartYear("");
+      setEndYear("");
+      setFullTuition(0);
     }
   }, [academicYear]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ id: academicYear?.id, name, tuition_fee: tuitionFee });
+    onSubmit({
+      id: academicYear?.id,
+      start_year: startYear,
+      end_year: endYear,
+      full_tuition: fullTuition,
+    });
     onClose();
   };
 
@@ -48,24 +54,36 @@ export default function AcademicYearModal({
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Academic Year Name
+              Start Year
             </label>
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              type="date"
+              value={startYear}
+              onChange={(e) => setStartYear(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Tuition Fee
+              End Year
+            </label>
+            <input
+              type="date"
+              value={endYear}
+              onChange={(e) => setEndYear(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Full Tuition
             </label>
             <input
               type="number"
-              value={tuitionFee}
-              onChange={(e) => setTuitionFee(Number(e.target.value))}
+              value={fullTuition}
+              onChange={(e) => setFullTuition(Number(e.target.value))}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />

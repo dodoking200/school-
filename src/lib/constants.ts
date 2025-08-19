@@ -56,6 +56,8 @@ export const API_ENDPOINTS = {
   },
   ACADEMIC_YEARS: {
     GET_ALL: "academic-years",
+    CREATE: "academic-years",
+
     UPDATE: (id: number) => `academic-years/${id}`,
     DELETE: (id: number) => `academic-years/${id}`,
   },

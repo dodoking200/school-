@@ -1,31 +1,27 @@
 import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import AcademicYearModal from "./AcademicYearModal";
-import { AcademicYear } from "@/types";
+import { AcademicYear, AcademicYearCreatePayload } from "@/types";
+import { academicYearService } from "@/lib/services/academicYearService";
 
 export default function AcademicYearInfo() {
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState<AcademicYear | null>(null);
+  const [selectedAcademicYear, setSelectedAcademicYear] =
+    useState<AcademicYear | null>(null);
 
   useEffect(() => {
-    setAcademicYears([
-      {
-        id: 1,
-        name: "2023-2024",
-        tuition_fee: 10000,
-        created_at: "2023-01-01",
-        updated_at: "2023-01-01",
-      },
-      {
-        id: 2,
-        name: "2024-2025",
-        tuition_fee: 10500,
-        created_at: "2024-01-01",
-        updated_at: "2024-01-01",
-      },
-    ]);
+    fetchAcademicYears();
   }, []);
+
+  const fetchAcademicYears = async () => {
+    try {
+      const data = await academicYearService.getAcademicYears();
+      setAcademicYears(data);
+    } catch (error) {
+      console.error("Failed to fetch academic years", error);
+    }
+  };
 
   const handleAddAcademicYear = () => {
     setSelectedAcademicYear(null);
@@ -37,19 +33,30 @@ export default function AcademicYearInfo() {
     setIsModalOpen(true);
   };
 
-  const handleSubmitAcademicYear = (academicYearData: {
-    id?: number;
-    name: string;
-    tuition_fee: number;
-  }) => {
-    const now = new Date().toISOString();
-    if (academicYearData.id) {
-      setAcademicYears(academicYears.map(ay =>
-        ay.id === academicYearData.id ? { ...ay, ...academicYearData, updated_at: now } : ay
-      ));
-    } else {
-      const newId = Math.max(0, ...academicYears.map(ay => ay.id)) + 1;
-      setAcademicYears([...academicYears, { ...academicYearData, id: newId, created_at: now, updated_at: now }]);
+  const handleDeleteAcademicYear = async (id: number) => {
+    try {
+      await academicYearService.deleteAcademicYear(id);
+      fetchAcademicYears();
+    } catch (error) {
+      console.error("Failed to delete academic year", error);
+    }
+  };
+
+  const handleSubmitAcademicYear = async (
+    academicYearData: AcademicYearCreatePayload & { id?: number }
+  ) => {
+    try {
+      if (academicYearData.id) {
+        await academicYearService.updateAcademicYear(
+          academicYearData.id,
+          academicYearData
+        );
+      } else {
+        await academicYearService.createAcademicYear(academicYearData);
+      }
+      fetchAcademicYears();
+    } catch (error) {
+      console.error("Failed to save academic year", error);
     }
   };
 
@@ -60,7 +67,9 @@ export default function AcademicYearInfo() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmitAcademicYear}
         academicYear={selectedAcademicYear}
-        title={selectedAcademicYear ? "Edit Academic Year" : "Add New Academic Year"}
+        title={
+          selectedAcademicYear ? "Edit Academic Year" : "Add New Academic Year"
+        }
       />
       <Table
         title="Academic Years"
@@ -78,7 +87,13 @@ export default function AcademicYearInfo() {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Academic Year
+              Start Year
+            </th>
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              End Year
             </th>
             <th
               scope="col"
@@ -102,10 +117,13 @@ export default function AcademicYearInfo() {
                 className=" text-left hover:bg-gray-50 transition duration-150"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {academicYear.name}
+                  {academicYear.start_year}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {academicYear.tuition_fee}
+                  {academicYear.end_year}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {academicYear.full_tuition}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <button
@@ -113,6 +131,12 @@ export default function AcademicYearInfo() {
                     onClick={() => handleEditAcademicYear(academicYear)}
                   >
                     Edit
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-900 ml-4"
+                    onClick={() => handleDeleteAcademicYear(academicYear.id)}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
