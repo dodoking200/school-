@@ -54,4 +54,9 @@ export const API_ENDPOINTS = {
   PERMISSIONS: {
     GET_ALL: "permissions",
   },
+  ACADEMIC_YEARS: {
+    GET_ALL: "academic-years",
+    UPDATE: (id: number) => `academic-years/${id}`,
+    DELETE: (id: number) => `academic-years/${id}`,
+  },
 };
