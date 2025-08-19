@@ -23,20 +23,7 @@ export default function AdminPage() {
         >
           home
         </SideNavButton>
-        <SideNavButton
-          icon="grading"
-          active={activeButton === "Marks"}
-          onClick={() => setActiveButton("Marks")}
-        >
-          Marks
-        </SideNavButton>
-        <SideNavButton
-          icon="assignment"
-          active={activeButton === "Quizzes"}
-          onClick={() => setActiveButton("Quizzes")}
-        >
-          Quizzes
-        </SideNavButton>
+
         <SideNavButton
           icon="student"
           active={activeButton === "student"}

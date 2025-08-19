@@ -55,10 +55,17 @@ export const API_ENDPOINTS = {
     GET_ALL: "permissions",
   },
   ACADEMIC_YEARS: {
-    GET_ALL: "academic-years",
-    CREATE: "academic-years",
+    GET_ALL: "academic_years",
+    CREATE: "academic_years",
 
-    UPDATE: (id: number) => `academic-years/${id}`,
-    DELETE: (id: number) => `academic-years/${id}`,
+    UPDATE: (id: number) => `academic_years/${id}`,
+    DELETE: (id: number) => `academic_years/${id}`,
+  },
+
+  CLASS_ROOMS: {
+    GET_ALL: "classes",
+    CREATE: "classes",
+    UPDATE: (id: number) => `class_rooms/${id}`,
+    DELETE: (id: number) => `class_rooms/${id}`,
   },
 };
