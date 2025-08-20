@@ -19,6 +19,12 @@ export const API_ENDPOINTS = {
     GET_ALL: "students",
     CREATE: "students",
     GET_BY_ID: (id: number) => `students/${id}`,
+    GET_BY_CLASS: (classId: number) => `students/class/${classId}`,
+  },
+
+  ATTENDANCE: {
+    GET_BY_STUDENT: (studentId: number) =>
+      `attendance_students/student/${studentId}`,
   },
 
   TEACHERS: {
@@ -50,6 +56,7 @@ export const API_ENDPOINTS = {
   },
   SUBJECTS: {
     LIST: "subjects/list",
+    GET_ALL: "subjects",
   },
   PERMISSIONS: {
     GET_ALL: "permissions",
@@ -65,7 +72,7 @@ export const API_ENDPOINTS = {
   CLASS_ROOMS: {
     GET_ALL: "classes",
     CREATE: "classes",
-    UPDATE: (id: number) => `class_rooms/${id}`,
-    DELETE: (id: number) => `class_rooms/${id}`,
+    UPDATE: (id: number) => `classes/${id}`,
+    DELETE: (id: number) => `classes/${id}`,
   },
 };

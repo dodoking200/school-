@@ -4,7 +4,7 @@ import { Subject } from "@/types";
 interface SubjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (subject: { id?: number; name: string }) => void;
+  onSubmit: (subject: { id?: number; name: string; grade: string }) => void;
   subject?: Subject | null;
   title: string;
 }
@@ -16,19 +16,21 @@ export default function SubjectModal({
   subject,
   title,
 }: SubjectModalProps) {
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ name: "", grade: "" });
 
   useEffect(() => {
     if (subject) {
-      setFormData({ name: subject.name });
+      setFormData({ name: subject.name, grade: subject.grade || "" });
     } else {
-      setFormData({ name: "" });
+      setFormData({ name: "", grade: "" });
     }
   }, [subject]);
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -73,7 +75,7 @@ export default function SubjectModal({
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Name
+              Subject Name
             </label>
             <input
               type="text"
@@ -84,6 +86,37 @@ export default function SubjectModal({
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
             />
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="grade"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Grade
+            </label>
+            <select
+              id="grade"
+              name="grade"
+              value={formData.grade}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              required
+            >
+              <option value="">Select Grade</option>
+              <option value="1">Grade 1</option>
+              <option value="2">Grade 2</option>
+              <option value="3">Grade 3</option>
+              <option value="4">Grade 4</option>
+              <option value="5">Grade 5</option>
+              <option value="6">Grade 6</option>
+              <option value="7">Grade 7</option>
+              <option value="8">Grade 8</option>
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11">Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
           </div>
 
           <div className="flex justify-end space-x-3">

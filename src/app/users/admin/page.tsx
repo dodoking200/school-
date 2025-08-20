@@ -9,12 +9,27 @@ import ClassesInfo from "@/components/admin/ClassesInfo";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import TeacherInfo from "@/components/admin/TeacherInfo";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
 
   return (
     <div className="flex min-h-screen">
+      {/* Toast Container for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <SideNav>
         <SideNavButton
           icon="home"

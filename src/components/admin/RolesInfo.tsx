@@ -10,12 +10,24 @@ export default function RolesInfo() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isPermsOpen, setIsPermsOpen] = useState<boolean>(false);
   const [rolePermissions, setRolePermissions] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRoles = async () => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      setError(null);
       const data = await roleService.getRoles();
       type ApiPermission = { permission_id?: number; permission_name?: string };
-      type ApiRole = { id: number; name: string; permissions?: ApiPermission[] };
+      type ApiRole = {
+        id: number;
+        name: string;
+        permissions?: ApiPermission[];
+      };
       const apiRoles = data as unknown as ApiRole[];
       const mapped: Role[] = apiRoles.map((r) => ({
         id: r.id,
@@ -27,9 +39,15 @@ export default function RolesInfo() {
           : [],
       }));
       setRoles(mapped);
-    };
-    fetchRoles();
-  }, []);
+    } catch (error) {
+      console.error("Failed to fetch roles", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch roles"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddRole = () => {
     setSelectedRole(null);
@@ -42,10 +60,20 @@ export default function RolesInfo() {
   };
 
   const handleShowPermissions = async (role: Role) => {
-    const perms = await roleService.getRolePermissions(role.id);
-    setSelectedRole(role);
-    setRolePermissions(perms.map((p) => p.name));
-    setIsPermsOpen(true);
+    try {
+      setError(null);
+      const perms = await roleService.getRolePermissions(role.id);
+      setSelectedRole(role);
+      setRolePermissions(perms.map((p) => p.name));
+      setIsPermsOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch role permissions", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch role permissions"
+      );
+    }
   };
 
   const handleSubmitRole = async (roleData: {
@@ -53,27 +81,24 @@ export default function RolesInfo() {
     name: string;
     permissionIds: number[];
   }) => {
-    if (roleData.id) {
-      // update name first if changed
-      await roleService.updateRoleName(roleData.id, roleData.name);
-      await roleService.updateRolePermissions(roleData.id, roleData.permissionIds);
-    } else {
-      await roleService.createRole(roleData.name, roleData.permissionIds);
+    try {
+      setError(null);
+      if (roleData.id) {
+        // update name first if changed
+        await roleService.updateRoleName(roleData.id, roleData.name);
+        await roleService.updateRolePermissions(
+          roleData.id,
+          roleData.permissionIds
+        );
+      } else {
+        await roleService.createRole(roleData.name, roleData.permissionIds);
+      }
+      fetchRoles();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save role", error);
+      setError(error instanceof Error ? error.message : "Failed to save role");
     }
-    const refreshed = await roleService.getRoles();
-    type ApiPermission = { permission_id?: number; permission_name?: string };
-    type ApiRole = { id: number; name: string; permissions?: ApiPermission[] };
-    const apiRoles = refreshed as unknown as ApiRole[];
-    const mapped: Role[] = apiRoles.map((r) => ({
-      id: r.id,
-      name: r.name,
-      permissions: Array.isArray(r.permissions)
-        ? r.permissions
-            .map((p) => p.permission_name || "")
-            .filter((n): n is string => Boolean(n))
-        : [],
-    }));
-    setRoles(mapped);
   };
 
   return (
@@ -119,41 +144,71 @@ export default function RolesInfo() {
         }
         tableContent={
           <>
-            {roles.map((role) => (
-              <tr
-                key={role.id}
-                className=" text-left hover:bg-gray-50 transition duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {role.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => handleShowPermissions(role)}
-                  >
-                    Show Roles
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900"
-                    onClick={() => handleEditRole(role)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-900 ml-4"
-                    onClick={async () => {
-                      await roleService.deleteRole(role.id);
-                      setRoles((prev) => prev.filter((r) => r.id !== role.id));
-                    }}
-                  >
-                    Remove
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4">
+                  Loading roles...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4 text-red-500">
+                  Error: {error}
+                </td>
+              </tr>
+            ) : roles.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4">
+                  No roles found
+                </td>
+              </tr>
+            ) : (
+              roles.map((role) => (
+                <tr
+                  key={role.id}
+                  className=" text-left hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {role.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => handleShowPermissions(role)}
+                    >
+                      Show Roles
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      className="text-indigo-600 hover:text-indigo-900"
+                      onClick={() => handleEditRole(role)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-900 ml-4"
+                      onClick={async () => {
+                        try {
+                          setError(null);
+                          await roleService.deleteRole(role.id);
+                          fetchRoles();
+                        } catch (error) {
+                          console.error("Failed to delete role", error);
+                          setError(
+                            error instanceof Error
+                              ? error.message
+                              : "Failed to delete role"
+                          );
+                        }
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </>
         }
       />
@@ -169,8 +224,18 @@ export default function RolesInfo() {
                 onClick={() => setIsPermsOpen(false)}
                 className="text-gray-400 hover:text-gray-500"
               >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>

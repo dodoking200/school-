@@ -2,6 +2,7 @@
 export type Subject = {
   id: number;
   name: string;
+  grade?: string;
 };
 
 export type User = {
@@ -58,6 +59,23 @@ export type Class = {
   name: string;
   floor: number;
   grade: number;
+};
+
+export type Student = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  birth_date: string;
+  class_id: number;
+  class_name?: string;
+  attendance?: {
+    present: number;
+    absent: number;
+    late: number;
+    excused: number;
+    total: number;
+  };
 };
 
 export type ApiResponse<T> = {

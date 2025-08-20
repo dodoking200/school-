@@ -2,21 +2,34 @@ import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import SubjectModal from "./SubjectModal";
 import { Subject } from "@/types";
+import { subjectService } from "@/lib/services/subjectService";
 
 export default function SubjectsInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSubjects([
-      { id: 1, name: "Mathematics" },
-      { id: 2, name: "Science" },
-      { id: 3, name: "English" },
-      { id: 4, name: "History" },
-      { id: 5, name: "Art" },
-    ]);
+    fetchSubjects();
   }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await subjectService.getSubjects();
+      setSubjects(data);
+    } catch (error) {
+      console.error("Failed to fetch subjects", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch subjects"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddSubject = () => {
     setSelectedSubject(null);
@@ -32,12 +45,16 @@ export default function SubjectsInfo() {
     setSubjects(subjects.filter((subject) => subject.id !== subjectId));
   };
 
-  const handleSubmitSubject = (subjectData: { id?: number; name: string }) => {
+  const handleSubmitSubject = (subjectData: {
+    id?: number;
+    name: string;
+    grade: string;
+  }) => {
     if (subjectData.id) {
       setSubjects(
         subjects.map((subject) =>
           subject.id === subjectData.id
-            ? { ...subject, name: subjectData.name }
+            ? { ...subject, name: subjectData.name, grade: subjectData.grade }
             : subject
         )
       );
@@ -73,13 +90,13 @@ export default function SubjectsInfo() {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              ID
+              Subject Name
             </th>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Name
+              Grade
             </th>
             <th
               scope="col"
@@ -91,33 +108,53 @@ export default function SubjectsInfo() {
         }
         tableContent={
           <>
-            {subjects.map((subject) => (
-              <tr
-                key={subject.id}
-                className=" text-left hover:bg-gray-50 transition duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {subject.id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {subject.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900"
-                    onClick={() => handleEditSubject(subject)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-900 ml-4"
-                    onClick={() => handleDeleteSubject(subject.id)}
-                  >
-                    Remove
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4">
+                  Loading subjects...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4 text-red-500">
+                  Error: {error}
+                </td>
+              </tr>
+            ) : subjects.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4">
+                  No subjects found
+                </td>
+              </tr>
+            ) : (
+              subjects.map((subject) => (
+                <tr
+                  key={subject.id}
+                  className=" text-left hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {subject.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {subject.grade || "No grade"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      className="text-indigo-600 hover:text-indigo-900"
+                      onClick={() => handleEditSubject(subject)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-900 ml-4"
+                      onClick={() => handleDeleteSubject(subject.id)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </>
         }
       />
