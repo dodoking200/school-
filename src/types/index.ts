@@ -89,3 +89,35 @@ export type Role = {
   name: string;
   permissions: Permission[];
 };
+
+export type Schedule = {
+  id: number;
+  class_id: number;
+  day_id: number;
+  period_id: number;
+  subject_id: number;
+  teacher_id: number;
+  day_name?: string;
+  period_time?: string;
+  subject_name?: string;
+  teacher_name?: string;
+};
+
+export type ScheduleCreatePayload = {
+  class_id: number;
+  day_id: number;
+  period_id: number;
+  subject_id: number;
+  teacher_id: number;
+};
+
+export type Day = {
+  id: number;
+  name: string;
+};
+
+export type Period = {
+  id: number;
+  start_time: string;
+  end_time: string;
+};

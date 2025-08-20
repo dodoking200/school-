@@ -27,6 +27,22 @@ export const API_ENDPOINTS = {
       `attendance_students/student/${studentId}`,
   },
 
+  SCHEDULES: {
+    GET_ALL: "schedules",
+    GET_BY_CLASS: (classId: number) => `schedules/class/${classId}`,
+    CREATE: "schedules",
+    UPDATE: (id: number) => `schedules/${id}`,
+    DELETE: (id: number) => `schedules/${id}`,
+  },
+
+  DAYS: {
+    GET_ALL: "days",
+  },
+
+  PERIODS: {
+    GET_ALL: "periods",
+  },
+
   TEACHERS: {
     GET_ALL: "teachers",
     GET_BY_ID: (id: number) => `teachers/${id}`,
