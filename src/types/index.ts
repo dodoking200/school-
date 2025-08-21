@@ -63,7 +63,7 @@ export type Class = {
 
 export type Student = {
   id: number;
-  name: string;
+  student_name: string;
   email: string;
   phone: string;
   birth_date: string;

@@ -75,4 +75,19 @@ export const studentService = {
       throw new Error("Failed to delete student");
     }
   },
+
+  async getStudentsByTeacher(): Promise<Student[]> {
+    try {
+      const response = await apiClient<Student[]>(
+        API_ENDPOINTS.TEACHER.GET_STUDENTS,
+        {
+          method: "GET",
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch students by teacher:", error);
+      throw new Error("Failed to fetch students by teacher");
+    }
+  },
 };

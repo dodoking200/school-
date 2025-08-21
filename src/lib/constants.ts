@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
   TEACHER: {
     SCHEDULE: "teachers/subjects",
     GET_QUESTIONS: "teachers/questions",
+    GET_STUDENTS: "teachers/students",
   },
 
   ROLES: {
