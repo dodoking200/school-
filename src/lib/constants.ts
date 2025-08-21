@@ -90,5 +90,6 @@ export const API_ENDPOINTS = {
     CREATE: "classes",
     UPDATE: (id: number) => `classes/${id}`,
     DELETE: (id: number) => `classes/${id}`,
+    CAN_DELETE: (id: number) => `classes/${id}/can-delete`,
   },
 };

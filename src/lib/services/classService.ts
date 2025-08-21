@@ -32,4 +32,23 @@ export const classService = {
       method: "DELETE",
     });
   },
+
+  canDeleteClass: async (
+    id: number
+  ): Promise<{
+    canDelete: boolean;
+    reason: string;
+    studentCount?: number;
+    scheduleCount?: number;
+  }> => {
+    const response = await apiClient<{
+      canDelete: boolean;
+      reason: string;
+      studentCount?: number;
+      scheduleCount?: number;
+    }>(API_ENDPOINTS.CLASS_ROOMS.CAN_DELETE(id), {
+      method: "GET",
+    });
+    return response.data;
+  },
 };

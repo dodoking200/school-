@@ -16,6 +16,17 @@ export default function ClassesInfo() {
     useState<Class | null>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deletionStatus, setDeletionStatus] = useState<
+    Record<
+      number,
+      {
+        canDelete: boolean;
+        reason: string;
+        studentCount?: number;
+        scheduleCount?: number;
+      }
+    >
+  >({});
 
   useEffect(() => {
     fetchClasses();
@@ -26,6 +37,34 @@ export default function ClassesInfo() {
       setLoading(true);
       const data = await classService.getClasses();
       setClasses(data);
+
+      // Fetch deletion status for all classes
+      const statusPromises = data.map(async (classData) => {
+        try {
+          const status = await classService.canDeleteClass(classData.id);
+          return { id: classData.id, status };
+        } catch (error) {
+          console.error(
+            `Failed to fetch deletion status for class ${classData.id}:`,
+            error
+          );
+          return {
+            id: classData.id,
+            status: {
+              canDelete: false,
+              reason: "Error checking deletion status",
+            },
+          };
+        }
+      });
+
+      const statusResults = await Promise.all(statusPromises);
+      const statusMap = statusResults.reduce((acc, { id, status }) => {
+        acc[id] = status;
+        return acc;
+      }, {} as Record<number, { canDelete: boolean; reason: string; studentCount?: number; scheduleCount?: number }>);
+
+      setDeletionStatus(statusMap);
     } catch (error) {
       console.error("Failed to fetch classes", error);
       toast.error(
@@ -48,6 +87,15 @@ export default function ClassesInfo() {
 
   const handleDeleteClass = async (classId: number) => {
     try {
+      // First check if the class can be deleted
+      const deletionStatus = await classService.canDeleteClass(classId);
+
+      if (!deletionStatus.canDelete) {
+        toast.error(deletionStatus.reason);
+        return;
+      }
+
+      // If it can be deleted, proceed with deletion
       await classService.deleteClass(classId);
       fetchClasses();
       toast.success("Class deleted successfully");
@@ -182,6 +230,22 @@ export default function ClassesInfo() {
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {classData.name}
+                    {(() => {
+                      const status = deletionStatus[classData.id];
+                      if (
+                        status &&
+                        !status.canDelete &&
+                        status.studentCount &&
+                        status.studentCount > 0
+                      ) {
+                        return (
+                          <div className="text-xs text-blue-500 mt-1">
+                            {status.studentCount} student(s) assigned
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {classData.floor}
@@ -197,8 +261,17 @@ export default function ClassesInfo() {
                       Edit
                     </button>
                     <button
-                      className="text-red-600 hover:text-red-900 ml-4"
+                      className={`ml-4 ${
+                        deletionStatus[classData.id]?.canDelete
+                          ? "text-red-600 hover:text-red-900"
+                          : "text-gray-400 cursor-not-allowed"
+                      }`}
                       onClick={() => handleDeleteClass(classData.id)}
+                      disabled={!deletionStatus[classData.id]?.canDelete}
+                      title={
+                        deletionStatus[classData.id]?.reason ||
+                        "Checking deletion status..."
+                      }
                     >
                       Remove
                     </button>
