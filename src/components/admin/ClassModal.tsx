@@ -4,7 +4,7 @@ import { Class } from "@/types";
 interface ClassModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (classData: Omit<Class, 'id'> & { id?: number }) => void;
+  onSubmit: (classData: Omit<Class, "id"> & { id?: number }) => void;
   classData?: Class | null;
   title: string;
 }
@@ -17,27 +17,27 @@ export default function ClassModal({
   title,
 }: ClassModalProps) {
   const [formData, setFormData] = useState<{
-    name: string;
-    floor: number | "";
-    grade: number | "";
+    class_name: string;
+    floor_number: number | "";
+    level_grade: number | "";
   }>({
-    name: "",
-    floor: 0,
-    grade: 9,
+    class_name: "",
+    floor_number: 0,
+    level_grade: 9,
   });
 
   useEffect(() => {
     if (classData) {
       setFormData({
-        name: classData.name,
-        floor: classData.floor,
-        grade: classData.grade,
+        class_name: classData.class_name,
+        floor_number: classData.floor_number,
+        level_grade: classData.level_grade,
       });
     } else {
       setFormData({
-        name: "",
-        floor: 0,
-        grade: 9,
+        class_name: "",
+        floor_number: 0,
+        level_grade: 9,
       });
     }
   }, [classData]);
@@ -48,7 +48,7 @@ export default function ClassModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "floor" || name === "grade") {
+    if (name === "floor_number" || name === "level_grade") {
       const numValue = parseInt(value, 10);
       setFormData({ ...formData, [name]: isNaN(numValue) ? "" : numValue });
     } else {
@@ -60,8 +60,8 @@ export default function ClassModal({
     e.preventDefault();
     const payload = {
       ...formData,
-      floor: Number(formData.floor),
-      grade: Number(formData.grade),
+      floor_number: Number(formData.floor_number),
+      level_grade: Number(formData.level_grade),
     };
     onSubmit({
       ...(classData ? { id: classData.id } : {}),
@@ -98,16 +98,16 @@ export default function ClassModal({
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="name"
+              htmlFor="class_name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Name
+              Class Name
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="class_name"
+              name="class_name"
+              value={formData.class_name}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
@@ -116,16 +116,16 @@ export default function ClassModal({
 
           <div className="mb-4">
             <label
-              htmlFor="floor"
+              htmlFor="floor_number"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Floor
+              Floor Number
             </label>
             <input
               type="number"
-              id="floor"
-              name="floor"
-              value={formData.floor}
+              id="floor_number"
+              name="floor_number"
+              value={formData.floor_number}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
@@ -134,16 +134,16 @@ export default function ClassModal({
 
           <div className="mb-4">
             <label
-              htmlFor="grade"
+              htmlFor="level_grade"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Grade
+              Level Grade
             </label>
             <input
               type="number"
-              id="grade"
-              name="grade"
-              value={formData.grade}
+              id="level_grade"
+              name="level_grade"
+              value={formData.level_grade}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required

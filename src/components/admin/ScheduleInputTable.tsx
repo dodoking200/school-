@@ -157,7 +157,7 @@ const ScheduleInputTable: React.FC<ScheduleInputTableProps> = ({
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-black">
-          Schedule for {classData.name}
+          Schedule for {classData.class_name}
         </h2>
         <button
           onClick={fetchData}

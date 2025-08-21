@@ -12,8 +12,8 @@ interface StudentsListModalProps {
   onClose: () => void;
   classData: {
     id: number;
-    name: string;
-    grade: number;
+    class_name: string;
+    level_grade: number;
   };
 }
 
@@ -120,7 +120,7 @@ export default function StudentsListModal({
       <div className="bg-white rounded-lg p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            Students in {classData.name} (Grade {classData.grade})
+            Students in {classData.class_name} (Grade {classData.level_grade})
           </h2>
           <button
             onClick={onClose}
@@ -160,7 +160,7 @@ export default function StudentsListModal({
                     }`}
                   >
                     <div className="font-medium text-gray-900">
-                      {student.name}
+                      {student.student_name}
                     </div>
                     <div className="text-sm text-gray-500">{student.email}</div>
                   </div>
@@ -183,7 +183,9 @@ export default function StudentsListModal({
                         <label className="text-sm font-medium text-gray-500">
                           Name
                         </label>
-                        <p className="text-gray-900">{selectedStudent.name}</p>
+                        <p className="text-gray-900">
+                          {selectedStudent.student_name}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-500">

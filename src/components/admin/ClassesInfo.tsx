@@ -229,7 +229,7 @@ export default function ClassesInfo() {
                   className=" text-left hover:bg-gray-50 transition duration-150"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {classData.name}
+                    {classData.class_name}
                     {(() => {
                       const status = deletionStatus[classData.id];
                       if (
@@ -248,10 +248,10 @@ export default function ClassesInfo() {
                     })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {classData.floor}
+                    {classData.floor_number}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {classData.grade}
+                    {classData.level_grade}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button

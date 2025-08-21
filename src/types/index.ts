@@ -56,9 +56,9 @@ export type AcademicYearCreatePayload = {
 
 export type Class = {
   id: number;
-  name: string;
-  floor: number;
-  grade: number;
+  class_name: string;
+  floor_number: number;
+  level_grade: number;
 };
 
 export type Student = {
