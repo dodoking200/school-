@@ -76,6 +76,7 @@ export type Student = {
     excused: number;
     total: number;
   };
+  attendance_percentage?: number;
 };
 
 export type ApiResponse<T> = {

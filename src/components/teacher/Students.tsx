@@ -42,20 +42,23 @@ export default function Students() {
       }
 
       const fetchedStudents = await studentService.getStudentsByTeacher();
+      console.log('Fetched students:', fetchedStudents);
 
       // Transform the data to include display properties
       const transformedStudents: StudentDisplay[] = fetchedStudents.map(
-        (student) => ({
-          ...student,
-          class_name: student.class_name || `Class ${student.class_id}`,
-          attendance_percentage: student.attendance
-            ? Math.round(
-                (student.attendance.present / student.attendance.total) * 100
-              )
-            : 0,
-          marks: 0, // Default marks, can be fetched separately if needed
-        })
+        (student) => {
+          console.log('Processing student:', student);
+          const transformed = {
+            ...student,
+            class_name: student.class_name || `Class ${student.class_id}`,
+            attendance_percentage: student.attendance_percentage || 0,
+            marks: 0, // Default marks, can be fetched separately if needed
+          };
+          console.log('Transformed student:', transformed);
+          return transformed;
+        }
       );
+      console.log('Transformed students:', transformedStudents);
 
       setStudents(transformedStudents);
       setError(null);
