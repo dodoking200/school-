@@ -9,6 +9,7 @@ export default function SubjectsInfo() {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,37 +42,66 @@ export default function SubjectsInfo() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteSubject = (subjectId: number) => {
-    setSubjects(subjects.filter((subject) => subject.id !== subjectId));
+  const handleDeleteSubject = async (subjectId: number) => {
+    try {
+      await subjectService.deleteSubject(subjectId);
+      // Refresh the subjects list after successful deletion
+      await fetchSubjects();
+    } catch (error) {
+      console.error("Failed to delete subject", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to delete subject"
+      );
+    }
   };
 
-  const handleSubmitSubject = (subjectData: {
+  const handleSubmitSubject = async (subjectData: {
     id?: number;
     name: string;
     grade: string;
   }) => {
-    if (subjectData.id) {
-      setSubjects(
-        subjects.map((subject) =>
-          subject.id === subjectData.id
-            ? { ...subject, name: subjectData.name, grade: subjectData.grade }
-            : subject
-        )
+    try {
+      setModalLoading(true);
+      setError(null);
+      
+      if (subjectData.id) {
+        // Update existing subject
+        await subjectService.updateSubject(subjectData.id, subjectData);
+      } else {
+        // Create new subject
+        await subjectService.createSubject(subjectData);
+      }
+      
+      // Refresh the subjects list after successful operation
+      await fetchSubjects();
+      // Close modal after successful operation
+      setIsModalOpen(false);
+      setSelectedSubject(null);
+    } catch (error) {
+      console.error("Failed to save subject", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to save subject"
       );
-    } else {
-      const newId = Math.max(0, ...subjects.map((s) => s.id)) + 1;
-      setSubjects([...subjects, { ...subjectData, id: newId }]);
+    } finally {
+      setModalLoading(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSubject(null);
+    setError(null);
   };
 
   return (
     <>
       <SubjectModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onSubmit={handleSubmitSubject}
         subject={selectedSubject}
         title={selectedSubject ? "Edit Subject" : "Add New Subject"}
+        isLoading={modalLoading}
       />
       <Table
         title="Subjects"

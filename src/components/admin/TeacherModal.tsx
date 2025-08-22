@@ -4,10 +4,11 @@ import React, { useState, useEffect } from "react";
 interface TeacherModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (teacher: Teacher | TeacherCreatePayload) => void;
+  onSubmit: (teacher: Teacher | TeacherCreatePayload) => Promise<void>;
   teacher?: Teacher | null;
   title: string;
   subjects: Subject[];
+  isLoading?: boolean;
 }
 
 export default function TeacherModal({
@@ -17,6 +18,7 @@ export default function TeacherModal({
   teacher,
   title,
   subjects,
+  isLoading = false,
 }: TeacherModalProps) {
   const [formData, setFormData] = useState({
     name: "",
@@ -79,7 +81,7 @@ export default function TeacherModal({
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Client-side validation
@@ -123,11 +125,16 @@ export default function TeacherModal({
       return;
     }
 
-    onSubmit({
-      ...(teacher ? { id: teacher.id } : {}),
-      ...formData,
-    });
-    onClose();
+    try {
+      await onSubmit({
+        ...(teacher ? { id: teacher.id } : {}),
+        ...formData,
+      });
+      onClose();
+    } catch (error) {
+      console.error("Error submitting teacher data:", error);
+      // Don't close modal on error, let the parent component handle it
+    }
   };
 
   return (
@@ -169,7 +176,8 @@ export default function TeacherModal({
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -187,7 +195,8 @@ export default function TeacherModal({
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -205,7 +214,8 @@ export default function TeacherModal({
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -223,7 +233,8 @@ export default function TeacherModal({
               name="birth_date"
               value={formData.birth_date}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -242,7 +253,8 @@ export default function TeacherModal({
                 name="specialization"
                 value={formData.specialization}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               />
             </div>
@@ -259,7 +271,8 @@ export default function TeacherModal({
                 name="qualification"
                 value={formData.qualification}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               />
             </div>
@@ -278,7 +291,8 @@ export default function TeacherModal({
               name="hire_date"
               value={formData.hire_date}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -294,6 +308,8 @@ export default function TeacherModal({
                     type="checkbox"
                     checked={formData.subject_ids.includes(s.id)}
                     onChange={() => handleSubjectsChange(s.id)}
+                    disabled={isLoading}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <span>{s.name}</span>
                 </label>
@@ -305,15 +321,17 @@ export default function TeacherModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              disabled={isLoading}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[var(--primary)] border border-transparent rounded-md text-sm font-medium text-white hover:bg-[var(--primary-hover)]"
+              disabled={isLoading}
+              className="px-4 py-2 bg-[var(--primary)] border border-transparent rounded-md text-sm font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

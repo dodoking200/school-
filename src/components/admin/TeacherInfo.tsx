@@ -12,6 +12,7 @@ export default function TeacherInfo() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<{ id: number; name: string }[]>([]);
 
@@ -58,29 +59,62 @@ export default function TeacherInfo() {
   const handleSubmitTeacher = async (
     teacherData: Teacher | TeacherCreatePayload
   ) => {
-    if ("id" in teacherData) {
-      await teacherService.updateTeacher(teacherData.id, {
-        name: teacherData.name,
-        email: teacherData.email,
-        phone: teacherData.phone,
-        birth_date: teacherData.birth_date,
-        subjects: teacherData.subjects,
-      });
-    } else {
-      const payload: TeacherCreatePayload = {
-        name: teacherData.name,
-        email: teacherData.email,
-        phone: teacherData.phone,
-        birth_date: teacherData.birth_date,
-        specialization: teacherData.specialization ?? "",
-        hire_date: teacherData.hire_date ?? "",
-        qualification: teacherData.qualification ?? "",
-        subject_ids: teacherData.subject_ids ?? [],
-      };
-      await teacherService.createTeacher(payload);
+    try {
+      setModalLoading(true);
+      setError(null);
+      
+      if ("id" in teacherData) {
+        // For updating, check if subject_ids exists, otherwise extract from subjects
+        const subject_ids = 'subject_ids' in teacherData ? (teacherData as TeacherCreatePayload).subject_ids : (teacherData.subjects?.map(s => s.id) || []);
+        console.log("Updating teacher with data:", {
+          id: teacherData.id,
+          name: teacherData.name,
+          email: teacherData.email,
+          phone: teacherData.phone,
+          birth_date: teacherData.birth_date,
+          specialization: teacherData.specialization,
+          hire_date: teacherData.hire_date,
+          qualification: teacherData.qualification,
+          subject_ids: subject_ids,
+        });
+        await teacherService.updateTeacher(teacherData.id, {
+          name: teacherData.name,
+          email: teacherData.email,
+          phone: teacherData.phone,
+          birth_date: teacherData.birth_date,
+          specialization: teacherData.specialization,
+          hire_date: teacherData.hire_date,
+          qualification: teacherData.qualification,
+          subject_ids: subject_ids,
+        });
+      } else {
+        const payload: TeacherCreatePayload = {
+          name: teacherData.name,
+          email: teacherData.email,
+          phone: teacherData.phone,
+          birth_date: teacherData.birth_date,
+          specialization: teacherData.specialization ?? "",
+          hire_date: teacherData.hire_date ?? "",
+          qualification: teacherData.qualification ?? "",
+          subject_ids: teacherData.subject_ids ?? [],
+        };
+        await teacherService.createTeacher(payload);
+      }
+      
+      // Refresh the teachers list after successful operation
+      await fetchData();
+      // Close modal after successful operation
+      setIsModalOpen(false);
+      setSelectedTeacher(null);
+    } catch (error) {
+      console.error("Failed to save teacher", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to save teacher"
+      );
+      toast.error(`Failed to save teacher: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setModalLoading(false);
     }
-    const refreshed = await teacherService.getTeachers();
-    setTeachers(refreshed);
   };
 
   // Handle removing a teacher
@@ -121,6 +155,7 @@ export default function TeacherInfo() {
         onSubmit={handleSubmitTeacher}
         teacher={selectedTeacher}
         title={selectedTeacher ? "Edit Teacher" : "Add New Teacher"}
+        isLoading={modalLoading}
       />
       <Table
         title="Teacher Info"
@@ -195,7 +230,7 @@ export default function TeacherInfo() {
             {loading ? (
               <tr>
                 <td colSpan={7} className="text-center py-4">
-                  Loading users...
+                  Loading teachers...
                 </td>
               </tr>
             ) : error ? (
@@ -207,7 +242,7 @@ export default function TeacherInfo() {
             ) : teachers.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-4">
-                  No users found
+                  No teachers found
                 </td>
               </tr>
             ) : (
@@ -228,8 +263,8 @@ export default function TeacherInfo() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {teacher.birth_date}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-.500">
-                    {teacher.subjects?.map((subject) => subject.name).join(",")}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {teacher.subjects?.map((subject) => subject.name).join(", ")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button

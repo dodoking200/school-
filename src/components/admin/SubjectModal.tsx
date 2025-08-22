@@ -7,6 +7,7 @@ interface SubjectModalProps {
   onSubmit: (subject: { id?: number; name: string; grade: string }) => void;
   subject?: Subject | null;
   title: string;
+  isLoading?: boolean;
 }
 
 export default function SubjectModal({
@@ -15,6 +16,7 @@ export default function SubjectModal({
   onSubmit,
   subject,
   title,
+  isLoading = false,
 }: SubjectModalProps) {
   const [formData, setFormData] = useState({ name: "", grade: "" });
 
@@ -41,7 +43,7 @@ export default function SubjectModal({
       ...(subject ? { id: subject.id } : {}),
       ...formData,
     });
-    onClose();
+    // Don't close modal immediately - let parent component handle it after API call
   };
 
   return (
@@ -52,6 +54,7 @@ export default function SubjectModal({
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-500"
+            disabled={isLoading}
           >
             <svg
               className="h-6 w-6"
@@ -85,6 +88,7 @@ export default function SubjectModal({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -102,16 +106,9 @@ export default function SubjectModal({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
+              disabled={isLoading}
             >
               <option value="">Select Grade</option>
-              <option value="1">Grade 1</option>
-              <option value="2">Grade 2</option>
-              <option value="3">Grade 3</option>
-              <option value="4">Grade 4</option>
-              <option value="5">Grade 5</option>
-              <option value="6">Grade 6</option>
-              <option value="7">Grade 7</option>
-              <option value="8">Grade 8</option>
               <option value="9">Grade 9</option>
               <option value="10">Grade 10</option>
               <option value="11">Grade 11</option>
@@ -123,15 +120,17 @@ export default function SubjectModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[var(--primary)] border border-transparent rounded-md text-sm font-medium text-white hover:bg-[var(--primary-hover)]"
+              className="px-4 py-2 bg-[var(--primary)] border border-transparent rounded-md text-sm font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

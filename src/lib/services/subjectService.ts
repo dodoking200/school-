@@ -24,4 +24,41 @@ export const subjectService = {
     );
     return response.data;
   },
+
+  createSubject: async (subjectData: { name: string; grade: string }): Promise<Subject> => {
+    const response = await apiClient<Subject>(
+      API_ENDPOINTS.SUBJECTS.CREATE,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: subjectData.name,
+          level_grade: subjectData.grade,
+        }),
+      }
+    );
+    return response.data;
+  },
+
+  updateSubject: async (id: number, subjectData: { name: string; grade: string }): Promise<Subject> => {
+    const response = await apiClient<Subject>(
+      API_ENDPOINTS.SUBJECTS.UPDATE(id),
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          name: subjectData.name,
+          level_grade: subjectData.grade,
+        }),
+      }
+    );
+    return response.data;
+  },
+
+  deleteSubject: async (id: number): Promise<void> => {
+    await apiClient(
+      API_ENDPOINTS.SUBJECTS.DELETE(id),
+      {
+        method: "DELETE",
+      }
+    );
+  },
 };

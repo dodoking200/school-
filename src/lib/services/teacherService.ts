@@ -38,7 +38,7 @@ export const teacherService = {
 
   updateTeacher: async (
     id: number,
-    payload: Partial<Teacher>
+    payload: Partial<Teacher> & { subject_ids?: number[] }
   ): Promise<void> => {
     await apiClient(API_ENDPOINTS.TEACHERS.UPDATE(id), {
       method: "PUT",

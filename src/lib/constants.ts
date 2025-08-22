@@ -74,6 +74,9 @@ export const API_ENDPOINTS = {
   SUBJECTS: {
     LIST: "subjects/list",
     GET_ALL: "subjects",
+    CREATE: "subjects",
+    UPDATE: (id: number) => `subjects/${id}`,
+    DELETE: (id: number) => `subjects/${id}`,
   },
   PERMISSIONS: {
     GET_ALL: "permissions",
