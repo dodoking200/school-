@@ -6,6 +6,7 @@ import { House, BookCheck, NotepadText, CalendarCheck } from "lucide-react";
 import Students from "@/components/teacher/Students";
 import QuestionsView from "@/components/teacher/QuestionsView";
 import TeacherSchedule from "@/components/teacher/TeacherSchedule";
+import TeacherAttendance from "@/components/teacher/TeacherAttendance";
 
 export default function TeacherPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
@@ -40,6 +41,13 @@ export default function TeacherPage() {
           onClick={() => setActiveButton("Schedule")}
         >
           <CalendarCheck />
+        </SideNavButton>
+        <SideNavButton
+          icon="attendance"
+          active={activeButton === "Attendance"}
+          onClick={() => setActiveButton("Attendance")}
+        >
+          <BookCheck />
         </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64 ">
@@ -88,6 +96,7 @@ export default function TeacherPage() {
         {activeButton == "Quizzes" && <QuestionsView />}
         {activeButton == "Marks" && <Students />}
         {activeButton == "Schedule" && <TeacherSchedule />}
+        {activeButton == "Attendance" && <TeacherAttendance />}
       </main>
     </div>
   );

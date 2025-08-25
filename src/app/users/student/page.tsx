@@ -6,6 +6,7 @@ import { CalendarCheck, File, FileChartColumn, House } from "lucide-react";
 import ExamSchedule from "@/components/student/ExamSchedule";
 import Schedule from "@/components/student/Schedule";
 import Marks from "@/components/student/Marks";
+import AttendanceView from "@/components/student/AttendanceView";
 
 export default function StudentPage() {
   const [activeButton, setActiveButton] = useState<string>("home");
@@ -41,6 +42,13 @@ export default function StudentPage() {
         >
           <CalendarCheck />
         </SideNavButton>
+        <SideNavButton
+          icon="attendance"
+          active={activeButton === "Attendance"}
+          onClick={() => setActiveButton("Attendance")}
+        >
+          <FileChartColumn />
+        </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64  ">
         <h1 className="text-3xl font-bold mb-6 text-black">
@@ -49,6 +57,7 @@ export default function StudentPage() {
         {activeButton == "Quizzes" && <ExamSchedule />}
         {activeButton == "Schedule" && <Schedule />}
         {activeButton == "Marks" && <Marks />}
+        {activeButton == "Attendance" && <AttendanceView />}
       </main>
     </div>
   );

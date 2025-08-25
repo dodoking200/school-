@@ -6,6 +6,7 @@ import RolesInfo from "@/components/admin/RolesInfo";
 import AcademicYearInfo from "@/components/admin/AcademicYearInfo";
 import SubjectsInfo from "@/components/admin/SubjectsInfo";
 import ClassesInfo from "@/components/admin/ClassesInfo";
+import AttendanceManager from "@/components/admin/AttendanceManager";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import TeacherInfo from "@/components/admin/TeacherInfo";
@@ -88,6 +89,13 @@ export default function AdminPage() {
         >
           Classes
         </SideNavButton>
+        <SideNavButton
+          icon="attendance"
+          active={activeButton === "attendance"}
+          onClick={() => setActiveButton("attendance")}
+        >
+          Attendance
+        </SideNavButton>
       </SideNav>
       <main className="flex-1 bg-white p-4 ml-64 ">
         <h1 className="text-3xl font-bold mb-6 text-black">admin Dashboard</h1>
@@ -98,6 +106,7 @@ export default function AdminPage() {
         {activeButton === "academic_year" && <AcademicYearInfo />}
         {activeButton === "subjects" && <SubjectsInfo />}
         {activeButton === "classes" && <ClassesInfo />}
+        {activeButton === "attendance" && <AttendanceManager />}
       </main>
     </div>
   );

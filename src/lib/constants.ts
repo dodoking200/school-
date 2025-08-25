@@ -25,6 +25,12 @@ export const API_ENDPOINTS = {
   ATTENDANCE: {
     GET_BY_STUDENT: (studentId: number) =>
       `attendance_students/student/${studentId}`,
+    // Use the existing endpoints that are actually implemented
+    GET_BY_CLASS: (classId: number) => `attendance_students/class/${classId}`,
+    CREATE_CLASS_ATTENDANCE: "attendance_students/class",
+    UPDATE_CLASS_ATTENDANCE: (id: number) => `attendance_students/class/${id}`,
+    GET_CLASS_ATTENDANCE_HISTORY: (classId: number) =>
+      `attendance_students/class/${classId}`,
   },
 
   SCHEDULES: {
@@ -54,6 +60,7 @@ export const API_ENDPOINTS = {
 
   STUDENT: {
     SCHEDULE: "students/schedule",
+    MARKS: "students/scorecard",
   },
 
   TEACHER: {

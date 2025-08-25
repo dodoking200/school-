@@ -1,4 +1,4 @@
-import { Student } from "@/types";
+import { Student, SemesterMarks } from "@/types";
 import { apiClient } from "../apiClient";
 import { API_ENDPOINTS } from "../constants";
 
@@ -88,6 +88,21 @@ export const studentService = {
     } catch (error) {
       console.error("Failed to fetch students by teacher:", error);
       throw new Error("Failed to fetch students by teacher");
+    }
+  },
+
+  async getStudentMarks(): Promise<SemesterMarks[]> {
+    try {
+      const response = await apiClient<SemesterMarks[]>(
+        API_ENDPOINTS.STUDENT.MARKS,
+        {
+          method: "GET",
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch student marks:", error);
+      throw new Error("Failed to fetch student marks");
     }
   },
 };

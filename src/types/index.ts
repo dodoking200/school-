@@ -153,3 +153,66 @@ export type TeacherScheduleDay = {
   name: string;
   subjects: TeacherScheduleSubject[];
 };
+
+// Student Marks Types
+export type Assignment = {
+  score: number;
+  min_score: number;
+  max_score: number;
+  percentage: number;
+};
+
+export type GradeType = {
+  type: string;
+  assignments: Assignment[];
+  typeAverage: number;
+  assignment_count: number;
+  typeTotal: number;
+};
+
+export type SubjectMarks = {
+  subject_id: number;
+  subject_name: string;
+  grade_types: GradeType[];
+  subjectAverage: number;
+  totalAssignments: number;
+  totalScore: number;
+};
+
+export type SemesterMarks = {
+  semester_id: number;
+  semester_name: string;
+  subjects: SubjectMarks[];
+  semesterAverage: number;
+  totalSemesterAssignments: number;
+  totalSemesterScore: number;
+};
+
+// Attendance Types
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
+
+export type StudentAttendance = {
+  student_id: number;
+  student_name: string;
+  status: AttendanceStatus;
+  notes?: string;
+};
+
+export type ClassAttendance = {
+  id?: number;
+  class_id: number;
+  class_name: string;
+  date: string;
+  students: StudentAttendance[];
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type AttendanceSummary = {
+  total_students: number;
+  present: number;
+  absent: number;
+  late: number;
+  excused: number;
+  attendance_percentage: number;
+};
