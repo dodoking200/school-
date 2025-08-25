@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
 import Table from "../ui/Table";
 import StudentModal from "./StudentModal";
+import { studentService } from "@/lib/services/studentService";
+import { classService } from "@/lib/services/classService";
+import {
+  StudentFromAPI,
+  PaginationRequest,
+  StudentCreatePayload,
+  StudentUpdatePayload,
+  Class,
+} from "@/types";
 
-interface Student {
+// Interface for the modal (keeping compatibility)
+interface StudentForModal {
   id: number;
   name: string;
   email: string;
@@ -10,175 +20,131 @@ interface Student {
   className: string;
   phone: string;
   birthdate: string;
+  discount_percentage: number;
 }
 
 export default function StudentInfo() {
   const [selectedGrade, setSelectedGrade] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] =
+    useState<StudentForModal | null>(null);
+  const [students, setStudents] = useState<StudentFromAPI[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [classesLoading, setClassesLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [studentsPerPage] = useState<number>(10);
+  const [studentsPerPage] = useState<number>(11);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalStudents, setTotalStudents] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Initialize students data
+  // Fetch students with pagination
+  const fetchStudents = async (page: number = 1) => {
+    setLoading(true);
+    try {
+      const paginationData: PaginationRequest = {
+        table: "students",
+        page: page,
+        pageSize: studentsPerPage,
+        orderBy: "name",
+        orderDirection: "asc",
+      };
+
+      const response = await studentService.getStudentsPaginated(
+        paginationData
+      );
+
+      setStudents(response.data);
+      setTotalPages(response.totalPages);
+      setTotalStudents(parseInt(response.total));
+      setHasNextPage(response.hasNextPage);
+      setHasPreviousPage(response.hasPreviousPage);
+      setCurrentPage(response.page);
+    } catch (error) {
+      console.error("Failed to fetch students:", error);
+      // Fallback to empty state
+      setStudents([]);
+      setTotalPages(0);
+      setTotalStudents(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch classes for dropdown
+  const fetchClasses = async () => {
+    setClassesLoading(true);
+    try {
+      const classesData = await classService.getClasses();
+      setClasses(classesData);
+    } catch (error) {
+      console.error("Failed to fetch classes:", error);
+    } finally {
+      setClassesLoading(false);
+    }
+  };
+
+  // Initialize data
   useEffect(() => {
-    setStudents([
-      {
-        id: 1,
-        name: "Ethan Carter",
-        email: "ethan.carter@example.com",
-        grade: 10,
-        className: "Class A",
-        phone: "(555) 123-4567",
-        birthdate: "2006-05-15",
-      },
-      {
-        id: 2,
-        name: "Olivia Bennett",
-        email: "olivia.bennett@example.com",
-        grade: 11,
-        className: "Class B",
-        phone: "(555) 234-5678",
-        birthdate: "2005-08-22",
-      },
-      {
-        id: 3,
-        name: "Noah Thompson",
-        email: "noah.thompson@example.com",
-        grade: 9,
-        className: "Class C",
-        phone: "(555) 345-6789",
-        birthdate: "2007-03-10",
-      },
-      {
-        id: 4,
-        name: "Ava Rodriguez",
-        email: "ava.rodriguez@example.com",
-        grade: 12,
-        className: "Class A",
-        phone: "(555) 456-7890",
-        birthdate: "2004-11-30",
-      },
-      {
-        id: 5,
-        name: "Liam Harper",
-        email: "liam.harper@example.com",
-        grade: 10,
-        className: "Class B",
-        phone: "(555) 567-8901",
-        birthdate: "2006-07-18",
-      },
-      {
-        id: 6,
-        name: "Sophia Martinez",
-        email: "sophia.martinez@example.com",
-        grade: 11,
-        className: "Class A",
-        phone: "(555) 678-9012",
-        birthdate: "2005-04-12",
-      },
-      {
-        id: 7,
-        name: "William Johnson",
-        email: "william.johnson@example.com",
-        grade: 9,
-        className: "Class C",
-        phone: "(555) 789-0123",
-        birthdate: "2007-09-25",
-      },
-      {
-        id: 8,
-        name: "Isabella Davis",
-        email: "isabella.davis@example.com",
-        grade: 12,
-        className: "Class B",
-        phone: "(555) 890-1234",
-        birthdate: "2004-12-03",
-      },
-      {
-        id: 9,
-        name: "James Wilson",
-        email: "james.wilson@example.com",
-        grade: 10,
-        className: "Class A",
-        phone: "(555) 901-2345",
-        birthdate: "2006-01-20",
-      },
-      {
-        id: 10,
-        name: "Mia Anderson",
-        email: "mia.anderson@example.com",
-        grade: 11,
-        className: "Class C",
-        phone: "(555) 012-3456",
-        birthdate: "2005-06-14",
-      },
-      {
-        id: 11,
-        name: "Alexander Taylor",
-        email: "alexander.taylor@example.com",
-        grade: 9,
-        className: "Class B",
-        phone: "(555) 123-4567",
-        birthdate: "2007-02-28",
-      },
-      {
-        id: 12,
-        name: "Charlotte Brown",
-        email: "charlotte.brown@example.com",
-        grade: 12,
-        className: "Class A",
-        phone: "(555) 234-5678",
-        birthdate: "2004-08-17",
-      },
-    ]);
+    fetchStudents(1);
+    fetchClasses();
   }, []);
 
   // Get unique grades for filter options
-  const uniqueGrades = [...new Set(students.map((student) => student.grade))];
+  const uniqueGrades = [
+    ...new Set(students.map((student) => student.grade_level)),
+  ];
 
   // Filter students based on selected grade and search term
   const filteredStudents = students.filter((student) => {
     const matchesGrade =
-      !selectedGrade || student.grade === parseInt(selectedGrade);
+      !selectedGrade || student.grade_level === selectedGrade;
     const matchesSearch =
       !searchTerm ||
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.className.toLowerCase().includes(searchTerm.toLowerCase());
+      student.class_name.toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesGrade && matchesSearch;
   });
 
-  // Pagination logic
-  const indexOfLastStudent = currentPage * studentsPerPage;
-  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = filteredStudents.slice(
-    indexOfFirstStudent,
-    indexOfLastStudent
-  );
-  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
-
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    fetchStudents(pageNumber);
   };
 
   // Handle opening the modal for adding a new student
   const handleAddStudent = () => {
+    if (classes.length === 0) {
+      alert("Please wait for classes to load before adding a student.");
+      return;
+    }
     setSelectedStudent(null);
     setIsModalOpen(true);
   };
 
   // Handle opening the modal for editing an existing student
-  const handleEditStudent = (student: Student) => {
-    setSelectedStudent(student);
+  const handleEditStudent = (student: StudentFromAPI) => {
+    // Convert StudentFromAPI to the format expected by StudentModal
+    const modalStudent: StudentForModal = {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      grade: parseInt(student.grade_level),
+      className: student.class_name,
+      phone: student.phone,
+      birthdate: student.birth_date,
+      discount_percentage: 0, // Default discount for existing students
+    };
+    setSelectedStudent(modalStudent);
     setIsModalOpen(true);
   };
 
   // Handle submitting the student form
-  const handleSubmitStudent = (studentData: {
+  const handleSubmitStudent = async (studentData: {
     id?: number;
     name: string;
     email: string;
@@ -186,27 +152,132 @@ export default function StudentInfo() {
     className: string;
     phone: string;
     birthdate: string;
+    discount_percentage: number;
   }) => {
-    if (studentData.id) {
-      // Update existing student
-      setStudents(
-        students.map((student) =>
-          student.id === studentData.id
-            ? { ...(studentData as Student) }
-            : student
-        )
-      );
-    } else {
-      // Add new student with a new ID
-      const newId = Math.max(0, ...students.map((s) => s.id)) + 1;
-      setStudents([...students, { ...studentData, id: newId } as Student]);
+    try {
+      if (studentData.id) {
+        // Update existing student
+        const updatePayload: StudentUpdatePayload = {
+          name: studentData.name,
+          email: studentData.email,
+          phone: studentData.phone,
+          birth_date: studentData.birthdate,
+          grade_level: studentData.grade, // Send as number (backend expects integer)
+          // Note: We need to find the class_id from the className
+          // For now, we'll use a default or find the first matching class
+          class_id:
+            classes.find((c) => c.class_name === studentData.className)?.id ||
+            1, // Send as number (backend expects integer)
+          discount_percentage: studentData.discount_percentage,
+        };
+
+        console.log("Update payload:", updatePayload);
+        await studentService.updateStudent(studentData.id, updatePayload);
+      } else {
+        // Add new student
+        const createPayload: StudentCreatePayload = {
+          name: studentData.name,
+          email: studentData.email,
+          phone: studentData.phone,
+          birth_date: studentData.birthdate,
+          grade_level: studentData.grade, // Send as number (backend expects integer)
+          // Note: We need to find the class_id from the className
+          // For now, we'll use a default or find the first matching class
+          class_id:
+            classes.find((c) => c.class_name === studentData.className)?.id ||
+            1, // Send as number (backend expects integer)
+          discount_percentage: studentData.discount_percentage,
+        };
+
+        // Validate that we have a valid class_id
+        if (!createPayload.class_id || createPayload.class_id === 1) {
+          console.warn("Using default class_id. Available classes:", classes);
+        }
+
+        // Validate all required fields
+        if (
+          !createPayload.name ||
+          !createPayload.email ||
+          !createPayload.phone ||
+          !createPayload.birth_date
+        ) {
+          throw new Error("All required fields must be filled");
+        }
+
+        // Validate class_id is not the default
+        if (createPayload.class_id === 1 && classes.length > 0) {
+          console.warn("Using default class_id. Please select a valid class.");
+        }
+
+        // Validate grade_level is valid (backend expects 9, 10, 11, or 12)
+        if (![9, 10, 11, 12].includes(createPayload.grade_level)) {
+          throw new Error("Grade level must be 9, 10, 11, or 12");
+        }
+
+        // Validate discount_percentage is valid (backend expects 0-100)
+        if (
+          createPayload.discount_percentage < 0 ||
+          createPayload.discount_percentage > 100
+        ) {
+          throw new Error("Discount percentage must be between 0 and 100");
+        }
+
+        // Validate birth_date is a valid date
+        const birthDate = new Date(createPayload.birth_date);
+        if (isNaN(birthDate.getTime())) {
+          throw new Error("Invalid birth date format");
+        }
+
+        console.log("Create payload:", createPayload);
+        console.log("Available classes:", classes);
+        console.log("Payload JSON:", JSON.stringify(createPayload, null, 2));
+        console.log(
+          "Date format check - birth_date:",
+          createPayload.birth_date,
+          "Type:",
+          typeof createPayload.birth_date
+        );
+        console.log(
+          "Discount percentage check:",
+          createPayload.discount_percentage,
+          "Type:",
+          typeof createPayload.discount_percentage
+        );
+        console.log(
+          "Grade level check:",
+          createPayload.grade_level,
+          "Type:",
+          typeof createPayload.grade_level
+        );
+        console.log(
+          "Class ID check:",
+          createPayload.class_id,
+          "Type:",
+          typeof createPayload.class_id
+        );
+        await studentService.createStudent(createPayload);
+      }
+
+      // Refresh the data after adding/updating
+      fetchStudents(currentPage);
+    } catch (error) {
+      console.error("Failed to save student:", error);
+      setErrorMessage("Failed to save student. Please try again.");
+      // Clear error message after 5 seconds
+      setTimeout(() => setErrorMessage(""), 5000);
     }
   };
 
   // Reset to first page when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    if (selectedGrade || searchTerm) {
+      fetchStudents(1);
+    }
   }, [selectedGrade, searchTerm]);
+
+  // Calculate pagination info for filtered results
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
 
   return (
     <>
@@ -216,7 +287,15 @@ export default function StudentInfo() {
         onSubmit={handleSubmitStudent}
         student={selectedStudent}
         title={selectedStudent ? "Edit Student" : "Add New Student"}
+        classes={classes} // Pass classes to the modal
       />
+
+      {/* Error Message */}
+      {errorMessage && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {errorMessage}
+        </div>
+      )}
       <Table
         title="Student Info"
         actions={
@@ -250,9 +329,14 @@ export default function StudentInfo() {
             {/* Add Student Button */}
             <button
               onClick={handleAddStudent}
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+              disabled={classesLoading || classes.length === 0}
+              className={`px-4 py-2 rounded-md ${
+                classesLoading || classes.length === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
+              } text-white`}
             >
-              Add Student
+              {classesLoading ? "Loading..." : "Add Student"}
             </button>
           </div>
         }
@@ -288,7 +372,7 @@ export default function StudentInfo() {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Grade
+              Grade Level
             </th>
             <th
               scope="col"
@@ -306,7 +390,7 @@ export default function StudentInfo() {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Birthdate
+              Birth Date
             </th>
             <th
               scope="col"
@@ -318,39 +402,59 @@ export default function StudentInfo() {
         }
         tableContent={
           <>
-            {currentStudents.map((student) => (
-              <tr
-                key={student.id}
-                className=" text-left hover:bg-gray-50 transition duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {student.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {student.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {student.grade}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {student.className}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {student.phone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {student.birthdate}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900"
-                    onClick={() => handleEditStudent(student)}
-                  >
-                    Edit
-                  </button>
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
+                  Loading students...
                 </td>
               </tr>
-            ))}
+            ) : filteredStudents.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-6 py-4 text-center text-sm text-gray-500"
+                >
+                  No students found
+                </td>
+              </tr>
+            ) : (
+              filteredStudents.map((student) => (
+                <tr
+                  key={student.id}
+                  className=" text-left hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {student.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {student.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {student.grade_level}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {student.class_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {student.phone}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {student.birth_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button
+                      className="text-indigo-600 hover:text-indigo-900"
+                      onClick={() => handleEditStudent(student)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </>
         }
       />
@@ -361,13 +465,13 @@ export default function StudentInfo() {
           <div className="text-sm text-gray-700">
             Showing {indexOfFirstStudent + 1} to{" "}
             {Math.min(indexOfLastStudent, filteredStudents.length)} of{" "}
-            {filteredStudents.length} results
+            {totalStudents} results
           </div>
           <div className="flex space-x-2">
             {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={!hasPreviousPage}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
@@ -393,7 +497,7 @@ export default function StudentInfo() {
             {/* Next Page Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={!hasNextPage}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next

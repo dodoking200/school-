@@ -16,10 +16,13 @@ export const API_ENDPOINTS = {
   },
 
   STUDENTS: {
+    PAGINATE: "pagination",
     GET_ALL: "students",
     CREATE: "students",
+    UPDATE: (id: number) => `students/${id}`,
     GET_BY_ID: (id: number) => `students/${id}`,
     GET_BY_CLASS: (classId: number) => `students/class/${classId}`,
+    SCHEDULE: "students/schedule",
   },
 
   ATTENDANCE: {

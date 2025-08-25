@@ -14,20 +14,20 @@ const API_BASE_URL =
 // src/lib/apiClient.ts
 export function buildApiUrl(endpoint: string): string {
   console.log("Building URL:", { API_BASE_URL, endpoint });
-  
+
   if (!endpoint) {
     throw new Error("Endpoint cannot be empty");
   }
-  
+
   if (!API_BASE_URL) {
     throw new Error("API_BASE_URL is not configured");
   }
-  
+
   // Remove leading/trailing slashes for proper concatenation
   const cleanBase = API_BASE_URL.replace(/\/+$/, "");
   const cleanEndpoint = endpoint.replace(/^\/+/, "");
   const fullUrl = `${cleanBase}/${cleanEndpoint}`;
-  
+
   console.log("Built URL:", fullUrl);
   return fullUrl;
 }
@@ -67,7 +67,7 @@ export async function apiClient<T>(
     fullUrl,
     method: options.method || "GET",
   });
-  
+
   try {
     const response = await fetch(fullUrl, {
       ...options,
@@ -83,12 +83,18 @@ export async function apiClient<T>(
         // Try to get response text for debugging
         responseText = await response.text();
         const errorData = JSON.parse(responseText);
-        
+
         // Handle validation errors (array of validation messages)
         if (errorData.error && Array.isArray(errorData.error)) {
-          errorMessage = errorData.error.map((err: { msg?: string; message?: string }) => err.msg || err.message).join(', ');
+          errorMessage = errorData.error
+            .map(
+              (err: { msg?: string; message?: string }) =>
+                err.msg || err.message
+            )
+            .join(", ");
         } else {
-          errorMessage = errorData.error || errorData.message || response.statusText;
+          errorMessage =
+            errorData.error || errorData.message || response.statusText;
         }
       } catch (parseError) {
         console.error("Failed to parse error response:", parseError);
@@ -131,12 +137,17 @@ export async function apiClient<T>(
       method: options.method || "GET",
       API_BASE_URL,
     });
-    
+
     // Handle specific fetch errors
-    if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
-      throw new Error("Network error: Unable to connect to the server. Please check if the backend is running.");
+    if (
+      error instanceof TypeError &&
+      error.message.includes("Failed to fetch")
+    ) {
+      throw new Error(
+        "Network error: Unable to connect to the server. Please check if the backend is running."
+      );
     }
-    
+
     throw error;
   }
 }

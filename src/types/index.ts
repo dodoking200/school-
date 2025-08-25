@@ -216,3 +216,48 @@ export type AttendanceSummary = {
   excused: number;
   attendance_percentage: number;
 };
+
+// Pagination types
+export type PaginationRequest = {
+  table: string;
+  page: number;
+  pageSize: number;
+  orderBy: string;
+  orderDirection: "asc" | "desc";
+};
+
+export type PaginationResponse<T> = {
+  page: number;
+  pageSize: number;
+  total: string;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  table: string;
+  data: T[];
+};
+
+// Updated Student type to match API response
+export type StudentFromAPI = {
+  id: number;
+  grade_level: string;
+  name: string;
+  email: string;
+  phone: string;
+  birth_date: string;
+  class_name: string;
+  curriculum_grade: string;
+};
+
+// New types for creating and updating students
+export type StudentCreatePayload = {
+  name: string;
+  email: string;
+  phone: string;
+  birth_date: string;
+  class_id: number; // Backend expects integer
+  grade_level: number; // Backend expects integer (9, 10, 11, 12) for validation
+  discount_percentage: number; // Backend expects float
+};
+
+export type StudentUpdatePayload = Partial<StudentCreatePayload>;

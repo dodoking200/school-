@@ -1,8 +1,34 @@
-import { Student, SemesterMarks } from "@/types";
+import {
+  Student,
+  SemesterMarks,
+  PaginationRequest,
+  PaginationResponse,
+  StudentFromAPI,
+  StudentCreatePayload,
+  StudentUpdatePayload,
+} from "@/types";
 import { apiClient } from "../apiClient";
 import { API_ENDPOINTS } from "../constants";
 
 export const studentService = {
+  async getStudentsPaginated(
+    paginationData: PaginationRequest
+  ): Promise<PaginationResponse<StudentFromAPI>> {
+    try {
+      const response = await apiClient<PaginationResponse<StudentFromAPI>>(
+        API_ENDPOINTS.STUDENTS.PAGINATE,
+        {
+          method: "POST",
+          body: JSON.stringify(paginationData),
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch students with pagination:", error);
+      throw new Error("Failed to fetch students with pagination");
+    }
+  },
+
   async getStudentsByClass(classId: number): Promise<Student[]> {
     try {
       const response = await apiClient<Student[]>(
@@ -33,26 +59,52 @@ export const studentService = {
     }
   },
 
-  async createStudent(studentData: Omit<Student, "id">): Promise<Student> {
+  async createStudent(
+    studentData: StudentCreatePayload
+  ): Promise<StudentFromAPI> {
     try {
-      const response = await apiClient<Student>(API_ENDPOINTS.STUDENTS.CREATE, {
-        method: "POST",
-        body: JSON.stringify(studentData),
+      console.log("Sending create student request:", {
+        endpoint: API_ENDPOINTS.STUDENTS.CREATE,
+        data: studentData,
       });
+
+      const response = await apiClient<StudentFromAPI>(
+        API_ENDPOINTS.STUDENTS.CREATE,
+        {
+          method: "POST",
+          body: JSON.stringify(studentData),
+        }
+      );
+
+      console.log("Create student response:", response);
       return response.data;
     } catch (error) {
       console.error("Failed to create student:", error);
+      // Log more details about the error
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
+
+      // Try to get more details about the error if it's a fetch error
+      if (error instanceof Error && error.message.includes("Bad Request")) {
+        console.error(
+          "Bad Request error - this usually means validation failed"
+        );
+        console.error("Check the payload structure and required fields");
+      }
+
       throw new Error("Failed to create student");
     }
   },
 
   async updateStudent(
     id: number,
-    studentData: Partial<Student>
-  ): Promise<Student> {
+    studentData: StudentUpdatePayload
+  ): Promise<StudentFromAPI> {
     try {
-      const response = await apiClient<Student>(
-        API_ENDPOINTS.STUDENTS.GET_BY_ID(id),
+      const response = await apiClient<StudentFromAPI>(
+        API_ENDPOINTS.STUDENTS.UPDATE(id),
         {
           method: "PUT",
           body: JSON.stringify(studentData),

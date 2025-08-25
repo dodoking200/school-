@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Class } from "@/types";
 
 interface StudentModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface StudentModalProps {
     className: string;
     phone: string;
     birthdate: string;
+    discount_percentage: number;
   }) => void;
   student?: {
     id: number;
@@ -20,8 +22,10 @@ interface StudentModalProps {
     className: string;
     phone: string;
     birthdate: string;
+    discount_percentage: number;
   } | null;
   title: string;
+  classes?: Class[];
 }
 
 export default function StudentModal({
@@ -30,14 +34,16 @@ export default function StudentModal({
   onSubmit,
   student,
   title,
+  classes = [],
 }: StudentModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     grade: 9,
-    className: "Class A",
+    className: "",
     phone: "",
     birthdate: "",
+    discount_percentage: 0,
   });
 
   // Initialize form data when editing a student
@@ -50,6 +56,7 @@ export default function StudentModal({
         className: student.className,
         phone: student.phone,
         birthdate: student.birthdate,
+        discount_percentage: 0, // Default discount for existing students
       });
     } else {
       // Reset form when adding a new student
@@ -57,16 +64,19 @@ export default function StudentModal({
         name: "",
         email: "",
         grade: 9,
-        className: "Class A",
+        className: classes.length > 0 ? classes[0].class_name : "",
         phone: "",
         birthdate: "",
+        discount_percentage: 0,
       });
     }
-  }, [student]);
+  }, [student, classes]);
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -179,10 +189,17 @@ export default function StudentModal({
               value={formData.className}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              required
             >
-              <option value="Class A">Class A</option>
-              <option value="Class B">Class B</option>
-              <option value="Class C">Class C</option>
+              {classes && classes.length > 0 ? (
+                classes.map((cls) => (
+                  <option key={cls.id} value={cls.class_name}>
+                    {cls.class_name}
+                  </option>
+                ))
+              ) : (
+                <option value="">No classes available</option>
+              )}
             </select>
           </div>
 
@@ -219,6 +236,25 @@ export default function StudentModal({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label
+              htmlFor="discount_percentage"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Discount Percentage
+            </label>
+            <input
+              type="number"
+              id="discount_percentage"
+              name="discount_percentage"
+              min="0"
+              max="100"
+              value={formData.discount_percentage}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             />
           </div>
 
