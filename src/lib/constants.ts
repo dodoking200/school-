@@ -57,8 +57,11 @@ export const API_ENDPOINTS = {
   },
 
   TEACHER: {
-    SCHEDULE: "teachers/subjects",
+    SCHEDULE: "teachers/schedule",
     GET_QUESTIONS: "teachers/questions",
+    CREATE_QUESTION: "questions",
+    UPDATE_QUESTION: (id: number) => `questions/${id}`,
+    DELETE_QUESTION: (id: number) => `questions/${id}`,
     GET_STUDENTS: "teachers/students",
   },
 

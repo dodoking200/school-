@@ -41,6 +41,26 @@ export type Question = {
   questionType: "multiple-choice" | "true-false";
 };
 
+// New types for the questions API response
+export type QuestionOption = {
+  option_id: number;
+  option_text: string;
+  is_correct: boolean;
+};
+
+export type QuestionItem = {
+  question_id: number;
+  question_text: string;
+  type: string;
+  options: QuestionOption[];
+};
+
+export type SubjectQuestions = {
+  subject_id: number;
+  subject_name: string;
+  questions: QuestionItem[];
+};
+
 export type AcademicYear = {
   id: number;
   start_year: string;
@@ -121,4 +141,15 @@ export type Period = {
   id: number;
   start_time: string;
   end_time: string;
+};
+
+export type TeacherScheduleSubject = {
+  start_time: string;
+  end_time: string;
+  subject_name: string;
+};
+
+export type TeacherScheduleDay = {
+  name: string;
+  subjects: TeacherScheduleSubject[];
 };

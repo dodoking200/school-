@@ -1,4 +1,4 @@
-import { Schedule, ScheduleCreatePayload } from "@/types";
+import { Schedule, ScheduleCreatePayload, TeacherScheduleDay } from "@/types";
 import { apiClient } from "../apiClient";
 import { API_ENDPOINTS } from "../constants";
 
@@ -61,6 +61,21 @@ export const scheduleService = {
     } catch (error) {
       console.error("Failed to delete schedule:", error);
       throw new Error("Failed to delete schedule");
+    }
+  },
+
+  async getTeacherSchedule(): Promise<TeacherScheduleDay[]> {
+    try {
+      const response = await apiClient<TeacherScheduleDay[]>(
+        API_ENDPOINTS.TEACHER.SCHEDULE,
+        {
+          method: "GET",
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch teacher schedule:", error);
+      throw new Error("Failed to fetch teacher schedule");
     }
   },
 };

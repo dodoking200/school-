@@ -1,249 +1,263 @@
 import { useState, useEffect } from "react";
-import { Question } from "@/types";
+import { QuestionItem, SubjectQuestions } from "@/types";
 
 interface QuestionInputProps {
-  question: Question | null;
-  onSave: (questionData: Omit<Question, "id">) => void;
+  question: QuestionItem | null;
+  onSave: (questionData: {
+    question_text: string;
+    type: string;
+    options: { text: string; is_correct: boolean }[];
+    subject_id: number;
+  }) => void;
   onClose: () => void;
+  isSubmitting?: boolean;
+  subjects?: SubjectQuestions[];
 }
 
 export default function QuestionInput({
   question,
   onSave,
   onClose,
+  isSubmitting = false,
+  subjects = [],
 }: QuestionInputProps) {
   const [formData, setFormData] = useState({
-    quizQuestion: "",
-    choices: ["", ""],
-    correctAnswer: "",
-    questionType: "multiple-choice" as "multiple-choice" | "true-false",
+    question_text: "",
+    type: "mcq" as string,
+    options: [
+      { text: "", is_correct: false },
+      { text: "", is_correct: false },
+      { text: "", is_correct: false },
+      { text: "", is_correct: false },
+    ],
+    subject_id: subjects.length > 0 ? subjects[0].subject_id : 1,
   });
 
   useEffect(() => {
     if (question) {
       setFormData({
-        quizQuestion: question.quizQuestion,
-        choices: question.choices,
-        correctAnswer: question.correctAnswer,
-        questionType: question.questionType,
+        question_text: question.question_text,
+        type: question.type,
+        options: question.options.map((opt) => ({
+          text: opt.option_text,
+          is_correct: opt.is_correct,
+        })),
+        subject_id: subjects.length > 0 ? subjects[0].subject_id : 1,
       });
     } else {
       // Reset for new question
       setFormData({
-        quizQuestion: "",
-        choices: ["", ""],
-        correctAnswer: "",
-        questionType: "multiple-choice",
+        question_text: "",
+        type: "mcq",
+        options: [
+          { text: "", is_correct: false },
+          { text: "", is_correct: false },
+          { text: "", is_correct: false },
+          { text: "", is_correct: false },
+        ],
+        subject_id: subjects.length > 0 ? subjects[0].subject_id : 1,
       });
     }
-  }, [question]);
+  }, [question, subjects]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
 
-    if (name === "questionType") {
-      const newType = value as "multiple-choice" | "true-false";
-      if (newType === "true-false") {
-        setFormData((prev) => ({
-          ...prev,
-          questionType: "true-false",
-          correctAnswer: "",
-          choices: ["True", "False"],
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          questionType: "multiple-choice",
-          correctAnswer: "",
-          choices: prev.choices.length > 2 ? prev.choices : ["", ""],
-        }));
-      }
-    } else if (name === "choice") {
+    if (name === "type") {
+      setFormData((prev) => ({
+        ...prev,
+        type: value,
+      }));
+    } else if (name === "option") {
       const index = parseInt(e.target.dataset.index || "0");
-      const newChoices = [...formData.choices];
-      newChoices[index] = value;
-      setFormData((prev) => ({ ...prev, choices: newChoices }));
+      const newOptions = [...formData.options];
+      newOptions[index] = { ...newOptions[index], text: value };
+      setFormData((prev) => ({ ...prev, options: newOptions }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const addChoice = () => {
-    if (formData.questionType === "multiple-choice") {
-      setFormData((prev) => ({
-        ...prev,
-        choices: [...prev.choices, ""],
-      }));
-    }
+  const handleCorrectAnswerChange = (index: number) => {
+    const newOptions = formData.options.map((option, i) => ({
+      ...option,
+      is_correct: i === index,
+    }));
+    setFormData((prev) => ({ ...prev, options: newOptions }));
   };
 
-  const removeChoice = (index: number) => {
-    if (
-      formData.questionType === "multiple-choice" &&
-      formData.choices.length > 2
-    ) {
-      const newChoices = formData.choices.filter((_, i) => i !== index);
+  const addOption = () => {
+    setFormData((prev) => ({
+      ...prev,
+      options: [...prev.options, { text: "", is_correct: false }],
+    }));
+  };
 
-      let newCorrectAnswer = formData.correctAnswer;
-      const removedIndex = index;
-      const correctIndex = "ABCD".indexOf(formData.correctAnswer);
-
-      if (correctIndex === removedIndex) {
-        newCorrectAnswer = "";
-      } else if (correctIndex > removedIndex) {
-        newCorrectAnswer = "ABCD"[correctIndex - 1];
+  const removeOption = (index: number) => {
+    if (formData.options.length > 2) {
+      const newOptions = formData.options.filter((_, i) => i !== index);
+      // If we removed the correct answer, reset it
+      if (formData.options[index].is_correct) {
+        newOptions[0].is_correct = true;
       }
-
-      setFormData((prev) => ({
-        ...prev,
-        choices: newChoices,
-        correctAnswer: newCorrectAnswer,
-      }));
+      setFormData((prev) => ({ ...prev, options: newOptions }));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate that at least one option is correct
+    const hasCorrectAnswer = formData.options.some(
+      (option) => option.is_correct
+    );
+    if (!hasCorrectAnswer) {
+      alert("Please select at least one correct answer");
+      return;
+    }
+
+    // Validate that all options have text
+    const hasEmptyOptions = formData.options.some(
+      (option) => !option.text.trim()
+    );
+    if (hasEmptyOptions) {
+      alert("Please fill in all option texts");
+      return;
+    }
+
     onSave(formData);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-4xl mx-auto bg-white rounded-xl p-5"
-    >
-      {/* Question Type Selector */}
-      <div className="mb-4">
-        <label htmlFor="questionType" className="block mb-1 font-medium">
-          Question Type
-        </label>
-        <select
-          id="questionType"
-          name="questionType"
-          value={formData.questionType}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded"
-        >
-          <option value="multiple-choice">Multiple Choice</option>
-          <option value="true-false">True/False</option>
-        </select>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {subjects.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Subject
+          </label>
+          <select
+            name="subject_id"
+            value={formData.subject_id}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+            disabled={isSubmitting}
+          >
+            {subjects.map((subject) => (
+              <option key={subject.subject_id} value={subject.subject_id}>
+                {subject.subject_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      {/* Quiz Question */}
-      <div className="mb-4">
-        <label htmlFor="quizQuestion" className="block mb-1 font-medium">
-          Quiz Question
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Question Text
         </label>
-        <input
-          type="text"
-          id="quizQuestion"
-          name="quizQuestion"
-          value={formData.quizQuestion}
+        <textarea
+          name="question_text"
+          value={formData.question_text}
           onChange={handleChange}
-          placeholder="Enter your quiz question"
-          className="w-full p-2 border border-gray-300 rounded"
+          rows={3}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter your question here..."
+          required
+          disabled={isSubmitting}
         />
       </div>
 
-      {/* Choices */}
-      <div className="mb-4">
-        {formData.choices.map((choice, index) => (
-          <div key={index} className="mb-2">
-            <label className="block mb-1 font-medium">
-              {formData.questionType === "true-false" && index < 2
-                ? index === 0
-                  ? "True"
-                  : "False"
-                : `Choice ${String.fromCharCode(65 + index)}`}
-            </label>
-            <div className="flex gap-2">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Question Type
+        </label>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          disabled={isSubmitting}
+        >
+          <option value="mcq">Multiple Choice</option>
+          <option value="true_false">True/False</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Options
+        </label>
+        <div className="space-y-3">
+          {formData.options.map((option, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <input
+                type="radio"
+                name="correctAnswer"
+                checked={option.is_correct}
+                onChange={() => handleCorrectAnswerChange(index)}
+                className="text-blue-600 focus:ring-blue-500"
+                disabled={isSubmitting}
+              />
               <input
                 type="text"
+                name="option"
                 data-index={index}
-                name="choice" // Add name attribute here
-                value={choice}
+                value={option.text}
                 onChange={handleChange}
-                placeholder={
-                  formData.questionType === "true-false" && index < 2
-                    ? index === 0
-                      ? "True"
-                      : "False"
-                    : `Enter choice ${String.fromCharCode(65 + index)}`
-                }
-                className={`w-full p-2 border border-gray-300 rounded ${
-                  formData.questionType === "true-false" && index < 2
-                    ? "bg-gray-100 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={formData.questionType === "true-false" && index < 2}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder={`Option ${index + 1}`}
+                required
+                disabled={isSubmitting}
               />
-              {formData.questionType === "multiple-choice" && index >= 2 && (
+              {formData.options.length > 2 && (
                 <button
                   type="button"
-                  onClick={() => removeChoice(index)}
-                  className="px-3 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                  onClick={() => removeOption(index)}
+                  className="px-2 py-1 text-red-600 hover:text-red-800 disabled:opacity-50"
+                  disabled={isSubmitting}
                 >
                   Remove
                 </button>
               )}
             </div>
-          </div>
-        ))}
-
-        {formData.questionType === "multiple-choice" && (
-          <button
-            type="button"
-            onClick={addChoice}
-            className="mt-2 px-3 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
-          >
-            Add Choice
-          </button>
-        )}
-      </div>
-
-      {/* Correct Answer */}
-      <div className="mb-4">
-        <label htmlFor="correctAnswer" className="block mb-1 font-medium">
-          Correct Answer
-        </label>
-        <select
-          id="correctAnswer"
-          name="correctAnswer"
-          value={formData.correctAnswer}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded"
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={addOption}
+          className="mt-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 disabled:opacity-50"
+          disabled={isSubmitting}
         >
-          <option value="">Select correct answer</option>
-          {formData.questionType === "true-false" ? (
-            <>
-              <option value="True">True</option>
-              <option value="False">False</option>
-            </>
-          ) : (
-            formData.choices.map((_, index) => (
-              <option key={index} value={String.fromCharCode(65 + index)}>
-                {String.fromCharCode(65 + index)}
-              </option>
-            ))
-          )}
-        </select>
+          + Add Option
+        </button>
       </div>
 
-      <div className="flex justify-end gap-4 mt-6">
+      <div className="flex justify-end gap-3 pt-4">
         <button
           type="button"
           onClick={onClose}
-          className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition"
+          className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+          disabled={isSubmitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="bg-[var(--primary)] text-white px-4 py-2 rounded hover:bg-[var(--primary-hover)] transition w-full"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSubmitting}
         >
-          Save Question
+          {isSubmitting
+            ? question
+              ? "Updating..."
+              : "Creating..."
+            : question
+            ? "Update Question"
+            : "Create Question"}
         </button>
       </div>
     </form>
