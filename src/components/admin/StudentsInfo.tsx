@@ -16,15 +16,15 @@ interface StudentForModal {
   id: number;
   name: string;
   email: string;
-  grade: number;
-  className: string;
+  grade_level: number;
+  class_name?: string;
+  curriculum_grade?: string;
   phone: string;
   birthdate: string;
   discount_percentage: number;
 }
 
 export default function StudentInfo() {
-  const [selectedGrade, setSelectedGrade] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] =
     useState<StudentForModal | null>(null);
@@ -148,8 +148,8 @@ export default function StudentInfo() {
     id?: number;
     name: string;
     email: string;
-    grade: number;
-    className: string;
+    grade_level: number;
+    class_name: string;
     phone: string;
     birthdate: string;
     discount_percentage: number;
@@ -325,6 +325,20 @@ export default function StudentInfo() {
                 </svg>
               </div>
             </div>
+
+            {/* Clear Filters Button */}
+            {(selectedGrade || selectedClass) && (
+              <button
+                onClick={() => {
+                  setSelectedGrade("");
+                  setSelectedClass("");
+                }}
+                className="text-gray-600 hover:text-gray-800 text-sm underline"
+                disabled={loading}
+              >
+                Clear Filters
+              </button>
+            )}
 
             {/* Add Student Button */}
             <button

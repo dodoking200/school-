@@ -83,12 +83,14 @@ export type Class = {
 
 export type Student = {
   id: number;
-  student_name: string;
+  name: string;
   email: string;
   phone: string;
   birth_date: string;
-  class_id: number;
+  grade_level: number;
   class_name?: string;
+  curriculum_grade?: string;
+  student_created_at?: string;
   attendance?: {
     present: number;
     absent: number;

@@ -109,4 +109,8 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `classes/${id}`,
     CAN_DELETE: (id: number) => `classes/${id}/can-delete`,
   },
+
+  PAGINATION: {
+    STUDENTS: "pagination",
+  },
 };
