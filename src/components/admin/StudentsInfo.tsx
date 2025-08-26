@@ -35,56 +35,83 @@ export default function StudentInfo() {
   const [selectedClass, setSelectedClass] = useState<string>("");
 
   // Fetch students from backend with pagination
-  useEffect(() => {
-    const fetchStudents = async () => {
-      setLoading(true);
-      try {
-        // Fetch a larger page size to get more data for filtering
-        const response = await studentService.getStudentsWithPagination({
-          page: 1,
-          pageSize: 100, // Get more students for filtering
-          orderBy: "name",
-          orderDirection: "asc",
-        });
-        setAllStudents(response.data);
-        setStudents(response.data);
-      } catch (error) {
-        console.error("Failed to fetch students:", error);
-        toast.error("Failed to fetch students");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchStudents = async (page: number = 1) => {
+    setLoading(true);
+    try {
+      // For initial load, get more students to have enough data for filtering
+      // For subsequent pages, use the standard page size
+      const pageSize = studentsPerPage;
+      
+      console.log(`Fetching students from backend: page ${page}, pageSize ${pageSize}`);
+      
+      const response = await studentService.getStudentsWithPagination({
+        page: page,
+        pageSize: pageSize,
+        orderBy: "name",
+        orderDirection: "asc",
+      });
+      
+             console.log('Backend response:', response);
+       console.log('Response details:', {
+         total: response.total,
+         totalPages: response.totalPages,
+         dataLength: response.data.length,
+         page: response.page,
+         pageSize: response.pageSize
+       });
+       console.log('Response keys:', Object.keys(response));
+       console.log('Response type:', typeof response);
+      
+             // Store all students for filter options (we need this for the dropdowns)
+       if (page === 1) {
+         setAllStudents(response.data);
+         setStudents(response.data);
+         // Use backend pagination metadata for initial load
+         const total = response.total || 0;
+         // Calculate totalPages if backend doesn't provide it
+         const totalPages = response.totalPages || (total > 0 ? Math.ceil(total / studentsPerPage) : 1);
+         setTotalStudents(total);
+         setTotalPages(totalPages);
+         console.log('Setting pagination state:', { total, totalPages, studentsPerPage, calculated: Math.ceil(total / studentsPerPage) });
+       } else {
+         setStudents(response.data);
+         setCurrentPage(page);
+         // Update pagination info for subsequent pages
+         setTotalStudents(response.total || totalStudents);
+         setTotalPages(response.totalPages || totalPages);
+       }
+    } catch (error) {
+      console.error("Failed to fetch students:", error);
+      toast.error("Failed to fetch students");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchStudents();
+  // Initial fetch
+  useEffect(() => {
+    fetchStudents(1);
   }, []); // Only fetch once on component mount
 
-  // Filter students based on selected grade and class
+  // Handle filter changes - reset to first page and fetch filtered data
   useEffect(() => {
-    // Only filter if we have data
-    if (allStudents.length === 0) {
-      return;
-    }
+    if (allStudents.length === 0) return;
     
+    // Reset to first page when filters change
+    setCurrentPage(1);
+    
+    // For now, we'll do client-side filtering since backend doesn't support it
+    // In the future, this could be updated to make backend calls with filter parameters
     let filtered = allStudents;
     
     if (selectedGrade) {
       const gradeNum = parseInt(selectedGrade);
       filtered = filtered.filter(student => {
-        // Handle potential type mismatches by converting both to numbers
-        // Also handle cases where grade_level might be a string or undefined
         const studentGrade = student.grade_level !== undefined ? Number(student.grade_level) : null;
-        const filterGrade = Number(gradeNum);
-        
-        // If studentGrade is null/undefined, skip this student
         if (studentGrade === null || isNaN(studentGrade)) {
-          console.log(`Student ${student.name}: invalid grade_level:`, student.grade_level);
           return false;
         }
-        
-        const matches = studentGrade === filterGrade;
-        console.log(`Student ${student.name}: grade_level=${student.grade_level} (${typeof student.grade_level}), converted=${studentGrade}, filter=${filterGrade}, matches=${matches}`);
-        return matches;
+        return studentGrade === gradeNum;
       });
     }
     
@@ -93,7 +120,11 @@ export default function StudentInfo() {
     }
     
     setStudents(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    
+    // Don't override backend pagination state when filtering
+    // Only update totalStudents for display purposes
+    setTotalStudents(filtered.length);
+    // Keep totalPages from backend pagination
   }, [allStudents, selectedGrade, selectedClass]);
 
   // Get filtered grades and classes based on current selections
@@ -126,16 +157,26 @@ export default function StudentInfo() {
   const uniqueGrades = getFilteredGrades();
   const uniqueClasses = getFilteredClasses();
 
-  // Pagination logic - using filtered data
-  const totalFilteredStudents = students.length;
-  const totalFilteredPages = Math.ceil(totalFilteredStudents / studentsPerPage);
-  const indexOfLastStudent = currentPage * studentsPerPage;
-  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  // Backend pagination state
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalStudents, setTotalStudents] = useState<number>(0);
+  
+  // Backend pagination - students array contains the current page data
+  const currentStudents = students;
 
-  // Handle page change - triggers new API call
+  // Handle page change - make API call to backend for the new page
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    console.log('Page change requested:', { 
+      fromPage: currentPage, 
+      toPage: pageNumber, 
+      totalStudents, 
+      totalPages,
+      studentsLength: students.length,
+      currentStudentsLength: currentStudents.length
+    });
+    
+    // Make API call to backend for the new page
+    fetchStudents(pageNumber);
   };
 
   // Handle opening the modal for adding a new student
@@ -213,8 +254,10 @@ export default function StudentInfo() {
         student={selectedStudent}
         title={selectedStudent ? "Edit Student" : "Add New Student"}
       />
-      <Table
-        title="Student Info"
+            
+       
+       <Table
+         title="Student Info"
         actions={
           <div className="flex items-center space-x-4">
             {/* Grade Filter */}
@@ -298,9 +341,9 @@ export default function StudentInfo() {
                     Class: {selectedClass}
                   </span>
                 )}
-                <span className="text-blue-600">
-                  Showing {totalFilteredStudents} of {allStudents.length} students
-                </span>
+                                                                       <span className="text-blue-600">
+                    Showing {students.length} students from current page
+                  </span>
               </div>
             </div>
           )
@@ -405,58 +448,57 @@ export default function StudentInfo() {
         }
       />
 
-      {/* Pagination */}
-      {totalFilteredPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Showing {indexOfFirstStudent + 1} to{" "}
-            {Math.min(indexOfLastStudent, totalFilteredStudents)} of{" "}
-            {totalFilteredStudents} results
-            {selectedGrade || selectedClass ? (
-              <span className="ml-2 text-gray-500">
-                (filtered from {allStudents.length} total students)
-              </span>
-            ) : null}
-          </div>
-          <div className="flex space-x-2">
-            {/* Previous Page Button */}
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
+             {/* Pagination */}
+       {console.log('Pagination render check:', { totalPages, shouldRender: totalPages > 1 })}
+       {totalPages > 1 && (
+         <div className="mt-6 flex items-center justify-between">
+                                                  <div className="text-sm text-gray-700">
+               Page {currentPage} of {totalPages}
+               {selectedGrade || selectedClass ? (
+                 <span className="ml-2 text-gray-500">
+                   (with active filters)
+                 </span>
+               ) : null}
+             </div>
+           <div className="flex space-x-2">
+             {/* Previous Page Button */}
+             <button
+               onClick={() => handlePageChange(currentPage - 1)}
+               disabled={currentPage === 1 || loading}
+               className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+               Previous
+             </button>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalFilteredPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  disabled={loading}
-                  className={`px-3 py-2 border text-sm font-medium rounded-md ${
-                    currentPage === pageNumber
-                      ? "bg-indigo-600 text-white border-indigo-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
+             {/* Page Numbers */}
+             {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+               (pageNumber) => (
+                 <button
+                   key={pageNumber}
+                   onClick={() => handlePageChange(pageNumber)}
+                   disabled={loading}
+                   className={`px-3 py-2 border text-sm font-medium rounded-md ${
+                     currentPage === pageNumber
+                       ? "bg-indigo-600 text-white border-indigo-600"
+                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                   } disabled:opacity-50 disabled:cursor-not-allowed`}
+                 >
+                   {pageNumber}
+                 </button>
+               )
+             )}
 
-            {/* Next Page Button */}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalFilteredPages || loading}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+             {/* Next Page Button */}
+             <button
+               onClick={() => handlePageChange(currentPage + 1)}
+               disabled={currentPage === totalPages || loading}
+               className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+               Next
+             </button>
+           </div>
+         </div>
+       )}
     </>
   );
 }
