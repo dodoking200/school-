@@ -40,6 +40,8 @@ export default function StudentInfo() {
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [selectedGrade, setSelectedGrade] = useState<string>("");
+  const [selectedClass, setSelectedClass] = useState<string>("");
 
   // Fetch students with pagination
   const fetchStudents = async (page: number = 1) => {
@@ -133,8 +135,8 @@ export default function StudentInfo() {
       id: student.id,
       name: student.name,
       email: student.email,
-      grade: parseInt(student.grade_level),
-      className: student.class_name,
+      grade_level: parseInt(student.grade_level),
+      class_name: student.class_name,
       phone: student.phone,
       birthdate: student.birth_date,
       discount_percentage: 0, // Default discount for existing students
@@ -162,11 +164,11 @@ export default function StudentInfo() {
           email: studentData.email,
           phone: studentData.phone,
           birth_date: studentData.birthdate,
-          grade_level: studentData.grade, // Send as number (backend expects integer)
-          // Note: We need to find the class_id from the className
+          grade_level: studentData.grade_level, // Send as number (backend expects integer)
+          // Note: We need to find the class_id from the class_name
           // For now, we'll use a default or find the first matching class
           class_id:
-            classes.find((c) => c.class_name === studentData.className)?.id ||
+            classes.find((c) => c.class_name === studentData.class_name)?.id ||
             1, // Send as number (backend expects integer)
           discount_percentage: studentData.discount_percentage,
         };
@@ -180,11 +182,11 @@ export default function StudentInfo() {
           email: studentData.email,
           phone: studentData.phone,
           birth_date: studentData.birthdate,
-          grade_level: studentData.grade, // Send as number (backend expects integer)
-          // Note: We need to find the class_id from the className
+          grade_level: studentData.grade_level, // Send as number (backend expects integer)
+          // Note: We need to find the class_id from the class_name
           // For now, we'll use a default or find the first matching class
           class_id:
-            classes.find((c) => c.class_name === studentData.className)?.id ||
+            classes.find((c) => c.class_name === studentData.class_name)?.id ||
             1, // Send as number (backend expects integer)
           discount_percentage: studentData.discount_percentage,
         };
