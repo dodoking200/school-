@@ -7,19 +7,19 @@ interface StudentModalProps {
     id?: number;
     name: string;
     email: string;
-    grade: number;
-    className: string;
+    grade_level: number;
+    class_name: string;
     phone: string;
-    birthdate: string;
+    birth_date: string;
   }) => void;
   student?: {
     id: number;
     name: string;
     email: string;
-    grade: number;
-    className: string;
+    grade_level: number;
+    class_name: string;
     phone: string;
-    birthdate: string;
+    birth_date: string;
   } | null;
   title: string;
 }
@@ -34,10 +34,10 @@ export default function StudentModal({
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    grade: 9,
-    className: "Class A",
+    grade_level: 9,
+    class_name: "Class A",
     phone: "",
-    birthdate: "",
+    birth_date: "",
   });
 
   // Initialize form data when editing a student
@@ -46,20 +46,20 @@ export default function StudentModal({
       setFormData({
         name: student.name,
         email: student.email,
-        grade: student.grade,
-        className: student.className,
+        grade_level: student.grade_level,
+        class_name: student.class_name,
         phone: student.phone,
-        birthdate: student.birthdate,
+        birth_date: student.birth_date,
       });
     } else {
       // Reset form when adding a new student
       setFormData({
         name: "",
         email: "",
-        grade: 9,
-        className: "Class A",
+        grade_level: 9,
+        class_name: "Class A",
         phone: "",
-        birthdate: "",
+        birth_date: "",
       });
     }
   }, [student]);
@@ -70,7 +70,7 @@ export default function StudentModal({
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "grade" ? parseInt(value) : value,
+      [name]: name === "grade_level" ? parseInt(value) : value,
     });
   };
 
@@ -147,15 +147,15 @@ export default function StudentModal({
 
           <div className="mb-4">
             <label
-              htmlFor="grade"
+              htmlFor="grade_level"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Grade
             </label>
             <select
-              id="grade"
-              name="grade"
-              value={formData.grade}
+              id="grade_level"
+              name="grade_level"
+              value={formData.grade_level}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             >
@@ -168,15 +168,15 @@ export default function StudentModal({
 
           <div className="mb-4">
             <label
-              htmlFor="className"
+              htmlFor="class_name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Class Name
             </label>
             <select
-              id="className"
-              name="className"
-              value={formData.className}
+              id="class_name"
+              name="class_name"
+              value={formData.class_name}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             >
@@ -206,16 +206,16 @@ export default function StudentModal({
 
           <div className="mb-6">
             <label
-              htmlFor="birthdate"
+              htmlFor="birth_date"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Birthdate
             </label>
             <input
               type="date"
-              id="birthdate"
-              name="birthdate"
-              value={formData.birthdate}
+              id="birth_date"
+              name="birth_date"
+              value={formData.birth_date}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               required
