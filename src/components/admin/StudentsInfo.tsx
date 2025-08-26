@@ -17,10 +17,10 @@ interface StudentForModal {
   name: string;
   email: string;
   grade_level: number;
-  class_name?: string;
+  class_name: string;
   curriculum_grade?: string;
   phone: string;
-  birthdate: string;
+  birth_date: string;
   discount_percentage: number;
 }
 
@@ -138,7 +138,7 @@ export default function StudentInfo() {
       grade_level: parseInt(student.grade_level),
       class_name: student.class_name,
       phone: student.phone,
-      birthdate: student.birth_date,
+              birth_date: student.birth_date,
       discount_percentage: 0, // Default discount for existing students
     };
     setSelectedStudent(modalStudent);
@@ -153,7 +153,7 @@ export default function StudentInfo() {
     grade_level: number;
     class_name: string;
     phone: string;
-    birthdate: string;
+    birth_date: string;
     discount_percentage: number;
   }) => {
     try {
@@ -163,7 +163,7 @@ export default function StudentInfo() {
           name: studentData.name,
           email: studentData.email,
           phone: studentData.phone,
-          birth_date: studentData.birthdate,
+          birth_date: studentData.birth_date,
           grade_level: studentData.grade_level, // Send as number (backend expects integer)
           // Note: We need to find the class_id from the class_name
           // For now, we'll use a default or find the first matching class
@@ -181,7 +181,7 @@ export default function StudentInfo() {
           name: studentData.name,
           email: studentData.email,
           phone: studentData.phone,
-          birth_date: studentData.birthdate,
+          birth_date: studentData.birth_date,
           grade_level: studentData.grade_level, // Send as number (backend expects integer)
           // Note: We need to find the class_id from the class_name
           // For now, we'll use a default or find the first matching class
@@ -289,7 +289,7 @@ export default function StudentInfo() {
         onSubmit={handleSubmitStudent}
         student={selectedStudent}
         title={selectedStudent ? "Edit Student" : "Add New Student"}
-        classes={classes} // Pass classes to the modal
+        classes={classes} // Pass all available classes to the modal
       />
 
       {/* Error Message */}

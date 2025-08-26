@@ -11,7 +11,7 @@ interface StudentModalProps {
     grade_level: number;
     class_name: string;
     phone: string;
-    birthdate: string;
+    birth_date: string;
     discount_percentage: number;
   }) => void;
   student?: {
@@ -21,7 +21,7 @@ interface StudentModalProps {
     grade_level: number;
     class_name: string;
     phone: string;
-    birthdate: string;
+    birth_date: string;
     discount_percentage: number;
   } | null;
   title: string;
@@ -39,10 +39,10 @@ export default function StudentModal({
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    grade: 9,
-    className: "",
+    grade_level: 9,
+    class_name: "",
     phone: "",
-    birthdate: "",
+    birth_date: "",
     discount_percentage: 0,
   });
 
@@ -55,7 +55,7 @@ export default function StudentModal({
         grade_level: student.grade_level,
         class_name: student.class_name,
         phone: student.phone,
-        birthdate: student.birthdate,
+        birth_date: student.birth_date,
         discount_percentage: 0, // Default discount for existing students
       });
     } else {
@@ -63,10 +63,10 @@ export default function StudentModal({
       setFormData({
         name: "",
         email: "",
-        grade: 9,
-        className: classes.length > 0 ? classes[0].class_name : "",
+        grade_level: 9,
+        class_name: classes.length > 0 ? classes[0].class_name : "",
         phone: "",
-        birthdate: "",
+        birth_date: "",
         discount_percentage: 0,
       });
     }
