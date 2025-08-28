@@ -209,17 +209,22 @@ export default function Table({
               >
                 {/* Modern Table Header */}
                 {tableHeader && (
-                  <thead className={cn(
-                    "bg-gradient-primary text-white relative",
-                    theadClassName
-                  )}>
+                  <thead 
+                    className={cn(
+                      "text-white relative gradient-table-header",
+                      theadClassName
+                    )}
+                    style={{
+                      background: "var(--gradient-primary)"
+                    }}
+                  >
                     <tr className="relative">
                       {tableHeader}
                     </tr>
                     {/* Decorative Bottom Border */}
                     <tr className="absolute bottom-0 left-0 w-full h-1">
                       <td colSpan={100} className="p-0">
-                        <div className="h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
+                        <div className="h-1" style={{ background: "var(--gradient-primary)" }} />
                       </td>
                     </tr>
                   </thead>
@@ -229,9 +234,13 @@ export default function Table({
                 {tableContent && (
                   <tbody
                     className={cn(
-                      "bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm divide-y divide-gray-100 dark:divide-gray-700",
+                      "backdrop-blur-sm",
                       tbodyClassName
                     )}
+                    style={{
+                      background: "var(--card-bg)",
+                      borderColor: "var(--card-border)",
+                    }}
                   >
                     {tableContent}
                   </tbody>

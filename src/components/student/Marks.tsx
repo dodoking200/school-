@@ -134,14 +134,15 @@ export default function Marks() {
   return (
     <div className="space-y-6">
       {/* Semester Selection */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="glass-card">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold" style={{ color: "var(--foreground)" }}>
             Academic Performance
           </h2>
           <select
             name="semester"
-            className="rounded-lg bg-gray-100 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="modern-input px-3 py-2 text-sm"
+            style={{ background: "var(--card-bg)", color: "var(--foreground)" }}
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
           >
@@ -156,27 +157,27 @@ export default function Marks() {
         {/* Semester Summary */}
         {currentSemester && (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-blue-900">
+            <div className="glass-card !p-3" style={{ backgroundColor: "var(--primary-light)" }}>
+              <div className="text-sm font-medium" style={{ color: "var(--primary)" }}>
                 Semester Average
               </div>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
                 {currentSemester.semesterAverage}
               </div>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-green-900">
+            <div className="glass-card !p-3" style={{ backgroundColor: "var(--accent-light)" }}>
+              <div className="text-sm font-medium" style={{ color: "var(--accent)" }}>
                 Total Assignments
               </div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>
                 {currentSemester.totalSemesterAssignments}
               </div>
             </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-              <div className="text-sm font-medium text-purple-900">
+            <div className="glass-card !p-3" style={{ backgroundColor: "var(--secondary-light)" }}>
+              <div className="text-sm font-medium" style={{ color: "var(--secondary)" }}>
                 Total Score
               </div>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--secondary)" }}>
                 {currentSemester.totalSemesterScore}
               </div>
             </div>
@@ -226,23 +227,24 @@ export default function Marks() {
             {currentSubjects.map((subject, index) => (
               <tr
                 key={index}
-                className="hover:bg-gray-50 transition duration-150 ease-in-out"
+                className="theme-table-row"
               >
-                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
                   {subject.subject_name}
                 </td>
                 {gradeTypes.map((gradeType) => (
                   <td
                     key={gradeType}
-                    className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
+                    className="px-6 py-4 whitespace-nowrap text-center" 
+                    style={{ color: "var(--foreground-muted)" }}
                   >
                     {getScore(subject, gradeType)}
                   </td>
                 ))}
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium text-blue-600">
+                <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--primary)" }}>
                   {subject.subjectAverage}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium text-green-600">
+                <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--accent)" }}>
                   {subject.totalScore}
                 </td>
               </tr>

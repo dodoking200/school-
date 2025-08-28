@@ -16,10 +16,18 @@ export function RememberMeCheckbox({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+        className="h-4 w-4 rounded transition-colors duration-300"
+        style={{
+          accentColor: "var(--primary)",
+          borderColor: "var(--card-border)"
+        }}
       />
-      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-        Remember Me
+      <label 
+        htmlFor="remember-me" 
+        className="ml-3 block text-sm font-medium cursor-pointer transition-colors duration-300"
+        style={{ color: "var(--foreground-muted)" }}
+      >
+        💾 Remember Me
       </label>
     </div>
   );

@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Class, Student, StudentAttendance, AttendanceStatus } from "@/types";
-import { classService } from "@/lib/services/classService";
-import { studentService } from "@/lib/services/studentService";
+import { Teacher, TeacherAttendance, AttendanceStatus } from "@/types";
+import { teacherService } from "@/lib/services/teacherService";
 import { attendanceService } from "@/lib/services/attendanceService";
 import Table from "../ui/Table";
 
-export default function AttendanceManager() {
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [attendance, setAttendance] = useState<StudentAttendance[]>([]);
+export default function TeacherAttendanceManager() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [attendance, setAttendance] = useState<TeacherAttendance[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -19,53 +16,33 @@ export default function AttendanceManager() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchClasses();
+    fetchTeachers();
   }, []);
 
-  useEffect(() => {
-    if (selectedClass) {
-      fetchStudents(selectedClass.id);
-    }
-  }, [selectedClass]);
-
-  const fetchClasses = async () => {
-    try {
-      const data = await classService.getClasses();
-      setClasses(data);
-    } catch (err) {
-      console.error("Failed to fetch classes:", err);
-    }
-  };
-
-  const fetchStudents = async (classId: number) => {
+  const fetchTeachers = async () => {
     try {
       setLoading(true);
-      const data = await studentService.getStudentsByClass(classId);
-      setStudents(data);
+      const data = await teacherService.getTeachers();
+      setTeachers(data);
 
-      // Initialize attendance for all students
-      const initialAttendance: StudentAttendance[] = data.map((student) => ({
-        student_id: student.id,
-        student_name: student.student_name, // Now this matches the Student type
+      // Initialize attendance for all teachers
+      const initialAttendance: TeacherAttendance[] = data.map((teacher) => ({
+        teacher_id: teacher.id,
+        teacher_name: teacher.name,
         status: "present" as AttendanceStatus,
         notes: "",
       }));
 
-      console.log("Students data:", data);
+      console.log("Teachers data:", data);
       console.log("Initial attendance:", initialAttendance);
 
       setAttendance(initialAttendance);
     } catch (err) {
-      console.error("Failed to fetch students:", err);
-      setError("Failed to fetch students");
+      console.error("Failed to fetch teachers:", err);
+      setError("Failed to fetch teachers");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClassChange = (classId: string) => {
-    const selectedClassData = classes.find((c) => c.id.toString() === classId);
-    setSelectedClass(selectedClassData || null);
   };
 
   const handleDateChange = (date: string) => {
@@ -73,47 +50,47 @@ export default function AttendanceManager() {
   };
 
   const handleAttendanceChange = (
-    studentId: number,
+    teacherId: number,
     status: AttendanceStatus
   ) => {
     setAttendance((prev) =>
-      prev.map((student) =>
-        student.student_id === studentId ? { ...student, status } : student
+      prev.map((teacher) =>
+        teacher.teacher_id === teacherId ? { ...teacher, status } : teacher
       )
     );
   };
 
-  const handleNotesChange = (studentId: number, notes: string) => {
+  const handleNotesChange = (teacherId: number, notes: string) => {
     setAttendance((prev) =>
-      prev.map((student) =>
-        student.student_id === studentId ? { ...student, notes } : student
+      prev.map((teacher) =>
+        teacher.teacher_id === teacherId ? { ...teacher, notes } : teacher
       )
     );
   };
 
   const handleBulkAction = (status: AttendanceStatus) => {
     setAttendance((prev) =>
-      prev.map((student) => ({
-        ...student,
+      prev.map((teacher) => ({
+        ...teacher,
         status,
       }))
     );
   };
 
   const handleSaveAttendance = async () => {
-    if (!selectedClass || attendance.length === 0) return;
+    if (attendance.length === 0) return;
 
     try {
       setLoading(true);
-
+      
       // Prepare attendance data in the format expected by createAttendance
-      const attendanceArray = attendance.map((student) => ({
-        student_id: student.student_id,
-        status: student.status,
+      const attendanceArray = attendance.map(teacher => ({
+        teacher_id: teacher.teacher_id,
+        status: teacher.status,
       }));
 
-      // Use the new createAttendance method
-      await attendanceService.createAttendance(selectedDate, attendanceArray);
+      // Use the createAttendance method for teachers
+      await attendanceService.createTeacherAttendance(selectedDate, attendanceArray);
 
       // Clear any existing error
       setError(null);
@@ -155,7 +132,7 @@ export default function AttendanceManager() {
     }
   };
 
-  if (loading && !selectedClass) {
+  if (loading && teachers.length === 0) {
     return (
       <div className="flex justify-center items-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -168,29 +145,10 @@ export default function AttendanceManager() {
       {/* Header and Controls */}
       <div className="glass-card">
         <h2 className="text-2xl font-semibold mb-4" style={{ color: "var(--foreground)" }}>
-          Attendance Management
+          Teacher Attendance Management
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Class Selection */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
-              Select Class
-            </label>
-            <select
-              className="modern-input w-full px-3 py-2"
-              value={selectedClass?.id.toString() || ""}
-              onChange={(e) => handleClassChange(e.target.value)}
-            >
-              <option value="">Choose a class...</option>
-              {classes.map((cls) => (
-                <option key={cls.id} value={cls.id.toString()}>
-                  {cls.class_name} (Grade {cls.level_grade})
-                </option>
-              ))}
-            </select>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Date Selection */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
@@ -208,7 +166,7 @@ export default function AttendanceManager() {
           <div className="flex items-end">
             <button
               onClick={handleSaveAttendance}
-              disabled={!selectedClass || loading}
+              disabled={loading}
               className="btn-primary w-full px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Saving..." : "Save Attendance"}
@@ -217,7 +175,7 @@ export default function AttendanceManager() {
         </div>
 
         {/* Bulk Actions */}
-        {selectedClass && (
+        {teachers.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="text-sm font-medium mr-2" style={{ color: "var(--foreground-muted)" }}>
               Quick Actions:
@@ -255,18 +213,18 @@ export default function AttendanceManager() {
       </div>
 
       {/* Attendance Table */}
-      {selectedClass && students.length > 0 && (
+      {teachers.length > 0 && (
         <Table
-          title={`${selectedClass.class_name} - Attendance for ${new Date(
+          title={`Teacher Attendance for ${new Date(
             selectedDate
           ).toLocaleDateString()}`}
           responsive={true}
-          emptyMessage="No students found in this class"
+          emptyMessage="No teachers found"
           tableWrapperClassName="glass-card"
           tableHeader={
             <>
               <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
-                Student Name
+                Teacher Name
               </th>
               <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
                 Status
@@ -278,30 +236,30 @@ export default function AttendanceManager() {
           }
           tableContent={
             <>
-              {attendance.map((student, index) => {
-                console.log("Rendering student:", student);
+              {attendance.map((teacher, index) => {
+                console.log("Rendering teacher:", teacher);
                 return (
                   <tr
                     key={index}
                     className="theme-table-row"
                   >
                     <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
-                      {student.student_name || "No Name"}
+                      {teacher.teacher_name || "No Name"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <select
-                        value={student.status}
+                        value={teacher.status}
                         onChange={(e) =>
                           handleAttendanceChange(
-                            student.student_id,
+                            teacher.teacher_id,
                             e.target.value as AttendanceStatus
                           )
                         }
                         className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          student.status
+                          teacher.status
                         )} border-0`}
                         style={{
-                          ...getStatusStyle(student.status),
+                          ...getStatusStyle(teacher.status),
                           color: "white"
                         }}
                       >
@@ -315,9 +273,9 @@ export default function AttendanceManager() {
                       <input
                         type="text"
                         placeholder="Add notes..."
-                        value={student.notes || ""}
+                        value={teacher.notes || ""}
                         onChange={(e) =>
-                          handleNotesChange(student.student_id, e.target.value)
+                          handleNotesChange(teacher.teacher_id, e.target.value)
                         }
                         className="modern-input w-full px-3 py-1 text-sm"
                       />
@@ -331,7 +289,7 @@ export default function AttendanceManager() {
       )}
 
       {/* Attendance Summary */}
-      {selectedClass && attendance.length > 0 && (
+      {attendance.length > 0 && (
         <div className="glass-card">
           <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
             Attendance Summary
@@ -341,29 +299,29 @@ export default function AttendanceManager() {
               <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
                 {attendance.length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Students</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Teachers</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold" style={{ color: "var(--success)" }}>
-                {attendance.filter((s) => s.status === "present").length}
+                {attendance.filter((t) => t.status === "present").length}
               </div>
               <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Present</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold" style={{ color: "var(--danger)" }}>
-                {attendance.filter((s) => s.status === "absent").length}
+                {attendance.filter((t) => t.status === "absent").length}
               </div>
               <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Absent</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold" style={{ color: "var(--warning)" }}>
-                {attendance.filter((s) => s.status === "late").length}
+                {attendance.filter((t) => t.status === "late").length}
               </div>
               <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Late</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
-                {attendance.filter((s) => s.status === "excused").length}
+                {attendance.filter((t) => t.status === "excused").length}
               </div>
               <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Excused</div>
             </div>
@@ -371,7 +329,7 @@ export default function AttendanceManager() {
           <div className="mt-4 text-center">
             <div className="text-3xl font-bold" style={{ color: "var(--primary)" }}>
               {Math.round(
-                (attendance.filter((s) => s.status === "present").length /
+                (attendance.filter((t) => t.status === "present").length /
                   attendance.length) *
                   100
               )}

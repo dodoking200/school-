@@ -43,4 +43,17 @@ export const userService = {
       method: "DELETE",
     });
   },
+
+  getUsersByRole: async (roleId: number): Promise<User[]> => {
+    try {
+      const response = await apiClient<User[]>(API_ENDPOINTS.USERS.GET_ALL, {
+        method: "GET",
+      });
+      // Filter users by role_id
+      return response.data.filter(user => user.role_id === roleId.toString());
+    } catch (error) {
+      console.error("Failed to fetch users by role:", error);
+      return [];
+    }
+  },
 };

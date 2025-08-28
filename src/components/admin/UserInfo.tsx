@@ -11,7 +11,7 @@ export default function UserInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -102,7 +102,9 @@ export default function UserInfo() {
         toast.success("User updated successfully!");
       } else {
         await userService.createUser(userPayload);
-        toast.success("User created successfully! A password has been generated and sent via WhatsApp.");
+        toast.success(
+          "User created successfully! A password has been generated and sent via WhatsApp."
+        );
       }
       // We no longer update local state as the API does not return the new/updated user.
       // To see changes, a full refetch would be needed.
@@ -110,7 +112,7 @@ export default function UserInfo() {
     } catch (err) {
       console.error("User creation/update error:", err);
       console.error("Payload sent:", userPayload);
-      
+
       const errorMessage =
         err instanceof Error
           ? err.message
@@ -123,29 +125,6 @@ export default function UserInfo() {
     }
   };
 
-  const handleCheckboxChange = (userId: number) => {
-    setSelectedUserIds((prevSelectedIds) => {
-      if (prevSelectedIds.includes(userId)) {
-        return prevSelectedIds.filter((id) => id !== userId);
-      } else {
-        return [...prevSelectedIds, userId];
-      }
-    });
-  };
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedUserIds(filteredUsers.map((user) => user.id));
-    } else {
-      setSelectedUserIds([]);
-    }
-  };
-
-  const handleSubmitAttendance = () => {
-    console.log("Selected User IDs:", selectedUserIds);
-    alert(`Selected User IDs: ${selectedUserIds.join(", ")}`);
-  };
-
   return (
     <>
       <UserModal
@@ -155,7 +134,11 @@ export default function UserInfo() {
         onSubmit={handleSubmitUser}
         user={
           selectedUser
-            ? { ...selectedUser, birthdate: selectedUser.birth_date, role: selectedUser.role || '' }
+            ? {
+                ...selectedUser,
+                birthdate: selectedUser.birth_date,
+                role: selectedUser.role || "",
+              }
             : null
         }
         title={selectedUser ? "Edit User" : "Add New User"}
@@ -170,12 +153,6 @@ export default function UserInfo() {
             >
               Add User
             </button>
-            <button
-              onClick={handleSubmitAttendance}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-            >
-              Submit Attendance
-            </button>
           </div>
         }
         filter={
@@ -185,13 +162,14 @@ export default function UserInfo() {
             className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">All Roles</option>
-            {uniqueRoles.map((role) => (
-              role && (
-                <option key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </option>
-              )
-            ))}
+            {uniqueRoles.map(
+              (role) =>
+                role && (
+                  <option key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </option>
+                )
+            )}
           </select>
         }
         tableHeader={
@@ -231,16 +209,6 @@ export default function UserInfo() {
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
               Actions
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                className="form-checkbox h-5 w-5 text-indigo-600 mr-2"
-              />
             </th>
           </>
         }
@@ -300,14 +268,6 @@ export default function UserInfo() {
                         Delete
                       </button>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                      checked={selectedUserIds.includes(user.id)}
-                      onChange={() => handleCheckboxChange(user.id)}
-                    />
                   </td>
                 </tr>
               ))

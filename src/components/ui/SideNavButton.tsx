@@ -33,6 +33,13 @@ const iconMap = {
   auto_stories: { icon: BookColorIcon, bgColor: "bg-teal-50 dark:bg-teal-900/20" },
   class: { icon: BuildingColorIcon, bgColor: "bg-cyan-50 dark:bg-cyan-900/20" },
   attendance: { icon: AttendanceColorIcon, bgColor: "bg-pink-50 dark:bg-pink-900/20" },
+  // Additional mappings for student/teacher pages
+  Marks: { icon: BookColorIcon, bgColor: "bg-green-50 dark:bg-green-900/20" },
+  Quizzes: { icon: BookColorIcon, bgColor: "bg-yellow-50 dark:bg-yellow-900/20" },
+  Schedule: { icon: CalendarColorIcon, bgColor: "bg-orange-50 dark:bg-orange-900/20" },
+  grading: { icon: BookColorIcon, bgColor: "bg-green-50 dark:bg-green-900/20" },
+  assignment: { icon: BookColorIcon, bgColor: "bg-yellow-50 dark:bg-yellow-900/20" },
+  event: { icon: CalendarColorIcon, bgColor: "bg-orange-50 dark:bg-orange-900/20" },
 };
 
 export function SideNavButton({

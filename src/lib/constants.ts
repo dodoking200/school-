@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   },
 
   ATTENDANCE: {
+    CREATE_ATTENDANCE: "attendance_students",
     GET_BY_STUDENT: (studentId: number) =>
       `attendance_students/student/${studentId}`,
     // Use the existing endpoints that are actually implemented
@@ -34,6 +35,11 @@ export const API_ENDPOINTS = {
     UPDATE_CLASS_ATTENDANCE: (id: number) => `attendance_students/class/${id}`,
     GET_CLASS_ATTENDANCE_HISTORY: (classId: number) =>
       `attendance_students/class/${classId}`,
+    // New endpoint for getting attendance with date and student list
+    GET_ATTENDANCE_BY_DATE: "attendance_students",
+    // New endpoints for user and teacher attendance
+    CREATE_USER_ATTENDANCE: "attendance_employees",
+    CREATE_TEACHER_ATTENDANCE: "attendance_teachers",
   },
 
   SCHEDULES: {

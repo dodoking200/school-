@@ -49,34 +49,59 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-xl">
-      <div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Welcome Back
-        </h2>
+    <div className="max-w-md w-full space-y-8">
+      <div className="glass-card !p-10">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <div 
+            className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            <span className="text-4xl">🎓</span>
+          </div>
+          <h2 
+            className="text-3xl font-bold mb-2"
+            style={{ color: "var(--foreground)" }}
+          >
+            Welcome Back
+          </h2>
+          <p 
+            className="text-sm"
+            style={{ color: "var(--foreground-muted)" }}
+          >
+            Sign in to access your school dashboard
+          </p>
+        </div>
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <FormFields
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              errors={errors}
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <RememberMeCheckbox checked={rememberMe} onChange={setRememberMe} />
+          </div>
+
+          {errors.general && <ErrorText message={errors.general} />}
+
+          <div className="pt-4">
+            <SubmitButton isLoading={isLoading} />
+          </div>
+        </form>
+        
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t" style={{ borderColor: "var(--card-border)" }}>
+          <p className="text-xs text-center" style={{ color: "var(--foreground-muted)" }}>
+            🔒 Your login is secured with industry-standard encryption
+          </p>
+        </div>
       </div>
-
-      <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-        <div className="rounded-md -space-y-px">
-          <FormFields
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            errors={errors}
-          />
-        </div>
-
-        <div className="flex items-center justify-between pt-2">
-          <RememberMeCheckbox checked={rememberMe} onChange={setRememberMe} />
-        </div>
-
-        {errors.general && <ErrorText message={errors.general} />}
-
-        <div>
-          <SubmitButton isLoading={isLoading} />
-        </div>
-      </form>
     </div>
   );
 }

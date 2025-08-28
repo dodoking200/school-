@@ -83,7 +83,7 @@ export type Class = {
 
 export type Student = {
   id: number;
-  name: string;
+  student_name: string; // Changed from 'name' to 'student_name' to match API response
   email: string;
   phone: string;
   birth_date: string;
@@ -196,6 +196,20 @@ export type AttendanceStatus = "present" | "absent" | "late" | "excused";
 export type StudentAttendance = {
   student_id: number;
   student_name: string;
+  status: AttendanceStatus;
+  notes?: string;
+};
+
+export type UserAttendance = {
+  user_id: number;
+  user_name: string;
+  status: AttendanceStatus;
+  notes?: string;
+};
+
+export type TeacherAttendance = {
+  teacher_id: number;
+  teacher_name: string;
   status: AttendanceStatus;
   notes?: string;
 };

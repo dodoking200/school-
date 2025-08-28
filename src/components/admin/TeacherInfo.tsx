@@ -10,7 +10,7 @@ export default function TeacherInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,10 +62,13 @@ export default function TeacherInfo() {
     try {
       setModalLoading(true);
       setError(null);
-      
+
       if ("id" in teacherData) {
         // For updating, check if subject_ids exists, otherwise extract from subjects
-        const subject_ids = 'subject_ids' in teacherData ? (teacherData as TeacherCreatePayload).subject_ids : (teacherData.subjects?.map(s => s.id) || []);
+        const subject_ids =
+          "subject_ids" in teacherData
+            ? (teacherData as TeacherCreatePayload).subject_ids
+            : teacherData.subjects?.map((s) => s.id) || [];
         console.log("Updating teacher with data:", {
           id: teacherData.id,
           name: teacherData.name,
@@ -100,7 +103,7 @@ export default function TeacherInfo() {
         };
         await teacherService.createTeacher(payload);
       }
-      
+
       // Refresh the teachers list after successful operation
       await fetchData();
       // Close modal after successful operation
@@ -111,7 +114,11 @@ export default function TeacherInfo() {
       setError(
         error instanceof Error ? error.message : "Failed to save teacher"
       );
-      toast.error(`Failed to save teacher: ${error instanceof Error ? error.message : "Unknown error"}`);
+      toast.error(
+        `Failed to save teacher: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setModalLoading(false);
     }
@@ -121,29 +128,6 @@ export default function TeacherInfo() {
   const handleRemoveTeacher = async (teacherId: number) => {
     await teacherService.deleteTeacher(teacherId);
     setTeachers((prev) => prev.filter((t) => t.id !== teacherId));
-  };
-
-  const handleCheckboxChange = (teacherId: number) => {
-    setSelectedTeacherIds((prevSelectedIds) => {
-      if (prevSelectedIds.includes(teacherId)) {
-        return prevSelectedIds.filter((id) => id !== teacherId);
-      } else {
-        return [...prevSelectedIds, teacherId];
-      }
-    });
-  };
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedTeacherIds(teachers.map((teacher) => teacher.id));
-    } else {
-      setSelectedTeacherIds([]);
-    }
-  };
-
-  const handleSubmitAttendance = () => {
-    console.log("Selected Teacher IDs:", selectedTeacherIds);
-    alert(`Selected Teacher IDs: ${selectedTeacherIds.join(", ")}`);
   };
 
   return (
@@ -166,12 +150,6 @@ export default function TeacherInfo() {
               className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
             >
               Add Teacher
-            </button>
-            <button
-              onClick={handleSubmitAttendance}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-            >
-              Submit Attendance
             </button>
           </div>
         }
@@ -212,16 +190,6 @@ export default function TeacherInfo() {
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
               Actions
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                className="form-checkbox h-5 w-5 text-indigo-600 mr-2"
-              />
             </th>
           </>
         }
@@ -264,7 +232,9 @@ export default function TeacherInfo() {
                     {teacher.birth_date}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {teacher.subjects?.map((subject) => subject.name).join(", ")}
+                    {teacher.subjects
+                      ?.map((subject) => subject.name)
+                      .join(", ")}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
@@ -279,14 +249,6 @@ export default function TeacherInfo() {
                     >
                       Remove
                     </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                      checked={selectedTeacherIds.includes(teacher.id)}
-                      onChange={() => handleCheckboxChange(teacher.id)}
-                    />
                   </td>
                 </tr>
               ))

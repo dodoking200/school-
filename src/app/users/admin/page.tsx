@@ -7,51 +7,53 @@ import AcademicYearInfo from "@/components/admin/AcademicYearInfo";
 import SubjectsInfo from "@/components/admin/SubjectsInfo";
 import ClassesInfo from "@/components/admin/ClassesInfo";
 import AttendanceManager from "@/components/admin/AttendanceManager";
+import UserAttendanceManager from "@/components/admin/UserAttendanceManager";
+import TeacherAttendanceManager from "@/components/admin/TeacherAttendanceManager";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import TeacherInfo from "@/components/admin/TeacherInfo";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ChartBarIcon, 
-  UserGroupIcon, 
+import {
+  ChartBarIcon,
+  UserGroupIcon,
   AcademicCapIcon,
   ClockIcon,
-  CalendarDaysIcon 
+  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 
 // Dashboard stats for welcome screen
 const dashboardStats = [
-  { 
-    title: "Total Students", 
-    value: "1,234", 
-    change: "+5.2%", 
-    icon: UserGroupIcon, 
+  {
+    title: "Total Students",
+    value: "1,234",
+    change: "+5.2%",
+    icon: UserGroupIcon,
     color: "from-blue-500 to-cyan-500",
-    bgColor: "bg-blue-50"
+    bgColor: "bg-blue-50",
   },
-  { 
-    title: "Active Teachers", 
-    value: "87", 
-    change: "+2.1%", 
-    icon: AcademicCapIcon, 
+  {
+    title: "Active Teachers",
+    value: "87",
+    change: "+2.1%",
+    icon: AcademicCapIcon,
     color: "from-purple-500 to-pink-500",
-    bgColor: "bg-purple-50"
+    bgColor: "bg-purple-50",
   },
-  { 
-    title: "Classes Today", 
-    value: "24", 
-    change: "+0.8%", 
-    icon: ClockIcon, 
+  {
+    title: "Classes Today",
+    value: "24",
+    change: "+0.8%",
+    icon: ClockIcon,
     color: "from-green-500 to-teal-500",
-    bgColor: "bg-green-50"
+    bgColor: "bg-green-50",
   },
-  { 
-    title: "Attendance Rate", 
-    value: "94.2%", 
-    change: "+1.5%", 
-    icon: ChartBarIcon, 
+  {
+    title: "Attendance Rate",
+    value: "94.2%",
+    change: "+1.5%",
+    icon: ChartBarIcon,
     color: "from-orange-500 to-red-500",
-    bgColor: "bg-orange-50"
+    bgColor: "bg-orange-50",
   },
 ];
 
@@ -101,21 +103,31 @@ export default function AdminPage() {
                   className="glass-card group cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl ${stat.bgColor} dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                    <div
+                      className={`w-12 h-12 rounded-2xl ${stat.bgColor} dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                    >
                       <IconComponent className={`w-6 h-6 text-blue-500`} />
                     </div>
-                    <div className={`text-right text-sm font-semibold px-2 py-1 rounded-lg bg-gradient-to-r ${stat.color} text-white`}>
+                    <div
+                      className={`text-right text-sm font-semibold px-2 py-1 rounded-lg bg-gradient-to-r ${stat.color} text-white`}
+                    >
                       {stat.change}
                     </div>
                   </div>
-                  
+
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      {stat.title}
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {stat.value}
+                    </p>
                   </div>
-                  
+
                   {/* Decorative bottom line */}
-                  <div className={`mt-4 h-1 bg-gradient-to-r ${stat.color} rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300`} />
+                  <div
+                    className={`mt-4 h-1 bg-gradient-to-r ${stat.color} rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300`}
+                  />
                 </motion.div>
               );
             })}
@@ -128,12 +140,36 @@ export default function AdminPage() {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="glass-card p-6"
           >
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {[
-                { title: "Manage Students", desc: "Add, edit, and view student records", action: () => setActiveButton("student") },
-                { title: "Manage Teachers", desc: "Handle teacher information and assignments", action: () => setActiveButton("teacher") },
-                { title: "View Attendance", desc: "Track and manage attendance records", action: () => setActiveButton("attendance") },
+                {
+                  title: "Manage Students",
+                  desc: "Add, edit, and view student records",
+                  action: () => setActiveButton("student"),
+                },
+                {
+                  title: "Manage Teachers",
+                  desc: "Handle teacher information and assignments",
+                  action: () => setActiveButton("teacher"),
+                },
+                {
+                  title: "Student Attendance",
+                  desc: "Track and manage student attendance",
+                  action: () => setActiveButton("attendance"),
+                },
+                {
+                  title: "User Attendance",
+                  desc: "Track and manage user/employee attendance",
+                  action: () => setActiveButton("user_attendance"),
+                },
+                {
+                  title: "Teacher Attendance",
+                  desc: "Track and manage teacher attendance",
+                  action: () => setActiveButton("teacher_attendance"),
+                },
               ].map((action, index) => (
                 <motion.button
                   key={action.title}
@@ -145,7 +181,9 @@ export default function AdminPage() {
                   <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{action.desc}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    {action.desc}
+                  </p>
                 </motion.button>
               ))}
             </div>
@@ -153,7 +191,7 @@ export default function AdminPage() {
         </motion.div>
       );
     }
-    
+
     // Component mapping
     const components = {
       student: <StudentInfo />,
@@ -164,8 +202,10 @@ export default function AdminPage() {
       subjects: <SubjectsInfo />,
       classes: <ClassesInfo />,
       attendance: <AttendanceManager />,
+      user_attendance: <UserAttendanceManager />,
+      teacher_attendance: <TeacherAttendanceManager />,
     };
-    
+
     return components[activeButton as keyof typeof components] || null;
   };
 
@@ -197,7 +237,7 @@ export default function AdminPage() {
         >
           Students
         </SideNavButton>
-        
+
         <SideNavButton
           icon="teacher"
           active={activeButton === "teacher"}
@@ -205,7 +245,7 @@ export default function AdminPage() {
         >
           Teachers
         </SideNavButton>
-        
+
         <SideNavButton
           icon="user"
           active={activeButton === "user"}
@@ -213,7 +253,7 @@ export default function AdminPage() {
         >
           Users
         </SideNavButton>
-        
+
         <SideNavButton
           icon="shield"
           active={activeButton === "roles"}
@@ -221,7 +261,7 @@ export default function AdminPage() {
         >
           Roles
         </SideNavButton>
-        
+
         <SideNavButton
           icon="calendar"
           active={activeButton === "academic_year"}
@@ -229,7 +269,7 @@ export default function AdminPage() {
         >
           Academic Year
         </SideNavButton>
-        
+
         <SideNavButton
           icon="auto_stories"
           active={activeButton === "subjects"}
@@ -237,7 +277,7 @@ export default function AdminPage() {
         >
           Subjects
         </SideNavButton>
-        
+
         <SideNavButton
           icon="class"
           active={activeButton === "classes"}
@@ -245,16 +285,32 @@ export default function AdminPage() {
         >
           Classes
         </SideNavButton>
-        
+
         <SideNavButton
           icon="attendance"
           active={activeButton === "attendance"}
           onClick={() => setActiveButton("attendance")}
         >
-          Attendance
+          Student Attendance
+        </SideNavButton>
+
+        <SideNavButton
+          icon="user"
+          active={activeButton === "user_attendance"}
+          onClick={() => setActiveButton("user_attendance")}
+        >
+          User Attendance
+        </SideNavButton>
+
+        <SideNavButton
+          icon="teacher"
+          active={activeButton === "teacher_attendance"}
+          onClick={() => setActiveButton("teacher_attendance")}
+        >
+          Teacher Attendance
         </SideNavButton>
       </SideNav>
-      
+
       <main className="flex-1 ml-64 min-h-screen relative z-10">
         <div className="p-8">
           <AnimatePresence mode="wait">

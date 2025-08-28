@@ -59,7 +59,7 @@
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
   --gradient-warm: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
   --gradient-cool: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
   --gradient-ocean: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -170,11 +170,11 @@ body {
 
 /* Modern Table Styles */
 .modern-table {
-  background: white;
+  background: var(--card-bg);
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--background-muted);
+  border: 1px solid var(--card-border);
 }
 
 .modern-table thead {
@@ -183,13 +183,111 @@ body {
 }
 
 .modern-table tbody tr {
-  transition: all 0.2s ease;
-  border-bottom: 1px solid var(--background-muted);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid var(--card-border);
+  background: var(--card-bg);
 }
 
 .modern-table tbody tr:hover {
   background: var(--primary-light);
-  transform: scale(1.01);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.modern-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Enhanced table cell styles */
+.modern-table td {
+  color: var(--foreground);
+  padding: 1rem 1.5rem;
+}
+
+.modern-table th {
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+}
+
+/* Theme-aware table hover effects */
+.theme-table-row {
+  background: var(--card-bg);
+  color: var(--foreground);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.theme-table-row:hover {
+  background: var(--primary-light) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Light theme hover colors */
+.theme-table-row:hover {
+  color: var(--primary);
+}
+
+.theme-table-row:hover td {
+  color: var(--primary) !important;
+}
+
+/* Dark theme specific table adjustments */
+.dark .theme-table-row:hover {
+  background: var(--primary-light) !important;
+  color: var(--foreground) !important;
+}
+
+/* Ensure proper contrast in dark theme hover */
+.dark .theme-table-row:hover td {
+  color: var(--foreground) !important;
+}
+
+/* Enhanced table styling for better readability */
+table th {
+  color: white !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  padding: 1rem 1.5rem;
+}
+
+table td {
+  padding: 1rem 1.5rem;
+  color: var(--foreground);
+}
+
+/* Fix hardcoded table header colors */
+table th.text-gray-500 {
+  color: white !important;
+}
+
+/* Modern table header with gradient */
+.gradient-table-header {
+  background: var(--gradient-primary);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-table-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* Modern Input Styles */
