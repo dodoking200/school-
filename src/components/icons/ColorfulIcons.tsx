@@ -178,3 +178,20 @@ export const EditColorIcon = ({ className = "", size = 20 }: IconProps) => (
     <path d="M18.5 2.50023C18.8978 2.10243 19.4374 1.87891 20 1.87891C20.5626 1.87891 21.1022 2.10243 21.5 2.50023C21.8978 2.89804 22.1213 3.43762 22.1213 4.00023C22.1213 4.56284 21.8978 5.10243 21.5 5.50023L12 15.0002L8 16.0002L9 12.0002L18.5 2.50023Z" stroke="url(#editGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
+// Delete Icon - Red gradient
+export const DeleteColorIcon = ({ className = "", size = 20 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+    <defs>
+      <linearGradient id="deleteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EF4444" />
+        <stop offset="100%" stopColor="#DC2626" />
+      </linearGradient>
+    </defs>
+    <path d="M3 6H21" stroke="url(#deleteGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M19 6V20C19 21 18 22 17 22H7C6 22 5 21 5 20V6" stroke="url(#deleteGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8 6V4C8 3 9 2 10 2H14C15 2 16 3 16 4V6" stroke="url(#deleteGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <line x1="10" y1="11" x2="10" y2="17" stroke="url(#deleteGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <line x1="14" y1="11" x2="14" y2="17" stroke="url(#deleteGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);

@@ -3,6 +3,7 @@ import Table from "../ui/Table";
 import AcademicYearModal from "./AcademicYearModal";
 import { AcademicYear, AcademicYearCreatePayload } from "@/types";
 import { academicYearService } from "@/lib/services/academicYearService";
+import { AddColorIcon, EditColorIcon, DeleteColorIcon } from "@/components/icons/ColorfulIcons";
 
 export default function AcademicYearInfo() {
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
@@ -98,9 +99,10 @@ export default function AcademicYearInfo() {
         actions={
           <button
             onClick={handleAddAcademicYear}
-            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+            className="btn-primary flex items-center gap-2"
           >
-            Add Academic Year
+            <AddColorIcon size={18} />
+            <span>Add Academic Year</span>
           </button>
         }
         tableHeader={
@@ -176,18 +178,22 @@ export default function AcademicYearInfo() {
                     {academicYear.full_tuition}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900"
-                      onClick={() => handleEditAcademicYear(academicYear)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900 ml-4"
-                      onClick={() => handleDeleteAcademicYear(academicYear.id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleEditAcademicYear(academicYear)}
+                      >
+                        <EditColorIcon size={16} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleDeleteAcademicYear(academicYear.id)}
+                      >
+                        <DeleteColorIcon size={16} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

@@ -6,6 +6,7 @@ import ScheduleInputTable from "./ScheduleInputTable";
 import StudentsListModal from "./StudentsListModal";
 import { classService } from "@/lib/services/classService";
 import { toast } from "react-toastify";
+import { AddColorIcon, EditColorIcon, DeleteColorIcon } from "@/components/icons/ColorfulIcons";
 
 export default function ClassesInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -175,9 +176,10 @@ export default function ClassesInfo() {
         actions={
           <button
             onClick={handleAddClass}
-            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+            className="btn-primary flex items-center gap-2"
           >
-            Add Class
+            <AddColorIcon size={18} />
+            <span>Add Class</span>
           </button>
         }
         tableHeader={
@@ -254,39 +256,43 @@ export default function ClassesInfo() {
                     {classData.level_grade}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900"
-                      onClick={() => handleEditClass(classData)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className={`ml-4 ${
-                        deletionStatus[classData.id]?.canDelete
-                          ? "text-red-600 hover:text-red-900"
-                          : "text-gray-400 cursor-not-allowed"
-                      }`}
-                      onClick={() => handleDeleteClass(classData.id)}
-                      disabled={!deletionStatus[classData.id]?.canDelete}
-                      title={
-                        deletionStatus[classData.id]?.reason ||
-                        "Checking deletion status..."
-                      }
-                    >
-                      Remove
-                    </button>
-                    <button
-                      className="text-blue-600 hover:text-blue-900 ml-4"
-                      onClick={() => handleScheduleClick(classData)}
-                    >
-                      Schedule
-                    </button>
-                    <button
-                      className="text-purple-600 hover:text-purple-900 ml-4"
-                      onClick={() => setSelectedStudentsClass(classData)}
-                    >
-                      Students
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleEditClass(classData)}
+                      >
+                        <EditColorIcon size={16} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        className={`px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2 ${
+                          deletionStatus[classData.id]?.canDelete
+                            ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                        onClick={() => handleDeleteClass(classData.id)}
+                        disabled={!deletionStatus[classData.id]?.canDelete}
+                        title={
+                          deletionStatus[classData.id]?.reason ||
+                          "Checking deletion status..."
+                        }
+                      >
+                        <DeleteColorIcon size={16} />
+                        <span>Remove</span>
+                      </button>
+                      <button
+                        className="text-blue-600 hover:text-blue-900 font-medium"
+                        onClick={() => handleScheduleClick(classData)}
+                      >
+                        Schedule
+                      </button>
+                      <button
+                        className="text-purple-600 hover:text-purple-900 font-medium"
+                        onClick={() => setSelectedStudentsClass(classData)}
+                      >
+                        Students
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

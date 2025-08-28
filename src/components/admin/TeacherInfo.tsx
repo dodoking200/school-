@@ -5,6 +5,7 @@ import { Teacher, TeacherCreatePayload } from "@/types";
 import { teacherService } from "@/lib/services/teacherService";
 import { subjectService } from "@/lib/services/subjectService";
 import { toast } from "react-toastify";
+import { EditColorIcon, DeleteColorIcon, AddColorIcon } from "@/components/icons/ColorfulIcons";
 
 export default function TeacherInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -147,9 +148,10 @@ export default function TeacherInfo() {
           <div className="flex space-x-2">
             <button
               onClick={handleAddTeacher}
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+              className="btn-primary flex items-center gap-2"
             >
-              Add Teacher
+              <AddColorIcon size={18} />
+              <span>Add Teacher</span>
             </button>
           </div>
         }
@@ -157,39 +159,39 @@ export default function TeacherInfo() {
           <>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Name
+              👨‍🏫 Name
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Email
+              📧 Email
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Phone
+              📱 Phone
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Birthdate
+              🎂 Birthdate
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Subjects
+              📚 Subjects
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Actions
+              ⚡ Actions
             </th>
           </>
         }
@@ -217,38 +219,42 @@ export default function TeacherInfo() {
               teachers.map((teacher) => (
                 <tr
                   key={teacher.id}
-                  className=" text-left hover:bg-gray-50 transition duration-150"
+                  className="text-left hover:bg-primary-50/50 hover:scale-[1.01] transition-all duration-200 group"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900 group-hover:text-primary-600">
                     {teacher.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {teacher.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {teacher.phone}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {teacher.birth_date}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {teacher.subjects
                       ?.map((subject) => subject.name)
                       .join(", ")}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900"
-                      onClick={() => handleEditTeacher(teacher)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900 ml-4"
-                      onClick={() => handleRemoveTeacher(teacher.id)}
-                    >
-                      Remove
-                    </button>
+                  <td className="px-6 py-5 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleEditTeacher(teacher)}
+                      >
+                        <EditColorIcon size={16} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleRemoveTeacher(teacher.id)}
+                      >
+                        <DeleteColorIcon size={16} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

@@ -5,6 +5,7 @@ import { Role, User } from "@/types";
 import { toast } from "react-toastify";
 import { userService } from "@/lib/services/userService";
 import { roleService } from "@/lib/services/roleService";
+import { AddColorIcon, EditColorIcon, DeleteColorIcon } from "@/components/icons/ColorfulIcons";
 
 export default function UserInfo() {
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -149,9 +150,10 @@ export default function UserInfo() {
           <div className="flex space-x-2">
             <button
               onClick={handleAddUser}
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+              className="btn-primary flex items-center gap-2"
             >
-              Add User
+              <AddColorIcon size={18} />
+              <span>Add User</span>
             </button>
           </div>
         }
@@ -254,18 +256,20 @@ export default function UserInfo() {
                     {user.birth_date}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex space-x-2">
+                    <div className="flex items-center gap-2">
                       <button
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
                         onClick={() => handleEditUser(user)}
                       >
-                        Edit
+                        <EditColorIcon size={16} />
+                        <span>Edit</span>
                       </button>
                       <button
-                        className="text-red-600 hover:text-red-900"
+                        className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
                         onClick={() => handleDeleteUser(user.id)}
                       >
-                        Delete
+                        <DeleteColorIcon size={16} />
+                        <span>Delete</span>
                       </button>
                     </div>
                   </td>
