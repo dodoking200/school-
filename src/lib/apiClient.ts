@@ -75,6 +75,19 @@ export async function apiClient<T>(
       headers,
     });
 
+    // Log response details regardless of success/failure
+    console.log("API Response Details:", {
+      endpoint,
+      fullUrl,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      ok: response.ok,
+      url: response.url,
+      type: response.type,
+      redirected: response.redirected,
+    });
+
     // Add debug logging for non-JSON responses
     if (!response.ok) {
       let errorMessage;
@@ -83,6 +96,8 @@ export async function apiClient<T>(
       try {
         // Try to get response text for debugging
         responseText = await response.text();
+        console.log("Error Response Text:", responseText);
+
         const errorData = JSON.parse(responseText);
 
         // Handle validation errors (array of validation messages)
@@ -120,12 +135,18 @@ export async function apiClient<T>(
         status: response.status,
         endpoint,
         fullUrl,
+        responseText: responseText.substring(0, 1000), // Log first 1000 chars of response
       });
 
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    // Get response text first for logging
+    const responseText = await response.text();
+    console.log("Success Response Text:", responseText);
+
+    // Parse the response text as JSON
+    const data = JSON.parse(responseText);
 
     // Log successful response
     console.log("API Response Success:", {
@@ -135,6 +156,7 @@ export async function apiClient<T>(
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
       data,
+      responseText: responseText.substring(0, 1000), // Log first 1000 chars of response
     });
 
     return {

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Style Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <h1 class="text-3xl font-bold text-blue-600 mb-4">Styling Test</h1>
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+        <h2 class="text-xl font-semibold mb-2">Basic Tailwind</h2>
+        <p class="text-gray-600">This should be styled with Tailwind</p>
+    </div>
+    <div class="test-gradient text-white p-6 rounded-lg">
+        <h2 class="text-xl font-bold">Custom Gradient</h2>
+        <p>This should have a purple gradient background</p>
+    </div>
+</body>
+</html>
