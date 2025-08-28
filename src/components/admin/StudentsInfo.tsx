@@ -53,6 +53,10 @@ export default function StudentInfo() {
         pageSize: studentsPerPage,
         orderBy: "name",
         orderDirection: "asc",
+        filters: {
+          grade_level: selectedGrade ? parseInt(selectedGrade) : undefined,
+          class_id: selectedClass ? parseInt(selectedClass) : undefined,
+        },
       };
 
       const response = await studentService.getStudentsPaginated(
@@ -94,6 +98,12 @@ export default function StudentInfo() {
     fetchStudents(1);
     fetchClasses();
   }, []);
+
+  // Refetch students when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchStudents(1);
+  }, [selectedGrade, selectedClass]);
 
   // Get unique grades for filter options
   const uniqueGrades = [
@@ -138,7 +148,7 @@ export default function StudentInfo() {
       grade_level: parseInt(student.grade_level),
       class_name: student.class_name,
       phone: student.phone,
-              birth_date: student.birth_date,
+      birth_date: student.birth_date,
       discount_percentage: 0, // Default discount for existing students
     };
     setSelectedStudent(modalStudent);
@@ -334,6 +344,7 @@ export default function StudentInfo() {
                 onClick={() => {
                   setSelectedGrade("");
                   setSelectedClass("");
+                  setCurrentPage(1);
                 }}
                 className="text-gray-600 hover:text-gray-800 text-sm underline"
                 disabled={loading}
@@ -357,18 +368,33 @@ export default function StudentInfo() {
           </div>
         }
         filter={
-          <select
-            value={selectedGrade}
-            onChange={(e) => setSelectedGrade(e.target.value)}
-            className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">All Grades</option>
-            {uniqueGrades.map((grade) => (
-              <option key={grade} value={grade}>
-                {grade}
-              </option>
-            ))}
-          </select>
+          <div className="flex space-x-4">
+            <select
+              value={selectedGrade}
+              onChange={(e) => setSelectedGrade(e.target.value)}
+              className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">All Grades</option>
+              {uniqueGrades.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">All Classes</option>
+              {classes.map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.class_name}
+                </option>
+              ))}
+            </select>
+          </div>
         }
         tableHeader={
           <>

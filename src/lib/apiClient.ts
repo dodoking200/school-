@@ -4,7 +4,8 @@ import { ApiResponse } from "@/types"; // ✅ Import the type
 
 // Get the base URL from environment variables
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://school-back-end-5e44.onrender.com/api";
 
 /**
  * Builds a full API URL by combining the base URL with the endpoint
@@ -125,6 +126,17 @@ export async function apiClient<T>(
     }
 
     const data = await response.json();
+
+    // Log successful response
+    console.log("API Response Success:", {
+      endpoint,
+      fullUrl,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      data,
+    });
+
     return {
       data,
       success: true,

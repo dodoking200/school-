@@ -226,6 +226,10 @@ export type PaginationRequest = {
   pageSize: number;
   orderBy: string;
   orderDirection: "asc" | "desc";
+  filters?: {
+    grade_level?: number;
+    class_id?: number;
+  };
 };
 
 export type PaginationResponse<T> = {
