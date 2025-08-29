@@ -329,3 +329,40 @@ export type ExamCreatePayload = {
   exam_type: string;
   questions: ExamQuestion[];
 };
+
+// New types for upcoming quizzes and exams
+export type UpcomingQuiz = {
+  id: number;
+  uuid: string;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  subject_name: string;
+  subject_resources: string;
+  curriculum_id: number;
+};
+
+export type UpcomingExam = {
+  id: number;
+  uuid: string;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  subject_name: string;
+  subject_resources: string;
+  curriculum_id: number;
+};

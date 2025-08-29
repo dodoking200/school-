@@ -75,6 +75,8 @@ export const API_ENDPOINTS = {
   STUDENT: {
     SCHEDULE: "students/schedule",
     MARKS: "students/scorecard",
+    UPCOMING_QUIZZES: "exams/student-nextquizzes",
+    UPCOMING_EXAMS: "exams/student-nextexams",
   },
 
   TEACHER: {
