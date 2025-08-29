@@ -1,10 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Class, Student, StudentAttendance, AttendanceStatus } from "@/types";
+import {
+  Class,
+  Student,
+  StudentAttendance,
+  AttendanceStatus,
+  BehaviorType,
+  BehaviorCreatePayload,
+  Behavior,
+} from "@/types";
 import { classService } from "@/lib/services/classService";
 import { studentService } from "@/lib/services/studentService";
 import { attendanceService } from "@/lib/services/attendanceService";
+import { behaviorService } from "@/lib/services/behaviorService";
 import Table from "../ui/Table";
 
 export default function AttendanceManager() {
@@ -17,6 +26,22 @@ export default function AttendanceManager() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Behavior states
+  const [behaviors, setBehaviors] = useState<{
+    [studentId: number]: { type: BehaviorType | ""; description: string };
+  }>({});
+
+  const behaviorTypes: BehaviorType[] = [
+    "Exam Issues",
+    "Attendance Problems",
+    "Academic Integrity",
+    "Behavior Concerns",
+    "Social Skills",
+    "Work Habits",
+    "Practical Skills",
+    "Good Behavior",
+  ];
 
   useEffect(() => {
     fetchClasses();
@@ -48,8 +73,16 @@ export default function AttendanceManager() {
         student_id: student.id,
         student_name: student.student_name, // Now this matches the Student type
         status: "present" as AttendanceStatus,
-        notes: "",
       }));
+
+      // Initialize behaviors for all students
+      const initialBehaviors: {
+        [studentId: number]: { type: BehaviorType | ""; description: string };
+      } = {};
+      data.forEach((student) => {
+        initialBehaviors[student.id] = { type: "", description: "" };
+      });
+      setBehaviors(initialBehaviors);
 
       console.log("Students data:", data);
       console.log("Initial attendance:", initialAttendance);
@@ -83,12 +116,24 @@ export default function AttendanceManager() {
     );
   };
 
-  const handleNotesChange = (studentId: number, notes: string) => {
-    setAttendance((prev) =>
-      prev.map((student) =>
-        student.student_id === studentId ? { ...student, notes } : student
-      )
-    );
+  const handleBehaviorTypeChange = (
+    studentId: number,
+    type: BehaviorType | ""
+  ) => {
+    setBehaviors((prev) => ({
+      ...prev,
+      [studentId]: { ...prev[studentId], type },
+    }));
+  };
+
+  const handleBehaviorDescriptionChange = (
+    studentId: number,
+    description: string
+  ) => {
+    setBehaviors((prev) => ({
+      ...prev,
+      [studentId]: { ...prev[studentId], description },
+    }));
   };
 
   const handleBulkAction = (status: AttendanceStatus) => {
@@ -114,6 +159,27 @@ export default function AttendanceManager() {
 
       // Use the new createAttendance method
       await attendanceService.createAttendance(selectedDate, attendanceArray);
+
+      // Create behaviors for students who have behavior data
+      const behaviorPromises: Promise<Behavior>[] = [];
+
+      Object.entries(behaviors).forEach(([studentIdStr, behaviorData]) => {
+        const studentId = parseInt(studentIdStr);
+        if (behaviorData.type && behaviorData.description.trim()) {
+          const behaviorPayload: BehaviorCreatePayload = {
+            student_id: studentId,
+            description: behaviorData.description.trim(),
+            type: behaviorData.type,
+          };
+          behaviorPromises.push(
+            behaviorService.createBehavior(behaviorPayload)
+          );
+        }
+      });
+
+      if (behaviorPromises.length > 0) {
+        await Promise.all(behaviorPromises);
+      }
 
       // Clear any existing error
       setError(null);
@@ -167,14 +233,20 @@ export default function AttendanceManager() {
     <div className="space-y-6">
       {/* Header and Controls */}
       <div className="glass-card">
-        <h2 className="text-2xl font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+        <h2
+          className="text-2xl font-semibold mb-4"
+          style={{ color: "var(--foreground)" }}
+        >
           Attendance Management
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Class Selection */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Select Class
             </label>
             <select
@@ -193,7 +265,10 @@ export default function AttendanceManager() {
 
           {/* Date Selection */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Date
             </label>
             <input
@@ -219,27 +294,39 @@ export default function AttendanceManager() {
         {/* Bulk Actions */}
         {selectedClass && (
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="text-sm font-medium mr-2" style={{ color: "var(--foreground-muted)" }}>
+            <span
+              className="text-sm font-medium mr-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Quick Actions:
             </span>
             <button
               onClick={() => handleBulkAction("present")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--success-light)", color: "var(--success)" }}
+              style={{
+                backgroundColor: "var(--success-light)",
+                color: "var(--success)",
+              }}
             >
               Mark All Present
             </button>
             <button
               onClick={() => handleBulkAction("absent")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--danger-light)", color: "var(--danger)" }}
+              style={{
+                backgroundColor: "var(--danger-light)",
+                color: "var(--danger)",
+              }}
             >
               Mark All Absent
             </button>
             <button
               onClick={() => handleBulkAction("late")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--warning-light)", color: "var(--warning)" }}
+              style={{
+                backgroundColor: "var(--warning-light)",
+                color: "var(--warning)",
+              }}
             >
               Mark All Late
             </button>
@@ -248,8 +335,13 @@ export default function AttendanceManager() {
 
         {/* Error Display */}
         {error && (
-          <div className="glass-card" style={{ backgroundColor: "var(--danger-light)" }}>
-            <div className="text-sm" style={{ color: "var(--danger)" }}>{error}</div>
+          <div
+            className="glass-card"
+            style={{ backgroundColor: "var(--danger-light)" }}
+          >
+            <div className="text-sm" style={{ color: "var(--danger)" }}>
+              {error}
+            </div>
           </div>
         )}
       </div>
@@ -265,14 +357,30 @@ export default function AttendanceManager() {
           tableWrapperClassName="glass-card"
           tableHeader={
             <>
-              <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
+              <th
+                className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
                 Student Name
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
+              <th
+                className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
                 Status
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
-                Notes
+
+              <th
+                className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
+                Behavior Type
+              </th>
+              <th
+                className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
+                Behavior Description
               </th>
             </>
           }
@@ -281,11 +389,11 @@ export default function AttendanceManager() {
               {attendance.map((student, index) => {
                 console.log("Rendering student:", student);
                 return (
-                  <tr
-                    key={index}
-                    className="theme-table-row"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
+                  <tr key={index} className="theme-table-row">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap font-medium"
+                      style={{ color: "var(--foreground)" }}
+                    >
                       {student.student_name || "No Name"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -302,7 +410,7 @@ export default function AttendanceManager() {
                         )} border-0`}
                         style={{
                           ...getStatusStyle(student.status),
-                          color: "white"
+                          color: "white",
                         }}
                       >
                         <option value="present">Present</option>
@@ -311,13 +419,36 @@ export default function AttendanceManager() {
                         <option value="excused">Excused</option>
                       </select>
                     </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={behaviors[student.student_id]?.type || ""}
+                        onChange={(e) =>
+                          handleBehaviorTypeChange(
+                            student.student_id,
+                            e.target.value as BehaviorType | ""
+                          )
+                        }
+                        className="modern-input w-full px-3 py-1 text-sm"
+                      >
+                        <option value="">Select behavior type...</option>
+                        {behaviorTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="text"
-                        placeholder="Add notes..."
-                        value={student.notes || ""}
+                        placeholder="Describe behavior..."
+                        value={behaviors[student.student_id]?.description || ""}
                         onChange={(e) =>
-                          handleNotesChange(student.student_id, e.target.value)
+                          handleBehaviorDescriptionChange(
+                            student.student_id,
+                            e.target.value
+                          )
                         }
                         className="modern-input w-full px-3 py-1 text-sm"
                       />
@@ -333,43 +464,89 @@ export default function AttendanceManager() {
       {/* Attendance Summary */}
       {selectedClass && attendance.length > 0 && (
         <div className="glass-card">
-          <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+          <h3
+            className="text-lg font-semibold mb-4"
+            style={{ color: "var(--foreground)" }}
+          >
             Attendance Summary
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--foreground)" }}
+              >
                 {attendance.length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Students</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Total Students
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--success)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--success)" }}
+              >
                 {attendance.filter((s) => s.status === "present").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Present</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Present
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--danger)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--danger)" }}
+              >
                 {attendance.filter((s) => s.status === "absent").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Absent</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Absent
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--warning)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--warning)" }}
+              >
                 {attendance.filter((s) => s.status === "late").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Late</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Late
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--primary)" }}
+              >
                 {attendance.filter((s) => s.status === "excused").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Excused</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Excused
+              </div>
             </div>
           </div>
           <div className="mt-4 text-center">
-            <div className="text-3xl font-bold" style={{ color: "var(--primary)" }}>
+            <div
+              className="text-3xl font-bold"
+              style={{ color: "var(--primary)" }}
+            >
               {Math.round(
                 (attendance.filter((s) => s.status === "present").length /
                   attendance.length) *
@@ -377,7 +554,12 @@ export default function AttendanceManager() {
               )}
               %
             </div>
-            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Attendance Rate</div>
+            <div
+              className="text-sm"
+              style={{ color: "var(--foreground-muted)" }}
+            >
+              Attendance Rate
+            </div>
           </div>
         </div>
       )}

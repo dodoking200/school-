@@ -58,6 +58,10 @@ export const API_ENDPOINTS = {
     GET_ALL: "periods",
   },
 
+  BEHAVIOR: {
+    CREATE: "behaviors",
+  },
+
   TEACHERS: {
     GET_ALL: "teachers",
     GET_BY_ID: (id: number) => `teachers/${id}`,

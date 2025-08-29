@@ -282,6 +282,33 @@ export type StudentCreatePayload = {
 
 export type StudentUpdatePayload = Partial<StudentCreatePayload>;
 
+// Behavior Types
+export type BehaviorType =
+  | "Exam Issues"
+  | "Attendance Problems"
+  | "Academic Integrity"
+  | "Behavior Concerns"
+  | "Social Skills"
+  | "Work Habits"
+  | "Practical Skills"
+  | "Good Behavior";
+
+export type Behavior = {
+  id: number;
+  student_id: number;
+  description: string;
+  date: string;
+  type: BehaviorType;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type BehaviorCreatePayload = {
+  student_id: number;
+  description: string;
+  type: BehaviorType;
+};
+
 // Exam Types
 export type ExamQuestion = {
   question_id: number;
