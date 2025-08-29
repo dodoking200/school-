@@ -5,6 +5,8 @@ import React, { useState } from "react";
 import Students from "@/components/teacher/Students";
 import QuestionsView from "@/components/teacher/QuestionsView";
 import TeacherSchedule from "@/components/teacher/TeacherSchedule";
+import ExamTable from "@/components/teacher/ExamTable";
+import QuizTable from "@/components/teacher/QuizTable";
 
 export default function TeacherPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
@@ -28,10 +30,10 @@ export default function TeacherPage() {
         </SideNavButton>
         <SideNavButton
           icon="assignment"
-          active={activeButton === "Quizzes"}
-          onClick={() => setActiveButton("Quizzes")}
+          active={activeButton === "questions"}
+          onClick={() => setActiveButton("questions")}
         >
-          Quizzes
+          Questions
         </SideNavButton>
         <SideNavButton
           icon="event"
@@ -39,6 +41,20 @@ export default function TeacherPage() {
           onClick={() => setActiveButton("Schedule")}
         >
           Schedule
+        </SideNavButton>
+        <SideNavButton
+          icon="auto_stories"
+          active={activeButton === "Exams"}
+          onClick={() => setActiveButton("Exams")}
+        >
+          Exams
+        </SideNavButton>
+        <SideNavButton
+          icon="assignment"
+          active={activeButton === "Quizzes"}
+          onClick={() => setActiveButton("Quizzes")}
+        >
+          Quizzes
         </SideNavButton>
       </SideNav>
       <main
@@ -60,8 +76,9 @@ export default function TeacherPage() {
               Welcome to Your Teacher Dashboard
             </h2>
             <p className="mb-6" style={{ color: "var(--foreground-muted)" }}>
-              Manage your classes, view schedules, create quizzes, and track
-              student progress from this central location.
+              Manage your classes, view schedules, create quizzes, manage exams
+              and quizzes, and track student progress from this central
+              location.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div
@@ -81,6 +98,8 @@ export default function TeacherPage() {
                   <li>• View your schedule</li>
                   <li>• Create new quizzes</li>
                   <li>• Check student marks</li>
+                  <li>• Manage exams</li>
+                  <li>• Manage quizzes</li>
                 </ul>
               </div>
               <div
@@ -114,9 +133,11 @@ export default function TeacherPage() {
             </div>
           </div>
         )}
-        {activeButton == "Quizzes" && <QuestionsView />}
+        {activeButton == "questions" && <QuestionsView />}
         {activeButton == "Marks" && <Students />}
         {activeButton == "Schedule" && <TeacherSchedule />}
+        {activeButton == "Exams" && <ExamTable />}
+        {activeButton == "Quizzes" && <QuizTable />}
       </main>
     </div>
   );

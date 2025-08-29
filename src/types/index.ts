@@ -376,3 +376,22 @@ export type UpcomingExam = {
   subject_resources: string;
   curriculum_id: number;
 };
+
+// Exam type for the /exams/exams API response
+export type Exam = {
+  id: number;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  created_at: string;
+  updated_at: string;
+  announced: boolean;
+  exam_type: string;
+  uuid: string;
+};
