@@ -191,21 +191,6 @@ export default function SideNav({ children }: SideNavProps) {
             </motion.div>
 
             <span>Logout</span>
-
-            {/* Hover Effect Arrow */}
-            <AnimatePresence>
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="ml-auto"
-                >
-                  <ArrowRightStartOnRectangleIcon className="w-4 h-4 text-red-500" />
-                </motion.div>
-              )}
-            </AnimatePresence>
           </motion.button>
         </div>
       </div>

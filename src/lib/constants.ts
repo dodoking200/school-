@@ -76,6 +76,7 @@ export const API_ENDPOINTS = {
     SCHEDULE: "teachers/schedule",
     GET_QUESTIONS: "teachers/questions",
     CREATE_QUESTION: "questions",
+    CREATE_EXAM: "exams",
     UPDATE_QUESTION: (id: number) => `questions/${id}`,
     DELETE_QUESTION: (id: number) => `questions/${id}`,
     GET_STUDENTS: "teachers/students",
@@ -118,5 +119,24 @@ export const API_ENDPOINTS = {
 
   PAGINATION: {
     STUDENTS: "pagination",
+  },
+
+  TUITION_PAYMENTS: {
+    CREATE: "tuition-payments",
+    GET_ALL: "tuition-payments",
+    GET_BY_ID: (id: number) => `tuition-payments/${id}`,
+    UPDATE: (id: number) => `tuition-payments/${id}`,
+    DELETE: (id: number) => `tuition-payments/${id}`,
+    VERIFY: (id: number) => `tuition-payments/${id}/verify`,
+    GET_STUDENT_PAYMENTS: (studentId: number) =>
+      `tuition-payments/student/${studentId}`,
+    GET_STUDENT_BALANCE: (studentId: number) =>
+      `tuition-payments/student/${studentId}/balance`,
+    GET_STUDENT_PAYMENT_TOTAL: (studentId: number) =>
+      `tuition-payments/student/${studentId}/total`,
+    GET_OUTSTANDING: "tuition-payments/outstanding",
+    GET_STATS: "tuition-payments/stats",
+    GET_BY_DATE_RANGE: "tuition-payments/date-range",
+    BULK_CREATE: "tuition-payments/bulk",
   },
 };

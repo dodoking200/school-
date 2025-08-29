@@ -1,4 +1,5 @@
 import { apiClient } from "../apiClient";
+import { API_ENDPOINTS } from "../constants";
 
 export interface TuitionPayment {
   id: number;
@@ -30,7 +31,7 @@ export interface StudentBalance {
 
 export interface OutstandingPayment {
   student_id: number;
-  remaining_tuition: number;
+  remaining_tuition: string;
   student_name: string;
   student_email: string;
   student_phone: string;
@@ -43,7 +44,13 @@ export const tuitionPaymentService = {
   async createTuitionPayment(
     paymentData: TuitionPaymentCreatePayload
   ): Promise<TuitionPayment> {
-    const response = await apiClient.post("/tuition-payments", paymentData);
+    const response = await apiClient<TuitionPayment>(
+      API_ENDPOINTS.TUITION_PAYMENTS.CREATE,
+      {
+        method: "POST",
+        body: JSON.stringify(paymentData),
+      }
+    );
     return response.data;
   },
 
@@ -62,31 +69,33 @@ export const tuitionPaymentService = {
     if (filters?.date_from) params.append("date_from", filters.date_from);
     if (filters?.date_to) params.append("date_to", filters.date_to);
 
-    const response = await apiClient.get(
-      `/tuition-payments?${params.toString()}`
+    const response = await apiClient<TuitionPayment[]>(
+      `${API_ENDPOINTS.TUITION_PAYMENTS.GET_ALL}?${params.toString()}`
     );
     return response.data;
   },
 
   // Get payments for a specific student
   async getStudentPayments(studentId: number): Promise<TuitionPayment[]> {
-    const response = await apiClient.get(
-      `/tuition-payments/student/${studentId}`
+    const response = await apiClient<TuitionPayment[]>(
+      API_ENDPOINTS.TUITION_PAYMENTS.GET_STUDENT_PAYMENTS(studentId)
     );
     return response.data;
   },
 
   // Get student balance information
   async getStudentBalance(studentId: number): Promise<StudentBalance> {
-    const response = await apiClient.get(
-      `/tuition-payments/student/${studentId}/balance`
+    const response = await apiClient<StudentBalance>(
+      API_ENDPOINTS.TUITION_PAYMENTS.GET_STUDENT_BALANCE(studentId)
     );
     return response.data;
   },
 
   // Get outstanding payments
   async getOutstandingPayments(): Promise<OutstandingPayment[]> {
-    const response = await apiClient.get("/tuition-payments/outstanding");
+    const response = await apiClient<OutstandingPayment[]>(
+      API_ENDPOINTS.TUITION_PAYMENTS.GET_OUTSTANDING
+    );
     return response.data;
   },
 
@@ -94,21 +103,34 @@ export const tuitionPaymentService = {
   async getPaymentStats(filters?: {
     date_from?: string;
     date_to?: string;
-  }): Promise<any> {
+  }): Promise<
+    {
+      payment_method: string;
+      total_amount: number;
+      payment_count: number;
+      average_amount: number;
+    }[]
+  > {
     const params = new URLSearchParams();
     if (filters?.date_from) params.append("date_from", filters.date_from);
     if (filters?.date_to) params.append("date_to", filters.date_to);
 
-    const response = await apiClient.get(
-      `/tuition-payments/stats?${params.toString()}`
-    );
+    const response = await apiClient<
+      {
+        payment_method: string;
+        total_amount: number;
+        payment_count: number;
+        average_amount: number;
+      }[]
+    >(`${API_ENDPOINTS.TUITION_PAYMENTS.GET_STATS}?${params.toString()}`);
     return response.data;
   },
 
   // Verify a payment
   async verifyPayment(paymentId: number): Promise<TuitionPayment> {
-    const response = await apiClient.patch(
-      `/tuition-payments/${paymentId}/verify`
+    const response = await apiClient<TuitionPayment>(
+      API_ENDPOINTS.TUITION_PAYMENTS.VERIFY(paymentId),
+      { method: "PATCH" }
     );
     return response.data;
   },
@@ -118,16 +140,24 @@ export const tuitionPaymentService = {
     paymentId: number,
     updates: Partial<TuitionPaymentCreatePayload>
   ): Promise<TuitionPayment> {
-    const response = await apiClient.put(
-      `/tuition-payments/${paymentId}`,
-      updates
+    const response = await apiClient<TuitionPayment>(
+      API_ENDPOINTS.TUITION_PAYMENTS.UPDATE(paymentId),
+      {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      }
     );
     return response.data;
   },
 
   // Delete a payment
   async deleteTuitionPayment(paymentId: number): Promise<boolean> {
-    const response = await apiClient.delete(`/tuition-payments/${paymentId}`);
+    const response = await apiClient<boolean>(
+      API_ENDPOINTS.TUITION_PAYMENTS.DELETE(paymentId),
+      {
+        method: "DELETE",
+      }
+    );
     return response.data;
   },
 
@@ -136,8 +166,8 @@ export const tuitionPaymentService = {
     startDate: string,
     endDate: string
   ): Promise<TuitionPayment[]> {
-    const response = await apiClient.get(
-      `/tuition-payments/date-range?start_date=${startDate}&end_date=${endDate}`
+    const response = await apiClient<TuitionPayment[]>(
+      `${API_ENDPOINTS.TUITION_PAYMENTS.GET_BY_DATE_RANGE}?start_date=${startDate}&end_date=${endDate}`
     );
     return response.data;
   },

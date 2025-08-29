@@ -281,3 +281,24 @@ export type StudentCreatePayload = {
 };
 
 export type StudentUpdatePayload = Partial<StudentCreatePayload>;
+
+// Exam Types
+export type ExamQuestion = {
+  question_id: number;
+  mark: number;
+};
+
+export type ExamCreatePayload = {
+  title: string;
+  description: string;
+  semester_id: number;
+  subject_id: number;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  exam_type: string;
+  questions: ExamQuestion[];
+};

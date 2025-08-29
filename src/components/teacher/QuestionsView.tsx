@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { SubjectQuestions, QuestionItem } from "@/types";
+import { SubjectQuestions, QuestionItem, ExamCreatePayload } from "@/types";
 import Table from "@/components/ui/Table";
 import QuestionInput from "./QuestionInput";
+import ExamInput from "./ExamInput";
 import { questionService } from "@/lib/services/questionService";
+import { examService } from "@/lib/services/examService";
 
 export default function QuestionsView() {
   const [subjectsData, setSubjectsData] = useState<SubjectQuestions[]>([]);
@@ -12,6 +14,7 @@ export default function QuestionsView() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<QuestionItem | null>(
     null
   );
@@ -20,6 +23,7 @@ export default function QuestionsView() {
   );
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreatingExam, setIsCreatingExam] = useState(false);
 
   // Fetch questions data
   const fetchQuestions = async () => {
@@ -153,6 +157,24 @@ export default function QuestionsView() {
       console.error("Error saving question:", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateExam = async (examData: ExamCreatePayload) => {
+    try {
+      setIsCreatingExam(true);
+      await examService.createExam(examData);
+      alert("Exam created successfully!");
+      setIsExamModalOpen(false);
+      // Clear selected questions after creating exam
+      setSelectedQuestionIds([]);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create exam";
+      alert(`Error creating exam: ${errorMessage}`);
+      console.error("Error creating exam:", error);
+    } finally {
+      setIsCreatingExam(false);
     }
   };
 
@@ -337,12 +359,7 @@ export default function QuestionsView() {
             {subjectsData.length > 0 ? (
               <>
                 <button
-                  onClick={() => {
-                    console.log("Selected question IDs:", selectedQuestionIds);
-                    alert(
-                      `Creating exam with ${selectedQuestionIds.length} questions.`
-                    );
-                  }}
+                  onClick={() => setIsExamModalOpen(true)}
                   className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400"
                   disabled={selectedQuestionIds.length === 0}
                 >
@@ -379,6 +396,23 @@ export default function QuestionsView() {
               }}
               isSubmitting={isSubmitting}
               subjects={subjectsData}
+            />
+          </div>
+        </div>
+      )}
+
+      {isExamModalOpen && (
+        <div className="fixed inset-0 bg-gray-600/50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+          <div className="relative mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Create New Exam
+            </h2>
+            <ExamInput
+              onSave={handleCreateExam}
+              onClose={() => setIsExamModalOpen(false)}
+              isSubmitting={isCreatingExam}
+              subjects={subjectsData}
+              selectedQuestionIds={selectedQuestionIds}
             />
           </div>
         </div>

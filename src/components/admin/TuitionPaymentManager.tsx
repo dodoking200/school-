@@ -5,19 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   TuitionPayment,
   TuitionPaymentCreatePayload,
-  StudentBalance,
   OutstandingPayment,
 } from "@/lib/services/tuitionPaymentService";
 import { tuitionPaymentService } from "@/lib/services/tuitionPaymentService";
 import { studentService } from "@/lib/services/studentService";
 import { Student } from "@/types";
-import {
-  SearchColorIcon,
-  AddColorIcon,
-  EditColorIcon,
-  DeleteColorIcon,
-} from "@/components/icons/ColorfulIcons";
-import Table from "../ui/Table";
+import OutstandingPayments from "./OutstandingPayments";
+import PaymentHistory from "./PaymentHistory";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -195,9 +189,30 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 };
 
 export default function TuitionPaymentManager() {
+  // Helper function to safely parse payment amounts
+  const parsePaymentAmount = (amount: string | number): number => {
+    if (typeof amount === "number") return amount;
+    if (typeof amount === "string") {
+      const cleanAmount = amount.replace(/[^\d.-]/g, "");
+      const parsed = parseFloat(cleanAmount);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
+  // Helper function to safely parse outstanding amounts
+  const parseOutstandingAmount = (amount: string | number): number => {
+    if (typeof amount === "number") return amount;
+    if (typeof amount === "string") {
+      const cleanAmount = amount.replace(/[^\d.-]/g, "");
+      const parsed = parseFloat(cleanAmount);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
   const [payments, setPayments] = useState<TuitionPayment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [studentBalances, setStudentBalances] = useState<StudentBalance[]>([]);
   const [outstandingPayments, setOutstandingPayments] = useState<
     OutstandingPayment[]
   >([]);
@@ -211,6 +226,7 @@ export default function TuitionPaymentManager() {
   const [dateTo, setDateTo] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"outstanding" | "history">("outstanding");
 
   useEffect(() => {
     fetchData();
@@ -219,26 +235,48 @@ export default function TuitionPaymentManager() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [paymentsData, studentsData, balancesData, outstandingData] =
-        await Promise.all([
-          tuitionPaymentService.getAllTuitionPayments(),
-          studentService.getStudents(),
-          Promise.all(
-            (
-              await studentService.getStudents()
-            ).map((student) =>
-              tuitionPaymentService
-                .getStudentBalance(student.id)
-                .catch(() => null)
-            )
-          ),
-          tuitionPaymentService.getOutstandingPayments(),
-        ]);
+      const [paymentsData, studentsData, outstandingData] = await Promise.all([
+        tuitionPaymentService.getAllTuitionPayments(),
+        studentService.getAllStudents(),
+        tuitionPaymentService.getOutstandingPayments(),
+      ]);
+
+      // Remove duplicates from outstanding payments based on student_id and start_year
+      const uniqueOutstandingData = outstandingData.filter(
+        (payment, index, self) =>
+          index ===
+          self.findIndex(
+            (p) =>
+              p.student_id === payment.student_id &&
+              p.start_year === payment.start_year
+          )
+      );
+
+      // Check for duplicate student IDs
+      const studentIds = outstandingData.map((p) => p.student_id);
+      const duplicateStudentIds = studentIds.filter(
+        (id, index) => studentIds.indexOf(id) !== index
+      );
+      if (duplicateStudentIds.length > 0) {
+        console.warn("Duplicate student IDs found:", duplicateStudentIds);
+        console.warn("This could cause React key conflicts");
+      }
+
+      console.log("Original outstanding data:", outstandingData);
+      console.log("Unique outstanding data:", uniqueOutstandingData);
+
+      // Debug: Log the raw payment data to check types
+      console.log("Raw payments data:", paymentsData);
+      console.log(
+        "Sample payment amount:",
+        paymentsData[0]?.amount,
+        "Type:",
+        typeof paymentsData[0]?.amount
+      );
 
       setPayments(paymentsData);
       setStudents(studentsData);
-      setStudentBalances(balancesData.filter(Boolean) as StudentBalance[]);
-      setOutstandingPayments(outstandingData);
+      setOutstandingPayments(uniqueOutstandingData);
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setErrorMessage("Failed to fetch data. Please try again.");
@@ -326,15 +364,32 @@ export default function TuitionPaymentManager() {
 
   // Calculate summary statistics
   const totalPayments = filteredPayments.length;
-  const totalAmount = filteredPayments.reduce(
-    (sum, payment) => sum + payment.amount,
-    0
-  );
+  const totalAmount = filteredPayments.reduce((sum, payment) => {
+    const amount = parsePaymentAmount(payment.amount);
+    console.log(
+      `Payment ID: ${payment.id}, Amount: ${
+        payment.amount
+      } (${typeof payment.amount}), Parsed: ${amount}, Running Sum: ${
+        sum + amount
+      }`
+    );
+    return sum + amount;
+  }, 0);
   const verifiedPayments = filteredPayments.filter((p) => p.verified_by).length;
-  const outstandingAmount = outstandingPayments.reduce(
-    (sum, payment) => sum + payment.remaining_tuition,
-    0
-  );
+  // Debug: Log the outstanding payments data
+  console.log("Outstanding Payments Data:", outstandingPayments);
+
+  const outstandingAmount = outstandingPayments.reduce((sum, payment) => {
+    const amount = parseOutstandingAmount(payment.remaining_tuition);
+    console.log(
+      `Student: ${payment.student_name}, Raw: ${
+        payment.remaining_tuition
+      }, Parsed: ${amount}, Running Sum: ${sum + amount}`
+    );
+    return sum + amount;
+  }, 0);
+
+  console.log("Final Outstanding Amount:", outstandingAmount);
 
   return (
     <div className="space-y-6">
@@ -442,286 +497,105 @@ export default function TuitionPaymentManager() {
         )}
       </div>
 
-      {/* Outstanding Payments Section */}
-      {outstandingPayments.length > 0 && (
-        <div className="glass-card">
-          <h3
-            className="text-lg font-semibold mb-4"
-            style={{ color: "var(--foreground)" }}
+      {/* Tab Navigation */}
+      <div className="glass-card mb-6">
+        <div className="flex border-b border-gray-200 dark:border-gray-700">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setActiveTab("outstanding")}
+            className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-300 relative ${
+              activeTab === "outstanding"
+                ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+            }`}
           >
-            ⚠️ Outstanding Payments
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr
-                  className="border-b"
-                  style={{ borderColor: "var(--border)" }}
-                >
-                  <th
-                    className="text-left p-3"
-                    style={{ color: "var(--foreground-muted)" }}
-                  >
-                    Student
-                  </th>
-                  <th
-                    className="text-left p-3"
-                    style={{ color: "var(--foreground-muted)" }}
-                  >
-                    Email
-                  </th>
-                  <th
-                    className="text-left p-3"
-                    style={{ color: "var(--foreground-muted)" }}
-                  >
-                    Academic Year
-                  </th>
-                  <th
-                    className="text-right p-3"
-                    style={{ color: "var(--foreground-muted)" }}
-                  >
-                    Outstanding Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {outstandingPayments.slice(0, 5).map((payment) => (
-                  <tr key={payment.student_id} className="theme-table-row">
-                    <td
-                      className="p-3 font-medium"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {payment.student_name}
-                    </td>
-                    <td
-                      className="p-3"
-                      style={{ color: "var(--foreground-muted)" }}
-                    >
-                      {payment.student_email}
-                    </td>
-                    <td
-                      className="p-3"
-                      style={{ color: "var(--foreground-muted)" }}
-                    >
-                      {payment.start_year} - {payment.end_year}
-                    </td>
-                    <td
-                      className="p-3 text-right font-bold"
-                      style={{ color: "var(--danger)" }}
-                    >
-                      ${payment.remaining_tuition.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Payments Table */}
-      <Table
-        title="Payment History"
-        actions={
-          <div className="flex items-center space-x-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search payments..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="modern-input w-64 pl-12 pr-4"
-              />
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <SearchColorIcon size={18} />
-              </div>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <span>Outstanding Payments</span>
+              {outstandingPayments.length > 0 && (
+                <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  {outstandingPayments.length}
+                </span>
+              )}
             </div>
-
-            {/* Add Payment Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={students.length === 0}
-              className="btn-primary flex items-center gap-2"
-            >
-              <AddColorIcon size={18} />
-              <span>Add Payment</span>
-            </button>
-          </div>
-        }
-        filter={
-          <div className="flex flex-wrap gap-4">
-            <select
-              value={selectedStudent}
-              onChange={(e) => setSelectedStudent(e.target.value)}
-              className="modern-input !w-auto min-w-32"
-            >
-              <option value="">👥 All Students</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id.toString()}>
-                  {student.student_name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={selectedPaymentMethod}
-              onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-              className="modern-input !w-auto min-w-32"
-            >
-              <option value="">💳 All Methods</option>
-              <option value="cash">💵 Cash</option>
-              <option value="bank_transfer">🏦 Bank Transfer</option>
-            </select>
-
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="modern-input !w-auto"
-              placeholder="From Date"
-            />
-
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="modern-input !w-auto"
-              placeholder="To Date"
-            />
-          </div>
-        }
-        tableHeader={
-          <>
-            <th
-              className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Student
-            </th>
-            <th
-              className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Amount
-            </th>
-            <th
-              className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Date
-            </th>
-            <th
-              className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Method
-            </th>
-            <th
-              className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Status
-            </th>
-            <th
-              className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
-              style={{ color: "var(--foreground)" }}
-            >
-              Actions
-            </th>
-          </>
-        }
-        tableContent={
-          <>
-            {filteredPayments.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="px-6 py-8 text-center"
-                  style={{ color: "var(--foreground-muted)" }}
-                >
-                  {loading ? "Loading payments..." : "No payments found"}
-                </td>
-              </tr>
-            ) : (
-              filteredPayments.map((payment) => {
-                const student = students.find(
-                  (s) => s.id === payment.student_id
-                );
-                return (
-                  <tr key={payment.id} className="theme-table-row">
-                    <td
-                      className="px-6 py-4 whitespace-nowrap font-medium"
-                      style={{ color: "var(--foreground)" }}
-                    >
-                      {student?.student_name || "Unknown Student"}
-                    </td>
-                    <td
-                      className="px-6 py-4 whitespace-nowrap text-center font-bold"
-                      style={{ color: "var(--success)" }}
-                    >
-                      ${payment.amount.toLocaleString()}
-                    </td>
-                    <td
-                      className="px-6 py-4 whitespace-nowrap text-center"
-                      style={{ color: "var(--foreground-muted)" }}
-                    >
-                      {new Date(payment.payment_date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          payment.payment_method === "cash"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {payment.payment_method === "cash"
-                          ? "💵 Cash"
-                          : "🏦 Bank Transfer"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          payment.verified_by
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {payment.verified_by ? "✅ Verified" : "⏳ Pending"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex justify-center space-x-2">
-                        {!payment.verified_by && (
-                          <button
-                            onClick={() => handleVerifyPayment(payment.id)}
-                            className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                            title="Verify Payment"
-                          >
-                            ✅
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDeletePayment(payment.id)}
-                          className="p-1 text-red-600 hover:text-red-800 transition-colors"
-                          title="Delete Payment"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
+            {activeTab === "outstanding" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-t-full"
+              />
             )}
-          </>
-        }
-        tableWrapperClassName="glass-card"
-        responsive={true}
-        emptyMessage="No payments found"
-      />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setActiveTab("history")}
+            className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-300 relative ${
+              activeTab === "history"
+                ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">📊</span>
+              <span>Payment History</span>
+              {payments.length > 0 && (
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  {payments.length}
+                </span>
+              )}
+            </div>
+            {activeTab === "history" && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-t-full"
+              />
+            )}
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        {activeTab === "outstanding" && (
+          <OutstandingPayments
+            outstandingPayments={outstandingPayments}
+            onAddPaymentClick={(studentId) => {
+              setSelectedStudent(studentId);
+              setIsModalOpen(true);
+            }}
+            onRefresh={fetchData}
+            loading={loading}
+          />
+        )}
+
+        {activeTab === "history" && (
+          <PaymentHistory
+            payments={payments}
+            students={students}
+            loading={loading}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedStudent={selectedStudent}
+            setSelectedStudent={setSelectedStudent}
+            selectedPaymentMethod={selectedPaymentMethod}
+            setSelectedPaymentMethod={setSelectedPaymentMethod}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+            onAddPaymentClick={() => setIsModalOpen(true)}
+            onVerifyPayment={handleVerifyPayment}
+            onDeletePayment={handleDeletePayment}
+          />
+        )}
+      </motion.div>
 
       {/* Payment Modal */}
       <PaymentModal
