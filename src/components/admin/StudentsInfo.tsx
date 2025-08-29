@@ -10,7 +10,11 @@ import {
   StudentUpdatePayload,
   Class,
 } from "@/types";
-import { SearchColorIcon, AddColorIcon, EditColorIcon } from "@/components/icons/ColorfulIcons";
+import {
+  SearchColorIcon,
+  AddColorIcon,
+  EditColorIcon,
+} from "@/components/icons/ColorfulIcons";
 
 // Interface for the modal (keeping compatibility)
 interface StudentForModal {
@@ -511,40 +515,50 @@ export default function StudentInfo() {
             {Math.min(indexOfLastStudent, filteredStudents.length)} of{" "}
             {totalStudents} results
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
+            {/* First Page Button */}
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to first page"
+            >
+              First
+            </button>
+
             {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={!hasPreviousPage}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to previous page"
             >
               Previous
             </button>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 border text-sm font-medium rounded-md ${
-                    currentPage === pageNumber
-                      ? "bg-indigo-600 text-white border-indigo-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
+            {/* Current Page Display */}
+            <div className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
 
             {/* Next Page Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={!hasNextPage}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to next page"
             >
               Next
+            </button>
+
+            {/* Last Page Button */}
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to last page"
+            >
+              Last
             </button>
           </div>
         </div>

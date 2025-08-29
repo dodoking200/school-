@@ -1,6 +1,9 @@
 "use client";
 import { useAuth } from "@/lib/useAuth";
-import { ArrowRightStartOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightStartOnRectangleIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { User } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -53,12 +56,18 @@ export default function SideNav({ children }: SideNavProps) {
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="absolute inset-0 dark:hidden" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E")`
-        }} />
-        <div className="absolute inset-0 hidden dark:block" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E")`
-        }} />
+        <div
+          className="absolute inset-0 dark:hidden"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+        <div
+          className="absolute inset-0 hidden dark:block"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
       </div>
 
       {/* Fixed Top Section - User Profile */}
@@ -71,14 +80,18 @@ export default function SideNav({ children }: SideNavProps) {
         >
           <div className="flex items-center gap-4">
             {/* Avatar with Dynamic Gradient */}
-            <div className={cn(
-              "relative w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg",
-              getRoleColor(user?.role || "")
-            )}>
-              {user?.name ? getInitials(user.name) : (
+            <div
+              className={cn(
+                "relative w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-lg",
+                getRoleColor(user?.role || "")
+              )}
+            >
+              {user?.name ? (
+                getInitials(user.name)
+              ) : (
                 <UserCircleIcon className="w-6 h-6" />
               )}
-              
+
               {/* Online Status Indicator */}
               <motion.div
                 initial={{ scale: 0 }}
@@ -87,7 +100,7 @@ export default function SideNav({ children }: SideNavProps) {
                 className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white dark:border-gray-800 shadow-sm"
               />
             </div>
-            
+
             {/* User Info */}
             <div className="flex-1 min-w-0">
               <motion.p
@@ -111,7 +124,7 @@ export default function SideNav({ children }: SideNavProps) {
               </motion.div>
             </div>
           </div>
-          
+
           {/* Decorative Gradient Line */}
           <motion.div
             initial={{ scaleX: 0 }}
@@ -126,7 +139,7 @@ export default function SideNav({ children }: SideNavProps) {
       <div className="relative z-10 flex-1 min-h-0">
         {/* Top gradient indicator for scroll */}
         <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white/20 to-transparent dark:from-gray-900/20 pointer-events-none z-10" />
-        
+
         <motion.nav
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -137,7 +150,7 @@ export default function SideNav({ children }: SideNavProps) {
             {children}
           </motion.div>
         </motion.nav>
-        
+
         {/* Bottom gradient indicator for scroll */}
         <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/20 to-transparent dark:from-gray-900/20 pointer-events-none z-10" />
       </div>
@@ -146,7 +159,7 @@ export default function SideNav({ children }: SideNavProps) {
       <div className="relative z-10 flex-shrink-0">
         {/* Theme Toggle */}
         <div className="px-6 pb-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pt-3">
             <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
               Theme
             </span>
@@ -157,10 +170,10 @@ export default function SideNav({ children }: SideNavProps) {
         {/* Modern Logout Button */}
         <div className="p-6">
           <motion.button
-            whileHover={{ 
-              scale: 1.05, 
+            whileHover={{
+              scale: 1.05,
               backgroundColor: "rgba(239, 68, 68, 0.1)",
-              borderColor: "rgba(239, 68, 68, 0.3)"
+              borderColor: "rgba(239, 68, 68, 0.3)",
             }}
             whileTap={{ scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -176,9 +189,9 @@ export default function SideNav({ children }: SideNavProps) {
             >
               <ArrowRightStartOnRectangleIcon className="w-5 h-5 text-red-500" />
             </motion.div>
-            
+
             <span>Logout</span>
-            
+
             {/* Hover Effect Arrow */}
             <AnimatePresence>
               {isHovered && (
@@ -207,7 +220,7 @@ export default function SideNav({ children }: SideNavProps) {
           borderRadius: "50%",
         }}
       />
-      
+
       <motion.div
         animate={{ rotate: -360 }}
         transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
