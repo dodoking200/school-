@@ -218,10 +218,10 @@ export default function TuitionPaymentManager() {
   >([]);
   const [outstandingPagination, setOutstandingPagination] = useState<
     | {
-        current_page: number;
-        per_page: number;
-        total: number;
-        total_pages: number;
+        current_page: string;
+        per_page: string;
+        total: string;
+        total_pages: string;
         has_next: boolean;
         has_prev: boolean;
       }
@@ -229,10 +229,10 @@ export default function TuitionPaymentManager() {
   >(undefined);
   const [paymentsPagination, setPaymentsPagination] = useState<
     | {
-        current_page: number;
-        per_page: number;
-        total: number;
-        total_pages: number;
+        current_page: string;
+        per_page: string;
+        total: string;
+        total_pages: string;
         has_next: boolean;
         has_prev: boolean;
       }
@@ -273,8 +273,8 @@ export default function TuitionPaymentManager() {
         await tuitionPaymentService.getOutstandingPayments(page, 10);
 
       // Remove duplicates from outstanding payments based on student_id and start_year
-      const uniqueOutstandingData = outstandingData.data
-        ? outstandingData.data.filter(
+      const uniqueOutstandingData = outstandingData.payments
+        ? outstandingData.payments.filter(
             (payment, index, self) =>
               index ===
               self.findIndex(
@@ -420,6 +420,8 @@ export default function TuitionPaymentManager() {
   const verifiedPayments = filteredPayments.filter((p) => p.verified_by).length;
   // Debug: Log the outstanding payments data
   console.log("Outstanding Payments Data:", outstandingPayments);
+  console.log("Outstanding Payments Length:", outstandingPayments.length);
+  console.log("Outstanding Pagination:", outstandingPagination);
 
   const outstandingAmount = outstandingPayments.reduce((sum, payment) => {
     const amount = parseOutstandingAmount(payment.remaining_tuition);

@@ -28,10 +28,10 @@ interface PaymentHistoryProps {
   onVerifyPayment: (paymentId: number) => void;
   onDeletePayment: (paymentId: number) => void;
   pagination?: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
+    current_page: string;
+    per_page: string;
+    total: string;
+    total_pages: string;
     has_next: boolean;
     has_prev: boolean;
   };
@@ -365,7 +365,7 @@ export default function PaymentHistory({
           </div>
 
           {/* Pagination Navigation */}
-          {pagination.total_pages > 1 && (
+          {Number(pagination.total_pages) > 1 && (
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() =>

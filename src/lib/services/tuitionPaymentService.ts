@@ -40,16 +40,16 @@ export interface OutstandingPayment {
 }
 
 export interface PaginationInfo {
-  current_page: number;
-  per_page: number;
-  total: number;
-  total_pages: number;
+  current_page: string;
+  per_page: string;
+  total: string;
+  total_pages: string;
   has_next: boolean;
   has_prev: boolean;
 }
 
 export interface OutstandingPaymentsResponse {
-  data: OutstandingPayment[];
+  payments: OutstandingPayment[];
   pagination: PaginationInfo;
 }
 

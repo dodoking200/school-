@@ -11,10 +11,10 @@ interface OutstandingPaymentsProps {
   onRefresh: () => void;
   loading?: boolean;
   pagination?: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
+    current_page: string;
+    per_page: string;
+    total: string;
+    total_pages: string;
     has_next: boolean;
     has_prev: boolean;
   };
@@ -221,7 +221,7 @@ export default function OutstandingPayments({
           </div>
 
           {/* Enhanced Pagination */}
-          {pagination && pagination.total_pages > 1 && (
+          {pagination && Number(pagination.total_pages) > 1 && (
             <div className="mt-6">
               {/* Page Info */}
               <div className="text-center mb-4">
