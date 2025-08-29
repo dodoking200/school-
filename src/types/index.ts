@@ -74,6 +74,16 @@ export type AcademicYearCreatePayload = {
   full_tuition: number;
 };
 
+export type Semester = {
+  id: number;
+  start_date: string;
+  end_date: string;
+  academic_year_id: number;
+  semester_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Class = {
   id: number;
   class_name: string;

@@ -1,6 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ExamCreatePayload, ExamQuestion, SubjectQuestions } from "@/types";
+import {
+  ExamCreatePayload,
+  ExamQuestion,
+  SubjectQuestions,
+  Semester,
+} from "@/types";
+import { semesterService } from "@/lib/services/semesterService";
 
 interface ExamInputProps {
   onSave: (examData: ExamCreatePayload) => Promise<void>;
@@ -20,7 +26,7 @@ export default function ExamInput({
   const [formData, setFormData] = useState<ExamCreatePayload>({
     title: "",
     description: "",
-    semester_id: 1, // Default value, you might want to fetch available semesters
+    semester_id: 0, // Will be set after fetching semesters
     subject_id: subjects.length > 0 ? subjects[0].subject_id : 0,
     time_limit: 60,
     total_mark: 20,
@@ -32,7 +38,36 @@ export default function ExamInput({
     questions: [],
   });
 
-  const [questionMarks, setQuestionMarks] = useState<{ [key: number]: number }>({});
+  const [questionMarks, setQuestionMarks] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [isLoadingSemesters, setIsLoadingSemesters] = useState(true);
+
+  // Fetch semesters on component mount
+  useEffect(() => {
+    const fetchSemesters = async () => {
+      try {
+        setIsLoadingSemesters(true);
+        const semestersData = await semesterService.getSemesters();
+        setSemesters(semestersData);
+
+        // Set default semester_id to the first available semester
+        if (semestersData && semestersData.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            semester_id: semestersData[0].id,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching semesters:", error);
+      } finally {
+        setIsLoadingSemesters(false);
+      }
+    };
+
+    fetchSemesters();
+  }, []);
 
   // Initialize question marks when selectedQuestionIds change
   useEffect(() => {
@@ -53,7 +88,9 @@ export default function ExamInput({
   }, [selectedQuestionIds, questionMarks]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value, type } = e.target;
     let parsedValue: string | number | boolean = value;
@@ -79,11 +116,22 @@ export default function ExamInput({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Validate that a semester is selected
+    if (!formData.semester_id || formData.semester_id === 0) {
+      alert("Please select a semester");
+      return;
+    }
+
     // Validate that total mark equals sum of question marks
-    const totalQuestionMarks = Object.values(questionMarks).reduce((sum, mark) => sum + mark, 0);
+    const totalQuestionMarks = Object.values(questionMarks).reduce(
+      (sum, mark) => sum + mark,
+      0
+    );
     if (totalQuestionMarks !== formData.total_mark) {
-      alert(`Total mark (${formData.total_mark}) must equal the sum of question marks (${totalQuestionMarks})`);
+      alert(
+        `Total mark (${formData.total_mark}) must equal the sum of question marks (${totalQuestionMarks})`
+      );
       return;
     }
 
@@ -97,10 +145,18 @@ export default function ExamInput({
 
   const getQuestionText = (questionId: number) => {
     for (const subject of subjects) {
-      const question = subject.questions.find((q) => q.question_id === questionId);
+      const question = subject.questions.find(
+        (q) => q.question_id === questionId
+      );
       if (question) return question.question_text;
     }
     return "Unknown Question";
+  };
+
+  const formatSemesterName = (semesterName: string) => {
+    return semesterName
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   return (
@@ -142,17 +198,33 @@ export default function ExamInput({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Semester ID *
+            Semester *
           </label>
-          <input
-            type="number"
-            name="semester_id"
-            value={formData.semester_id}
-            onChange={handleInputChange}
-            required
-            min="1"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+          {isLoadingSemesters ? (
+            <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500">
+              Loading semesters...
+            </div>
+          ) : semesters.length > 0 ? (
+            <select
+              name="semester_id"
+              value={formData.semester_id}
+              onChange={handleInputChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {semesters.map((semester) => (
+                <option key={semester.id} value={semester.id}>
+                  {formatSemesterName(semester.semester_name)}(
+                  {new Date(semester.start_date).getFullYear()}-
+                  {new Date(semester.end_date).getFullYear()})
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="w-full px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600">
+              No semesters available
+            </div>
+          )}
         </div>
 
         <div>
@@ -281,15 +353,23 @@ export default function ExamInput({
         </label>
         <div className="bg-gray-50 p-4 rounded-md">
           <p className="text-sm text-gray-600 mb-3">
-            Total Mark: {formData.total_mark} | 
-            Sum of Question Marks: {Object.values(questionMarks).reduce((sum, mark) => sum + mark, 0)}
-            {Object.values(questionMarks).reduce((sum, mark) => sum + mark, 0) !== formData.total_mark && (
-              <span className="text-red-500 ml-2">⚠️ Marks don't match!</span>
+            Total Mark: {formData.total_mark} | Sum of Question Marks:{" "}
+            {Object.values(questionMarks).reduce((sum, mark) => sum + mark, 0)}
+            {Object.values(questionMarks).reduce(
+              (sum, mark) => sum + mark,
+              0
+            ) !== formData.total_mark && (
+              <span className="text-red-500 ml-2">
+                ⚠️ Marks don&apos;t match!
+              </span>
             )}
           </p>
           <div className="space-y-2">
             {selectedQuestionIds.map((questionId) => (
-              <div key={questionId} className="flex items-center justify-between p-2 bg-white rounded border">
+              <div
+                key={questionId}
+                className="flex items-center justify-between p-2 bg-white rounded border"
+              >
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-700">
                     {getQuestionText(questionId)}
@@ -303,7 +383,12 @@ export default function ExamInput({
                   <input
                     type="number"
                     value={questionMarks[questionId] || 1}
-                    onChange={(e) => handleQuestionMarkChange(questionId, parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      handleQuestionMarkChange(
+                        questionId,
+                        parseInt(e.target.value) || 1
+                      )
+                    }
                     min="1"
                     max={formData.total_mark}
                     className="w-16 px-2 py-1 border border-gray-300 rounded text-center"
