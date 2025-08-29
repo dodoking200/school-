@@ -10,6 +10,7 @@ export default function Marks() {
   const [marks, setMarks] = useState<SemesterMarks[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedSubject, setExpandedSubject] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchMarks = async () => {
@@ -63,8 +64,8 @@ export default function Marks() {
       return "-";
     }
 
-    // Show average score for the grade type
-    return gradeTypeData.typeAverage.toString();
+    // Show average score for the grade type with proper formatting
+    return gradeTypeData.typeAverage?.toFixed(2) || "0.00";
   };
 
   if (loading) {
@@ -162,7 +163,7 @@ export default function Marks() {
                 Semester Average
               </div>
               <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
-                {currentSemester.semesterAverage}
+                {currentSemester.semesterAverage?.toFixed(2) || "0.00"}%
               </div>
             </div>
             <div className="glass-card !p-3" style={{ backgroundColor: "var(--accent-light)" }}>
@@ -170,7 +171,7 @@ export default function Marks() {
                 Total Assignments
               </div>
               <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>
-                {currentSemester.totalSemesterAssignments}
+                {currentSemester.totalSemesterAssignments || 0}
               </div>
             </div>
             <div className="glass-card !p-3" style={{ backgroundColor: "var(--secondary-light)" }}>
@@ -178,7 +179,7 @@ export default function Marks() {
                 Total Score
               </div>
               <div className="text-2xl font-bold" style={{ color: "var(--secondary)" }}>
-                {currentSemester.totalSemesterScore}
+                {currentSemester.totalSemesterScore?.toFixed(2) || "0.00"}
               </div>
             </div>
           </div>
@@ -224,30 +225,69 @@ export default function Marks() {
         }
         tableContent={
           <>
-            {currentSubjects.map((subject, index) => (
-              <tr
-                key={index}
-                className="theme-table-row"
-              >
-                <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
-                  {subject.subject_name}
-                </td>
-                {gradeTypes.map((gradeType) => (
-                  <td
-                    key={gradeType}
-                    className="px-6 py-4 whitespace-nowrap text-center" 
-                    style={{ color: "var(--foreground-muted)" }}
-                  >
-                    {getScore(subject, gradeType)}
+            {currentSubjects.map((subject) => (
+              <React.Fragment key={subject.subject_id}>
+                <tr
+                  className="theme-table-row cursor-pointer hover:bg-gray-50"
+                  onClick={() => setExpandedSubject(
+                    expandedSubject === subject.subject_id ? null : subject.subject_id
+                  )}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
+                    <div className="flex items-center">
+                      <span className="mr-2">
+                        {expandedSubject === subject.subject_id ? '▼' : '▶'}
+                      </span>
+                      {subject.subject_name}
+                    </div>
                   </td>
-                ))}
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--primary)" }}>
-                  {subject.subjectAverage}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--accent)" }}>
-                  {subject.totalScore}
-                </td>
-              </tr>
+                  {gradeTypes.map((gradeType) => (
+                    <td
+                      key={gradeType}
+                      className="px-6 py-4 whitespace-nowrap text-center" 
+                      style={{ color: "var(--foreground-muted)" }}
+                    >
+                      {getScore(subject, gradeType)}
+                    </td>
+                  ))}
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--primary)" }}>
+                    {subject.subjectAverage?.toFixed(2) || "0.00"}%
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium" style={{ color: "var(--accent)" }}>
+                    {subject.totalScore?.toFixed(2) || "0.00"}
+                  </td>
+                </tr>
+                
+                {/* Expanded Details Row */}
+                {expandedSubject === subject.subject_id && (
+                  <tr className="bg-gray-50">
+                    <td colSpan={gradeTypes.length + 3} className="px-6 py-4">
+                      <div className="space-y-4">
+                        {subject.grade_types.map((gradeType) => (
+                          <div key={gradeType.type} className="border rounded-lg p-4 bg-white">
+                            <h4 className="font-semibold text-lg mb-3 capitalize" style={{ color: "var(--primary)" }}>
+                              {gradeType.type} (Average: {gradeType.typeAverage?.toFixed(2) || "0.00"}) - Total Assignments: {gradeType.assignment_count || 0}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {gradeType.assignments.map((assignment, idx) => (
+                                <div key={idx} className="border rounded p-3 bg-gray-50">
+                                  <div className="text-sm font-medium">Assignment {idx + 1}</div>
+                                  <div className="text-lg font-bold" style={{ color: "var(--primary)" }}>
+                                    {assignment.score?.toFixed(2) || "0.00"} / {assignment.max_score?.toFixed(2) || "0.00"}
+                                  </div>
+                                  <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>
+                                    {assignment.percentage?.toFixed(2) || "0.00"}%
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </>
         }
