@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Table from "../ui/Table";
 import StudentModal from "./StudentModal";
 import { studentService } from "@/lib/services/studentService";
@@ -52,28 +52,50 @@ export default function StudentInfo() {
   const fetchStudents = async (page: number = 1) => {
     setLoading(true);
     try {
-      const paginationData: PaginationRequest = {
-        table: "students",
-        page: page,
-        pageSize: studentsPerPage,
-        orderBy: "name",
-        orderDirection: "asc",
-        filters: {
-          grade_level: selectedGrade ? parseInt(selectedGrade) : undefined,
-          class_id: selectedClass ? parseInt(selectedClass) : undefined,
-        },
-      };
+      // Use advanced search if there are search terms or filters
+      if (searchTerm || selectedGrade || selectedClass) {
+        const searchParams = {
+          name: searchTerm || "",
+          page: page,
+          pageSize: studentsPerPage,
+          sortBy: "name",
+          sortOrder: "asc" as const,
+        };
 
-      const response = await studentService.getStudentsPaginated(
-        paginationData
-      );
+        const response = await studentService.searchStudentsAdvanced(
+          searchParams
+        );
 
-      setStudents(response.data);
-      setTotalPages(response.totalPages);
-      setTotalStudents(parseInt(response.total));
-      setHasNextPage(response.hasNextPage);
-      setHasPreviousPage(response.hasPreviousPage);
-      setCurrentPage(response.page);
+        setStudents(response.students);
+        setTotalPages(response.pagination.totalPages);
+        setTotalStudents(response.pagination.total);
+        setHasNextPage(
+          response.pagination.page < response.pagination.totalPages
+        );
+        setHasPreviousPage(response.pagination.page > 1);
+        setCurrentPage(response.pagination.page);
+      } else {
+        // Use regular pagination if no search terms
+        const paginationData: PaginationRequest = {
+          table: "students",
+          page: page,
+          pageSize: studentsPerPage,
+          orderBy: "name",
+          orderDirection: "asc",
+          filters: {},
+        };
+
+        const response = await studentService.getStudentsPaginated(
+          paginationData
+        );
+
+        setStudents(response.data);
+        setTotalPages(response.totalPages);
+        setTotalStudents(parseInt(response.total));
+        setHasNextPage(response.hasNextPage);
+        setHasPreviousPage(response.hasPreviousPage);
+        setCurrentPage(response.page);
+      }
     } catch (error) {
       console.error("Failed to fetch students:", error);
       // Fallback to empty state
@@ -108,7 +130,7 @@ export default function StudentInfo() {
   useEffect(() => {
     setCurrentPage(1);
     fetchStudents(1);
-  }, [selectedGrade, selectedClass]);
+  }, [selectedGrade, selectedClass, searchTerm]);
 
   // Get unique grades for filter options
   const uniqueGrades = [
@@ -132,6 +154,20 @@ export default function StudentInfo() {
   const handlePageChange = (pageNumber: number) => {
     fetchStudents(pageNumber);
   };
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (searchValue: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setSearchTerm(searchValue);
+        }, 300);
+      };
+    })(),
+    []
+  );
 
   // Handle opening the modal for adding a new student
   const handleAddStudent = () => {
@@ -285,13 +321,6 @@ export default function StudentInfo() {
     }
   };
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    if (selectedGrade || searchTerm) {
-      fetchStudents(1);
-    }
-  }, [selectedGrade, searchTerm]);
-
   // Calculate pagination info for filtered results
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
@@ -321,14 +350,29 @@ export default function StudentInfo() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search students by name, email, or phone..."
+                defaultValue={searchTerm}
+                onChange={(e) => debouncedSearch(e.target.value)}
                 className="modern-input w-64 pl-12 pr-4 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400"
               />
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <SearchColorIcon size={18} />
               </div>
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    const input = document.querySelector(
+                      'input[placeholder*="Search students"]'
+                    ) as HTMLInputElement;
+                    if (input) input.value = "";
+                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             {/* Clear Filters Button */}

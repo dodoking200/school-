@@ -39,6 +39,25 @@ export interface OutstandingPayment {
   end_year: string;
 }
 
+export interface PaginationInfo {
+  current_page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+export interface OutstandingPaymentsResponse {
+  data: OutstandingPayment[];
+  pagination: PaginationInfo;
+}
+
+export interface TuitionPaymentsResponse {
+  data: TuitionPayment[];
+  pagination: PaginationInfo;
+}
+
 export const tuitionPaymentService = {
   // Create a new tuition payment
   async createTuitionPayment(
@@ -54,22 +73,16 @@ export const tuitionPaymentService = {
     return response.data;
   },
 
-  // Get all tuition payments with optional filters
+  // Get all tuition payments with pagination only
   async getAllTuitionPayments(filters?: {
-    student_id?: number;
-    payment_method?: string;
-    date_from?: string;
-    date_to?: string;
-  }): Promise<TuitionPayment[]> {
+    page?: number;
+    limit?: number;
+  }): Promise<TuitionPaymentsResponse> {
     const params = new URLSearchParams();
-    if (filters?.student_id)
-      params.append("student_id", filters.student_id.toString());
-    if (filters?.payment_method)
-      params.append("payment_method", filters.payment_method);
-    if (filters?.date_from) params.append("date_from", filters.date_from);
-    if (filters?.date_to) params.append("date_to", filters.date_to);
+    if (filters?.page) params.append("page", filters.page.toString());
+    if (filters?.limit) params.append("limit", filters.limit.toString());
 
-    const response = await apiClient<TuitionPayment[]>(
+    const response = await apiClient<TuitionPaymentsResponse>(
       `${API_ENDPOINTS.TUITION_PAYMENTS.GET_ALL}?${params.toString()}`
     );
     return response.data;
@@ -91,10 +104,20 @@ export const tuitionPaymentService = {
     return response.data;
   },
 
-  // Get outstanding payments
-  async getOutstandingPayments(): Promise<OutstandingPayment[]> {
-    const response = await apiClient<OutstandingPayment[]>(
-      API_ENDPOINTS.TUITION_PAYMENTS.GET_OUTSTANDING
+  // Get outstanding payments with pagination
+  async getOutstandingPayments(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<OutstandingPaymentsResponse> {
+    const response = await apiClient<OutstandingPaymentsResponse>(
+      API_ENDPOINTS.TUITION_PAYMENTS.GET_OUTSTANDING,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          page: page.toString(),
+          limit: limit.toString(),
+        }),
+      }
     );
     return response.data;
   },

@@ -69,6 +69,8 @@ export async function apiClient<T>(
     method: options.method || "GET",
   });
 
+  // Log the request body if present
+
   try {
     const response = await fetch(fullUrl, {
       ...options,
@@ -87,6 +89,9 @@ export async function apiClient<T>(
       type: response.type,
       redirected: response.redirected,
     });
+    if (options.body) {
+      console.log("Request Body:", options.body);
+    }
 
     // Add debug logging for non-JSON responses
     if (!response.ok) {
@@ -255,25 +260,35 @@ export interface QuizSubmissionResponse {
 }
 
 export const quizApi = {
-  async authenticateQuizAccess(data: QuizAuthRequest): Promise<ApiResponse<QuizAuthResponse>> {
-    return apiClient<QuizAuthResponse>('/exams/quiz/authenticate', {
-      method: 'POST',
+  async authenticateQuizAccess(
+    data: QuizAuthRequest
+  ): Promise<ApiResponse<QuizAuthResponse>> {
+    return apiClient<QuizAuthResponse>("/exams/quiz/authenticate", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
   },
 
-  async getQuizData(quizId: string, email: string): Promise<ApiResponse<QuizData>> {
-    return apiClient<QuizData>(`/exams/quiz/${quizId}/data?email=${encodeURIComponent(email)}`);
+  async getQuizData(
+    quizId: string,
+    email: string
+  ): Promise<ApiResponse<QuizData>> {
+    return apiClient<QuizData>(
+      `/exams/quiz/${quizId}/data?email=${encodeURIComponent(email)}`
+    );
   },
 
-  async submitQuizAnswers(quizId: string, data: QuizSubmissionRequest): Promise<ApiResponse<QuizSubmissionResponse>> {
+  async submitQuizAnswers(
+    quizId: string,
+    data: QuizSubmissionRequest
+  ): Promise<ApiResponse<QuizSubmissionResponse>> {
     return apiClient<QuizSubmissionResponse>(`/exams/quiz/${quizId}/submit`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });

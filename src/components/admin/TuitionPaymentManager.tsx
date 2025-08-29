@@ -216,6 +216,28 @@ export default function TuitionPaymentManager() {
   const [outstandingPayments, setOutstandingPayments] = useState<
     OutstandingPayment[]
   >([]);
+  const [outstandingPagination, setOutstandingPagination] = useState<
+    | {
+        current_page: number;
+        per_page: number;
+        total: number;
+        total_pages: number;
+        has_next: boolean;
+        has_prev: boolean;
+      }
+    | undefined
+  >(undefined);
+  const [paymentsPagination, setPaymentsPagination] = useState<
+    | {
+        current_page: number;
+        per_page: number;
+        total: number;
+        total_pages: number;
+        has_next: boolean;
+        has_prev: boolean;
+      }
+    | undefined
+  >(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -226,57 +248,77 @@ export default function TuitionPaymentManager() {
   const [dateTo, setDateTo] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"outstanding" | "history">("outstanding");
+  const [activeTab, setActiveTab] = useState<"outstanding" | "history">(
+    "outstanding"
+  );
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Pagination handlers for outstanding payments
+  const handleOutstandingPageChange = (page: number) => {
+    fetchOutstandingPayments(page);
+  };
+
+  // Pagination handlers for payments history
+  const handlePaymentsPageChange = (page: number) => {
+    fetchPayments(page);
+  };
+
+  // Separate function to fetch outstanding payments with pagination
+  const fetchOutstandingPayments = async (page: number = 1) => {
+    try {
+      const outstandingData =
+        await tuitionPaymentService.getOutstandingPayments(page, 10);
+
+      // Remove duplicates from outstanding payments based on student_id and start_year
+      const uniqueOutstandingData = outstandingData.data
+        ? outstandingData.data.filter(
+            (payment, index, self) =>
+              index ===
+              self.findIndex(
+                (p) =>
+                  p.student_id === payment.student_id &&
+                  p.start_year === payment.start_year
+              )
+          )
+        : [];
+
+      setOutstandingPayments(uniqueOutstandingData);
+      setOutstandingPagination(outstandingData.pagination);
+    } catch (error) {
+      console.error("Failed to fetch outstanding payments:", error);
+      setErrorMessage(
+        "Failed to fetch outstanding payments. Please try again."
+      );
+    }
+  };
+
+  // Separate function to fetch payments with pagination
+  const fetchPayments = async (page: number = 1, limit: number = 5) => {
+    try {
+      const paymentsData = await tuitionPaymentService.getAllTuitionPayments({
+        page,
+        limit,
+      });
+
+      setPayments(paymentsData.data || []);
+      setPaymentsPagination(paymentsData.pagination);
+    } catch (error) {
+      console.error("Failed to fetch payments:", error);
+      setErrorMessage("Failed to fetch payments. Please try again.");
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [paymentsData, studentsData, outstandingData] = await Promise.all([
-        tuitionPaymentService.getAllTuitionPayments(),
-        studentService.getAllStudents(),
-        tuitionPaymentService.getOutstandingPayments(),
-      ]);
+      const studentsData = await studentService.getAllStudents();
+      setStudents(studentsData || []);
 
-      // Remove duplicates from outstanding payments based on student_id and start_year
-      const uniqueOutstandingData = outstandingData.filter(
-        (payment, index, self) =>
-          index ===
-          self.findIndex(
-            (p) =>
-              p.student_id === payment.student_id &&
-              p.start_year === payment.start_year
-          )
-      );
-
-      // Check for duplicate student IDs
-      const studentIds = outstandingData.map((p) => p.student_id);
-      const duplicateStudentIds = studentIds.filter(
-        (id, index) => studentIds.indexOf(id) !== index
-      );
-      if (duplicateStudentIds.length > 0) {
-        console.warn("Duplicate student IDs found:", duplicateStudentIds);
-        console.warn("This could cause React key conflicts");
-      }
-
-      console.log("Original outstanding data:", outstandingData);
-      console.log("Unique outstanding data:", uniqueOutstandingData);
-
-      // Debug: Log the raw payment data to check types
-      console.log("Raw payments data:", paymentsData);
-      console.log(
-        "Sample payment amount:",
-        paymentsData[0]?.amount,
-        "Type:",
-        typeof paymentsData[0]?.amount
-      );
-
-      setPayments(paymentsData);
-      setStudents(studentsData);
-      setOutstandingPayments(uniqueOutstandingData);
+      // Fetch payments and outstanding payments with pagination
+      await Promise.all([fetchPayments(), fetchOutstandingPayments()]);
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setErrorMessage("Failed to fetch data. Please try again.");
@@ -291,7 +333,7 @@ export default function TuitionPaymentManager() {
       await tuitionPaymentService.createTuitionPayment(paymentData);
       setSuccessMessage("Payment added successfully!");
       setIsModalOpen(false);
-      fetchData(); // Refresh data
+      await Promise.all([fetchPayments(), fetchOutstandingPayments()]);
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -308,7 +350,7 @@ export default function TuitionPaymentManager() {
     try {
       await tuitionPaymentService.verifyPayment(paymentId);
       setSuccessMessage("Payment verified successfully!");
-      fetchData();
+      await Promise.all([fetchPayments(), fetchOutstandingPayments()]);
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Failed to verify payment:", error);
@@ -322,7 +364,7 @@ export default function TuitionPaymentManager() {
       try {
         await tuitionPaymentService.deleteTuitionPayment(paymentId);
         setSuccessMessage("Payment deleted successfully!");
-        fetchData();
+        await Promise.all([fetchPayments(), fetchOutstandingPayments()]);
         setTimeout(() => setSuccessMessage(""), 3000);
       } catch (error) {
         console.error("Failed to delete payment:", error);
@@ -570,8 +612,10 @@ export default function TuitionPaymentManager() {
               setSelectedStudent(studentId);
               setIsModalOpen(true);
             }}
-            onRefresh={fetchData}
+            onRefresh={() => fetchOutstandingPayments()}
             loading={loading}
+            pagination={outstandingPagination}
+            onPageChange={handleOutstandingPageChange}
           />
         )}
 
@@ -593,6 +637,8 @@ export default function TuitionPaymentManager() {
             onAddPaymentClick={() => setIsModalOpen(true)}
             onVerifyPayment={handleVerifyPayment}
             onDeletePayment={handleDeletePayment}
+            pagination={paymentsPagination}
+            onPageChange={handlePaymentsPageChange}
           />
         )}
       </motion.div>

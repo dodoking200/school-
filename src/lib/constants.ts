@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     GET_BY_ID: (id: number) => `students/${id}`,
     GET_BY_CLASS: (classId: number) => `students/class/${classId}`,
     SCHEDULE: "students/schedule",
+    SEARCH_ADVANCED: "students/search/advanced", // POST endpoint
   },
 
   ATTENDANCE: {

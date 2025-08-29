@@ -30,7 +30,6 @@ export default function UserAttendanceManager() {
         user_id: user.id,
         user_name: user.name,
         status: "present" as AttendanceStatus,
-        notes: "",
       }));
 
       console.log("Users data:", data);
@@ -52,12 +51,6 @@ export default function UserAttendanceManager() {
   const handleAttendanceChange = (userId: number, status: AttendanceStatus) => {
     setAttendance((prev) =>
       prev.map((user) => (user.user_id === userId ? { ...user, status } : user))
-    );
-  };
-
-  const handleNotesChange = (userId: number, notes: string) => {
-    setAttendance((prev) =>
-      prev.map((user) => (user.user_id === userId ? { ...user, notes } : user))
     );
   };
 
@@ -140,14 +133,20 @@ export default function UserAttendanceManager() {
     <div className="space-y-6">
       {/* Header and Controls */}
       <div className="glass-card">
-        <h2 className="text-2xl font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+        <h2
+          className="text-2xl font-semibold mb-4"
+          style={{ color: "var(--foreground)" }}
+        >
           User/Employee Attendance Management
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Date Selection */}
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Date
             </label>
             <input
@@ -173,27 +172,39 @@ export default function UserAttendanceManager() {
         {/* Bulk Actions */}
         {users.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="text-sm font-medium mr-2" style={{ color: "var(--foreground-muted)" }}>
+            <span
+              className="text-sm font-medium mr-2"
+              style={{ color: "var(--foreground-muted)" }}
+            >
               Quick Actions:
             </span>
             <button
               onClick={() => handleBulkAction("present")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--success-light)", color: "var(--success)" }}
+              style={{
+                backgroundColor: "var(--success-light)",
+                color: "var(--success)",
+              }}
             >
               Mark All Present
             </button>
             <button
               onClick={() => handleBulkAction("absent")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--danger-light)", color: "var(--danger)" }}
+              style={{
+                backgroundColor: "var(--danger-light)",
+                color: "var(--danger)",
+              }}
             >
               Mark All Absent
             </button>
             <button
               onClick={() => handleBulkAction("late")}
               className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: "var(--warning-light)", color: "var(--warning)" }}
+              style={{
+                backgroundColor: "var(--warning-light)",
+                color: "var(--warning)",
+              }}
             >
               Mark All Late
             </button>
@@ -202,8 +213,13 @@ export default function UserAttendanceManager() {
 
         {/* Error Display */}
         {error && (
-          <div className="glass-card" style={{ backgroundColor: "var(--danger-light)" }}>
-            <div className="text-sm" style={{ color: "var(--danger)" }}>{error}</div>
+          <div
+            className="glass-card"
+            style={{ backgroundColor: "var(--danger-light)" }}
+          >
+            <div className="text-sm" style={{ color: "var(--danger)" }}>
+              {error}
+            </div>
           </div>
         )}
       </div>
@@ -219,14 +235,17 @@ export default function UserAttendanceManager() {
           tableWrapperClassName="glass-card"
           tableHeader={
             <>
-              <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
+              <th
+                className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
                 User Name
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
+              <th
+                className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider"
+                style={{ color: "var(--foreground)" }}
+              >
                 Status
-              </th>
-              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
-                Notes
               </th>
             </>
           }
@@ -235,11 +254,11 @@ export default function UserAttendanceManager() {
               {attendance.map((user, index) => {
                 console.log("Rendering user:", user);
                 return (
-                  <tr
-                    key={index}
-                    className="theme-table-row"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
+                  <tr key={index} className="theme-table-row">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap font-medium"
+                      style={{ color: "var(--foreground)" }}
+                    >
                       {user.user_name || "No Name"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -256,7 +275,7 @@ export default function UserAttendanceManager() {
                         )} border-0`}
                         style={{
                           ...getStatusStyle(user.status),
-                          color: "white"
+                          color: "white",
                         }}
                       >
                         <option value="present">Present</option>
@@ -264,17 +283,6 @@ export default function UserAttendanceManager() {
                         <option value="late">Late</option>
                         <option value="excused">Excused</option>
                       </select>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="text"
-                        placeholder="Add notes..."
-                        value={user.notes || ""}
-                        onChange={(e) =>
-                          handleNotesChange(user.user_id, e.target.value)
-                        }
-                        className="modern-input w-full px-3 py-1 text-sm"
-                      />
                     </td>
                   </tr>
                 );
@@ -287,43 +295,89 @@ export default function UserAttendanceManager() {
       {/* Attendance Summary */}
       {attendance.length > 0 && (
         <div className="glass-card">
-          <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
+          <h3
+            className="text-lg font-semibold mb-4"
+            style={{ color: "var(--foreground)" }}
+          >
             Attendance Summary
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--foreground)" }}
+              >
                 {attendance.length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Users</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Total Users
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--success)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--success)" }}
+              >
                 {attendance.filter((u) => u.status === "present").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Present</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Present
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--danger)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--danger)" }}
+              >
                 {attendance.filter((u) => u.status === "absent").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Absent</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Absent
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--warning)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--warning)" }}
+              >
                 {attendance.filter((u) => u.status === "late").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Late</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Late
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
+              <div
+                className="text-2xl font-bold"
+                style={{ color: "var(--primary)" }}
+              >
                 {attendance.filter((u) => u.status === "excused").length}
               </div>
-              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Excused</div>
+              <div
+                className="text-sm"
+                style={{ color: "var(--foreground-muted)" }}
+              >
+                Excused
+              </div>
             </div>
           </div>
           <div className="mt-4 text-center">
-            <div className="text-3xl font-bold" style={{ color: "var(--primary)" }}>
+            <div
+              className="text-3xl font-bold"
+              style={{ color: "var(--primary)" }}
+            >
               {Math.round(
                 (attendance.filter((u) => u.status === "present").length /
                   attendance.length) *
@@ -331,7 +385,12 @@ export default function UserAttendanceManager() {
               )}
               %
             </div>
-            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Attendance Rate</div>
+            <div
+              className="text-sm"
+              style={{ color: "var(--foreground-muted)" }}
+            >
+              Attendance Rate
+            </div>
           </div>
         </div>
       )}

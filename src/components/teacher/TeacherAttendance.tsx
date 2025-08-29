@@ -57,7 +57,6 @@ export default function TeacherAttendance() {
         student_id: student.id,
         student_name: student.student_name,
         status: "present" as AttendanceStatus,
-        notes: "",
       }));
       setAttendance(initialAttendance);
     } catch (err) {
@@ -102,13 +101,7 @@ export default function TeacherAttendance() {
     );
   };
 
-  const handleNotesChange = (studentId: number, notes: string) => {
-    setAttendance((prev) =>
-      prev.map((student) =>
-        student.student_id === studentId ? { ...student, notes } : student
-      )
-    );
-  };
+
 
   const handleBulkAction = (status: AttendanceStatus) => {
     setAttendance((prev) =>
@@ -301,9 +294,7 @@ export default function TeacherAttendance() {
               <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
                 Status
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
-                Notes
-              </th>
+
             </>
           }
           tableContent={
@@ -339,17 +330,7 @@ export default function TeacherAttendance() {
                       <option value="excused">Excused</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="text"
-                      placeholder="Add notes..."
-                      value={student.notes || ""}
-                      onChange={(e) =>
-                        handleNotesChange(student.student_id, e.target.value)
-                      }
-                      className="modern-input w-full px-3 py-1 text-sm"
-                    />
-                  </td>
+
                 </tr>
               ))}
             </>

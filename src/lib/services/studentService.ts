@@ -157,4 +157,42 @@ export const studentService = {
       throw new Error("Failed to fetch student marks");
     }
   },
+
+  async searchStudentsAdvanced(params: {
+    name?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }): Promise<{
+    students: StudentFromAPI[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+    filters: any;
+  }> {
+    try {
+      const response = await apiClient<{
+        students: StudentFromAPI[];
+        pagination: {
+          page: number;
+          pageSize: number;
+          total: number;
+          totalPages: number;
+        };
+        filters: any;
+      }>(API_ENDPOINTS.STUDENTS.SEARCH_ADVANCED, {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to search students:", error);
+      throw new Error("Failed to search students");
+    }
+  },
 };

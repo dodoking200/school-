@@ -4,7 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { TuitionPayment } from "@/lib/services/tuitionPaymentService";
 import { Student } from "@/types";
-import { SearchColorIcon, AddColorIcon } from "@/components/icons/ColorfulIcons";
+import {
+  SearchColorIcon,
+  AddColorIcon,
+} from "@/components/icons/ColorfulIcons";
 import Table from "../ui/Table";
 
 interface PaymentHistoryProps {
@@ -24,6 +27,15 @@ interface PaymentHistoryProps {
   onAddPaymentClick: () => void;
   onVerifyPayment: (paymentId: number) => void;
   onDeletePayment: (paymentId: number) => void;
+  pagination?: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+  onPageChange?: (page: number) => void;
 }
 
 export default function PaymentHistory({
@@ -43,6 +55,8 @@ export default function PaymentHistory({
   onAddPaymentClick,
   onVerifyPayment,
   onDeletePayment,
+  pagination,
+  onPageChange,
 }: PaymentHistoryProps) {
   // Helper function to safely parse payment amounts
   const parsePaymentAmount = (amount: string | number): number => {
@@ -84,6 +98,11 @@ export default function PaymentHistory({
       matchesDateTo
     );
   });
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    onPageChange?.(page);
+  };
 
   return (
     <motion.div
@@ -253,8 +272,8 @@ export default function PaymentHistory({
                       style={{ color: "var(--success)" }}
                     >
                       <div className="flex items-center justify-center gap-1">
-                        <span className="text-lg">💰</span>
-                        ${parsePaymentAmount(payment.amount).toLocaleString()}
+                        <span className="text-lg">💰</span>$
+                        {parsePaymentAmount(payment.amount).toLocaleString()}
                       </div>
                     </td>
                     <td
@@ -326,6 +345,80 @@ export default function PaymentHistory({
         responsive={true}
         emptyMessage="No payments found"
       />
+
+      {/* Pagination Controls */}
+      {pagination && (
+        <div className="mt-6">
+          {/* Pagination Info */}
+          <div className="flex items-center justify-between mb-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div
+              className="text-sm"
+              style={{ color: "var(--foreground-muted)" }}
+            >
+              Showing {(Number(pagination.current_page) - 1) * 5 + 1} to{" "}
+              {Math.min(
+                Number(pagination.current_page) * 5,
+                Number(pagination.total)
+              )}{" "}
+              of {pagination.total} results
+            </div>
+          </div>
+
+          {/* Pagination Navigation */}
+          {pagination.total_pages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() =>
+                  handlePageChange(Number(pagination.current_page) - 1)
+                }
+                disabled={Number(pagination.current_page) === 1}
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor:
+                    Number(pagination.current_page) !== 1
+                      ? "var(--primary-light)"
+                      : "var(--foreground-muted)",
+                  color:
+                    Number(pagination.current_page) !== 1
+                      ? "var(--primary)"
+                      : "var(--foreground-muted)",
+                }}
+              >
+                ← Previous
+              </button>
+
+              <div className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-white">
+                Page {pagination.current_page} of {pagination.total_pages}
+              </div>
+
+              <button
+                onClick={() =>
+                  handlePageChange(Number(pagination.current_page) + 1)
+                }
+                disabled={
+                  Number(pagination.current_page) ===
+                  Number(pagination.total_pages)
+                }
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor:
+                    Number(pagination.current_page) !==
+                    Number(pagination.total_pages)
+                      ? "var(--primary-light)"
+                      : "var(--foreground-muted)",
+                  color:
+                    Number(pagination.current_page) !==
+                    Number(pagination.total_pages)
+                      ? "var(--primary)"
+                      : "var(--foreground-muted)",
+                }}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }
