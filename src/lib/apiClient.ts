@@ -185,3 +185,97 @@ export async function apiClient<T>(
     throw error;
   }
 }
+
+// Quiz-specific API functions
+export interface QuizAuthRequest {
+  email: string;
+  password: string;
+  quizId: string;
+}
+
+export interface QuizAuthResponse {
+  success: boolean;
+  message: string;
+  quiz: {
+    id: number;
+    uuid: string;
+    title: string;
+    description: string;
+    time_limit: number;
+    total_mark: number;
+  };
+  student: {
+    id: number;
+    user_id: number;
+    name: string;
+  };
+}
+
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  type: string;
+  mark: number;
+  options: {
+    id: string;
+    text: string;
+  }[];
+}
+
+export interface QuizData {
+  id: string;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  questions: QuizQuestion[];
+}
+
+export interface QuizSubmissionRequest {
+  email: string;
+  answers: {
+    questionId: number;
+    optionId: string;
+  }[];
+}
+
+export interface QuizSubmissionResponse {
+  success: boolean;
+  totalScore: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  passed: boolean;
+  passingScore: number;
+  results: {
+    questionId: number;
+    isCorrect: boolean;
+    markAwarded: number;
+    correctOptionId: number;
+  }[];
+}
+
+export const quizApi = {
+  async authenticateQuizAccess(data: QuizAuthRequest): Promise<ApiResponse<QuizAuthResponse>> {
+    return apiClient<QuizAuthResponse>('/exams/quiz/authenticate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getQuizData(quizId: string, email: string): Promise<ApiResponse<QuizData>> {
+    return apiClient<QuizData>(`/exams/quiz/${quizId}/data?email=${encodeURIComponent(email)}`);
+  },
+
+  async submitQuizAnswers(quizId: string, data: QuizSubmissionRequest): Promise<ApiResponse<QuizSubmissionResponse>> {
+    return apiClient<QuizSubmissionResponse>(`/exams/quiz/${quizId}/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  },
+};

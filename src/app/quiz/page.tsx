@@ -2,21 +2,53 @@
 import Header from "@/components/layout/Header";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { quizApi } from "@/lib/apiClient";
 
 export default function QuizLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [quizId, setQuizId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password && quizId) {
-      sessionStorage.setItem(
-        "quizCredentials",
-        JSON.stringify({ email, password })
-      );
-      router.push(`/quiz/${quizId}`);
+    if (!email || !password || !quizId) {
+      setError("All fields are required");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await quizApi.authenticateQuizAccess({
+        email,
+        password,
+        quizId
+      });
+
+      if (response.success && response.data) {
+        // Store quiz session data
+        sessionStorage.setItem(
+          "quizSession",
+          JSON.stringify({
+            email,
+            quizId,
+            quiz: response.data.quiz,
+            student: response.data.student
+          })
+        );
+        router.push(`/quiz/${quizId}`);
+      } else {
+        setError("Authentication failed");
+      }
+    } catch (error) {
+      console.error("Quiz authentication error:", error);
+      setError(error instanceof Error ? error.message : "Failed to authenticate. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,6 +81,12 @@ export default function QuizLoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+              
               <div className="space-y-4">
                 <div>
                   <label
@@ -64,9 +102,13 @@ export default function QuizLoginPage() {
                     type="email"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
                     className="modern-input w-full"
                     placeholder="student@school.edu"
+                    disabled={loading}
                   />
                 </div>
                 
@@ -84,9 +126,13 @@ export default function QuizLoginPage() {
                     type="password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError("");
+                    }}
                     className="modern-input w-full"
                     placeholder="Enter your password"
+                    disabled={loading}
                   />
                 </div>
                 
@@ -104,9 +150,13 @@ export default function QuizLoginPage() {
                     type="text"
                     required
                     value={quizId}
-                    onChange={(e) => setQuizId(e.target.value)}
+                    onChange={(e) => {
+                      setQuizId(e.target.value);
+                      setError("");
+                    }}
                     className="modern-input w-full"
                     placeholder="Enter quiz identifier"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -114,10 +164,20 @@ export default function QuizLoginPage() {
               <div className="pt-4">
                 <button
                   type="submit"
-                  className="btn-primary w-full py-3 px-6 text-base font-semibold transition-all duration-300 hover:transform hover:translateY(-1px) hover:shadow-xl flex items-center justify-center space-x-2"
+                  disabled={loading}
+                  className="btn-primary w-full py-3 px-6 text-base font-semibold transition-all duration-300 hover:transform hover:translateY(-1px) hover:shadow-xl flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>🚀</span>
-                  <span>Start Quiz</span>
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Authenticating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🚀</span>
+                      <span>Start Quiz</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
