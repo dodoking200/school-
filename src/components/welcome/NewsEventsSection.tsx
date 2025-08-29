@@ -3,8 +3,8 @@ import NewsCard from "../ui/NewsCard";
 
 export default function NewsEventsSection() {
   return (
-    <section className="py-16 px-8 bg-white min-h-[600px]">
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-12">
+    <section className="py-16 px-8 bg-white dark:bg-gray-800 min-h-[600px]">
+      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-12">
         Latest News & Events
       </h2>
       <div className="flex flex-wrap justify-center gap-8">

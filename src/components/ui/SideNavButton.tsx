@@ -11,6 +11,7 @@ import {
   BookColorIcon,
   BuildingColorIcon,
   AttendanceColorIcon,
+  CurrencyDollarColorIcon,
 } from "@/components/icons/ColorfulIcons";
 import { cn } from "@/lib/utils";
 
@@ -25,21 +26,52 @@ interface SideNavButtonProps
 // Icon mapping for colorful modern icons
 const iconMap = {
   home: { icon: HomeColorIcon, bgColor: "bg-blue-50 dark:bg-blue-900/20" },
-  student: { icon: StudentsColorIcon, bgColor: "bg-emerald-50 dark:bg-emerald-900/20" },
-  teacher: { icon: TeachersColorIcon, bgColor: "bg-purple-50 dark:bg-purple-900/20" },
+  student: {
+    icon: StudentsColorIcon,
+    bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
+  },
+  teacher: {
+    icon: TeachersColorIcon,
+    bgColor: "bg-purple-50 dark:bg-purple-900/20",
+  },
   user: { icon: UsersColorIcon, bgColor: "bg-indigo-50 dark:bg-indigo-900/20" },
   shield: { icon: ShieldColorIcon, bgColor: "bg-red-50 dark:bg-red-900/20" },
-  calendar: { icon: CalendarColorIcon, bgColor: "bg-orange-50 dark:bg-orange-900/20" },
-  auto_stories: { icon: BookColorIcon, bgColor: "bg-teal-50 dark:bg-teal-900/20" },
+  calendar: {
+    icon: CalendarColorIcon,
+    bgColor: "bg-orange-50 dark:bg-orange-900/20",
+  },
+  auto_stories: {
+    icon: BookColorIcon,
+    bgColor: "bg-teal-50 dark:bg-teal-900/20",
+  },
   class: { icon: BuildingColorIcon, bgColor: "bg-cyan-50 dark:bg-cyan-900/20" },
-  attendance: { icon: AttendanceColorIcon, bgColor: "bg-pink-50 dark:bg-pink-900/20" },
+  attendance: {
+    icon: AttendanceColorIcon,
+    bgColor: "bg-pink-50 dark:bg-pink-900/20",
+  },
+  currency_dollar: {
+    icon: CurrencyDollarColorIcon,
+    bgColor: "bg-green-50 dark:bg-green-900/20",
+  },
   // Additional mappings for student/teacher pages
   Marks: { icon: BookColorIcon, bgColor: "bg-green-50 dark:bg-green-900/20" },
-  Quizzes: { icon: BookColorIcon, bgColor: "bg-yellow-50 dark:bg-yellow-900/20" },
-  Schedule: { icon: CalendarColorIcon, bgColor: "bg-orange-50 dark:bg-orange-900/20" },
+  Quizzes: {
+    icon: BookColorIcon,
+    bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+  },
+  Schedule: {
+    icon: CalendarColorIcon,
+    bgColor: "bg-orange-50 dark:bg-orange-900/20",
+  },
   grading: { icon: BookColorIcon, bgColor: "bg-green-50 dark:bg-green-900/20" },
-  assignment: { icon: BookColorIcon, bgColor: "bg-yellow-50 dark:bg-yellow-900/20" },
-  event: { icon: CalendarColorIcon, bgColor: "bg-orange-50 dark:bg-orange-900/20" },
+  assignment: {
+    icon: BookColorIcon,
+    bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+  },
+  event: {
+    icon: CalendarColorIcon,
+    bgColor: "bg-orange-50 dark:bg-orange-900/20",
+  },
 };
 
 export function SideNavButton({
@@ -75,10 +107,15 @@ export function SideNavButton({
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         className={cn(
           "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 flex-shrink-0",
-          active ? iconConfig.bgColor : "bg-white/50 dark:bg-gray-800/50 group-hover:bg-white/70 dark:group-hover:bg-gray-700/70"
+          active
+            ? iconConfig.bgColor
+            : "bg-white/50 dark:bg-gray-800/50 group-hover:bg-white/70 dark:group-hover:bg-gray-700/70"
         )}
       >
-        <IconComponent size={20} className="transition-transform duration-200" />
+        <IconComponent
+          size={20}
+          className="transition-transform duration-200"
+        />
       </motion.div>
 
       {/* Label with proper spacing */}
@@ -102,9 +139,9 @@ export function SideNavButton({
       <motion.div
         className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
         style={{
-          background: active 
+          background: active
             ? "linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%)"
-            : "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%)"
+            : "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%)",
         }}
       />
     </motion.button>

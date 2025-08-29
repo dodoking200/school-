@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Header() {
   return (
@@ -60,11 +61,14 @@ export default function Header() {
             Home
           </Link>
         </nav>
-        <Link href="/login">
-          <button className="btn-primary px-6 py-2 rounded-xl font-semibold transition-all duration-300 hover:transform hover:translateY(-1px)">
-            Login
-          </button>
-        </Link>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Link href="/login">
+            <button className="btn-primary px-6 py-2 rounded-xl font-semibold transition-all duration-300 hover:transform hover:translateY(-1px)">
+              Login
+            </button>
+          </Link>
+        </div>
       </div>
     </header>
   );

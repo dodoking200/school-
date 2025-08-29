@@ -49,7 +49,7 @@ export default function SideNav({ children }: SideNavProps) {
       initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="flex flex-col justify-between h-screen w-64 fixed z-50 bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 border-r-white/30 dark:border-r-gray-600/30"
+      className="flex flex-col h-screen w-64 fixed z-50 bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 border-r-white/30 dark:border-r-gray-600/30"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 dark:opacity-10">
@@ -61,12 +61,13 @@ export default function SideNav({ children }: SideNavProps) {
         }} />
       </div>
 
-      <div className="relative z-10 p-6">
+      {/* Fixed Top Section - User Profile */}
+      <div className="relative z-10 p-6 flex-shrink-0">
         {/* Modern User Profile Card */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="mb-8 p-4 rounded-2xl bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/15 dark:hover:bg-gray-700/15 transition-all duration-300"
+          className="p-4 rounded-2xl bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/15 dark:hover:bg-gray-700/15 transition-all duration-300"
         >
           <div className="flex items-center gap-4">
             {/* Avatar with Dynamic Gradient */}
@@ -119,70 +120,81 @@ export default function SideNav({ children }: SideNavProps) {
             className="mt-3 h-1 bg-gradient-primary rounded-full opacity-20"
           />
         </motion.div>
+      </div>
 
-        {/* Navigation Menu */}
+      {/* Scrollable Middle Section - Navigation Menu */}
+      <div className="relative z-10 flex-1 min-h-0">
+        {/* Top gradient indicator for scroll */}
+        <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white/20 to-transparent dark:from-gray-900/20 pointer-events-none z-10" />
+        
         <motion.nav
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, staggerChildren: 0.1 }}
-          className="flex flex-col gap-2"
+          className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 dark:scrollbar-thumb-gray-600/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30 dark:hover:scrollbar-thumb-gray-600/30 px-6 py-2"
         >
-          <motion.div className="flex flex-col gap-1">
+          <motion.div className="flex flex-col gap-1 pb-4">
             {children}
           </motion.div>
         </motion.nav>
+        
+        {/* Bottom gradient indicator for scroll */}
+        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white/20 to-transparent dark:from-gray-900/20 pointer-events-none z-10" />
       </div>
 
-      {/* Theme Toggle */}
-      <div className="relative z-10 px-6 pb-4">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-            Theme
-          </span>
-          <ThemeToggle />
+      {/* Fixed Bottom Section - Theme Toggle and Logout */}
+      <div className="relative z-10 flex-shrink-0">
+        {/* Theme Toggle */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+              Theme
+            </span>
+            <ThemeToggle />
+          </div>
         </div>
-      </div>
 
-      {/* Modern Logout Button */}
-      <div className="relative z-10 p-6">
-        <motion.button
-          whileHover={{ 
-            scale: 1.05, 
-            backgroundColor: "rgba(239, 68, 68, 0.1)",
-            borderColor: "rgba(239, 68, 68, 0.3)"
-          }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          onClick={logout}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 bg-white/5 dark:bg-gray-800/20 backdrop-blur-sm border border-white/10 dark:border-gray-700/20 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:shadow-lg group"
-        >
-          <motion.div
-            animate={{ rotate: isHovered ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-800/30 transition-colors duration-300"
+        {/* Modern Logout Button */}
+        <div className="p-6">
+          <motion.button
+            whileHover={{ 
+              scale: 1.05, 
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              borderColor: "rgba(239, 68, 68, 0.3)"
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            onClick={logout}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 bg-white/5 dark:bg-gray-800/20 backdrop-blur-sm border border-white/10 dark:border-gray-700/20 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 hover:shadow-lg group"
           >
-            <ArrowRightStartOnRectangleIcon className="w-5 h-5 text-red-500" />
-          </motion.div>
-          
-          <span>Logout</span>
-          
-          {/* Hover Effect Arrow */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="ml-auto"
-              >
-                <ArrowRightStartOnRectangleIcon className="w-4 h-4 text-red-500" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.button>
+            <motion.div
+              animate={{ rotate: isHovered ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-800/30 transition-colors duration-300"
+            >
+              <ArrowRightStartOnRectangleIcon className="w-5 h-5 text-red-500" />
+            </motion.div>
+            
+            <span>Logout</span>
+            
+            {/* Hover Effect Arrow */}
+            <AnimatePresence>
+              {isHovered && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="ml-auto"
+                >
+                  <ArrowRightStartOnRectangleIcon className="w-4 h-4 text-red-500" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
       </div>
 
       {/* Decorative Elements */}

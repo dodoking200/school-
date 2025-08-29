@@ -9,6 +9,7 @@ import ClassesInfo from "@/components/admin/ClassesInfo";
 import AttendanceManager from "@/components/admin/AttendanceManager";
 import UserAttendanceManager from "@/components/admin/UserAttendanceManager";
 import TeacherAttendanceManager from "@/components/admin/TeacherAttendanceManager";
+import TuitionPaymentManager from "@/components/admin/TuitionPaymentManager";
 import { SideNavButton } from "@/components/ui/SideNavButton";
 import React, { useState } from "react";
 import TeacherInfo from "@/components/admin/TeacherInfo";
@@ -204,6 +205,7 @@ export default function AdminPage() {
       attendance: <AttendanceManager />,
       user_attendance: <UserAttendanceManager />,
       teacher_attendance: <TeacherAttendanceManager />,
+      tuition_payments: <TuitionPaymentManager />,
     };
 
     return components[activeButton as keyof typeof components] || null;
@@ -308,6 +310,14 @@ export default function AdminPage() {
           onClick={() => setActiveButton("teacher_attendance")}
         >
           Teacher Attendance
+        </SideNavButton>
+
+        <SideNavButton
+          icon="currency_dollar"
+          active={activeButton === "tuition_payments"}
+          onClick={() => setActiveButton("tuition_payments")}
+        >
+          Tuition Payments
         </SideNavButton>
       </SideNav>
 
