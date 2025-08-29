@@ -11,9 +11,11 @@ import UserAttendanceManager from "@/components/admin/UserAttendanceManager";
 import TeacherAttendanceManager from "@/components/admin/TeacherAttendanceManager";
 import TuitionPaymentManager from "@/components/admin/TuitionPaymentManager";
 import { SideNavButton } from "@/components/ui/SideNavButton";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TeacherInfo from "@/components/admin/TeacherInfo";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiClient } from "@/lib/apiClient";
+import { useRouter } from "next/navigation";
 import {
   ChartBarIcon,
   UserGroupIcon,
@@ -22,36 +24,32 @@ import {
   CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 
-// Dashboard stats for welcome screen
-const dashboardStats = [
+// Dashboard stats configuration (data will be loaded from API)
+const dashboardStatsConfig = [
   {
     title: "Total Students",
-    value: "1,234",
-    change: "+5.2%",
+    key: "totalStudents",
     icon: UserGroupIcon,
     color: "from-blue-500 to-cyan-500",
     bgColor: "bg-blue-50",
   },
   {
     title: "Active Teachers",
-    value: "87",
-    change: "+2.1%",
+    key: "activeTeachers",
     icon: AcademicCapIcon,
     color: "from-purple-500 to-pink-500",
     bgColor: "bg-purple-50",
   },
   {
     title: "Classes Today",
-    value: "24",
-    change: "+0.8%",
+    key: "classesToday",
     icon: ClockIcon,
     color: "from-green-500 to-teal-500",
     bgColor: "bg-green-50",
   },
   {
     title: "Attendance Rate",
-    value: "94.2%",
-    change: "+1.5%",
+    key: "attendanceRate",
     icon: ChartBarIcon,
     color: "from-orange-500 to-red-500",
     bgColor: "bg-orange-50",
@@ -60,6 +58,86 @@ const dashboardStats = [
 
 export default function AdminPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Helper function to get authentication token
+  const getToken = () => {
+    // Check both localStorage and sessionStorage, matching the auth system
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+  };
+
+  // Fetch dashboard statistics
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const token = getToken();
+        if (!token) {
+          setError('No authentication token found. Please login again.');
+          // Redirect to login after a delay
+          setTimeout(() => {
+            router.push('/');
+          }, 2000);
+          return;
+        }
+
+        // Use the existing apiClient which handles auth automatically
+        const response = await apiClient('/dashboard/stats');
+        
+        console.log('Dashboard API Response:', response);
+        
+        if (response.success && response.data) {
+          console.log('API response.data:', response.data);
+          // The apiClient wraps the server response, so we need response.data.data
+          const statsData = response.data.data || response.data;
+          console.log('Extracted stats data:', statsData);
+          setDashboardStats(statsData);
+        } else {
+          console.error('API response not successful:', response);
+          throw new Error('Failed to fetch dashboard statistics');
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard stats:', err);
+        let errorMessage = 'Failed to load dashboard statistics';
+        
+        if (err instanceof Error) {
+          console.error('Error details:', {
+            message: err.message,
+            stack: err.stack
+          });
+          
+          if (err.message.includes('Authentication failed') || err.message.includes('401')) {
+            errorMessage = 'Session expired. Please login again.';
+            setTimeout(() => {
+              router.push('/');
+            }, 2000);
+          } else if (err.message.includes('permission') || err.message.includes('403')) {
+            errorMessage = 'You do not have permission to view dashboard statistics.';
+          } else if (err.message.includes('Network error')) {
+            errorMessage = 'Unable to connect to server. Please check your connection.';
+          } else {
+            errorMessage = err.message;
+          }
+        }
+        
+        setError(errorMessage);
+        
+        // DON'T set fallback stats when there's an error - let the error state show instead
+        // The error display will show the retry button
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (activeButton === "Dashboard") {
+      fetchDashboardStats();
+    }
+  }, [activeButton, router]);
 
   const renderDashboardContent = () => {
     if (activeButton === "Dashboard") {
@@ -91,48 +169,96 @@ export default function AdminPage() {
           </motion.div>
 
           {/* Statistics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dashboardStats.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {dashboardStatsConfig.map((_, index) => (
                 <motion.div
-                  key={stat.title}
+                  key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -5 }}
                   className="glass-card group cursor-pointer"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className={`w-12 h-12 rounded-2xl ${stat.bgColor} dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <IconComponent className={`w-6 h-6 text-blue-500`} />
+                  <div className="animate-pulse">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gray-200 dark:bg-gray-700"></div>
+                      <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     </div>
-                    <div
-                      className={`text-right text-sm font-semibold px-2 py-1 rounded-lg bg-gradient-to-r ${stat.color} text-white`}
-                    >
-                      {stat.change}
+                    <div className="space-y-2">
+                      <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     </div>
                   </div>
-
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      {stat.title}
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {stat.value}
-                    </p>
-                  </div>
-
-                  {/* Decorative bottom line */}
-                  <div
-                    className={`mt-4 h-1 bg-gradient-to-r ${stat.color} rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300`}
-                  />
                 </motion.div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="glass-card p-8 text-center">
+              <p className="text-red-600 dark:text-red-400 mb-4">⚠️ Failed to load dashboard statistics</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {dashboardStatsConfig.map((config, index) => {
+                const IconComponent = config.icon;
+                const statData = dashboardStats?.[config.key];
+                const value = typeof statData === 'object' ? statData.value : statData;
+                const change = typeof statData === 'object' ? statData.change : '+0.0%';
+                
+                // Debug each stat
+                console.log(`Stat ${config.key}:`, {
+                  statData,
+                  value,
+                  change,
+                  dashboardStats
+                });
+                
+                return (
+                  <motion.div
+                    key={config.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="glass-card group cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div
+                        className={`w-12 h-12 rounded-2xl ${config.bgColor} dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        <IconComponent className={`w-6 h-6 text-blue-500`} />
+                      </div>
+                      <div
+                        className={`text-right text-sm font-semibold px-2 py-1 rounded-lg bg-gradient-to-r ${config.color} text-white`}
+                      >
+                        {change}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        {config.title}
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {value?.toLocaleString?.() || value || '0'}
+                      </p>
+                    </div>
+
+                    {/* Decorative bottom line */}
+                    <div
+                      className={`mt-4 h-1 bg-gradient-to-r ${config.color} rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300`}
+                    />
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Quick Actions */}
           <motion.div
