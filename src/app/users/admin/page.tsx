@@ -21,8 +21,8 @@ import {
   UserGroupIcon,
   AcademicCapIcon,
   ClockIcon,
-  CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
+import { Can } from "@/lib/can";
 
 // Dashboard stats configuration (data will be loaded from API)
 const dashboardStatsConfig = [
@@ -66,7 +66,7 @@ export default function AdminPage() {
   // Helper function to get authentication token
   const getToken = () => {
     // Check both localStorage and sessionStorage, matching the auth system
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
   // Fetch dashboard statistics
@@ -75,58 +75,66 @@ export default function AdminPage() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const token = getToken();
         if (!token) {
-          setError('No authentication token found. Please login again.');
+          setError("No authentication token found. Please login again.");
           // Redirect to login after a delay
           setTimeout(() => {
-            router.push('/');
+            router.push("/");
           }, 2000);
           return;
         }
 
         // Use the existing apiClient which handles auth automatically
-        const response = await apiClient('/dashboard/stats');
-        
-        console.log('Dashboard API Response:', response);
-        
+        const response = await apiClient("/dashboard/stats");
+
+        console.log("Dashboard API Response:", response);
+
         if (response.success && response.data) {
-          console.log('API response.data:', response.data);
+          console.log("API response.data:", response.data);
           // The apiClient wraps the server response, so we need response.data.data
           const statsData = response.data.data || response.data;
-          console.log('Extracted stats data:', statsData);
+          console.log("Extracted stats data:", statsData);
           setDashboardStats(statsData);
         } else {
-          console.error('API response not successful:', response);
-          throw new Error('Failed to fetch dashboard statistics');
+          console.error("API response not successful:", response);
+          throw new Error("Failed to fetch dashboard statistics");
         }
       } catch (err) {
-        console.error('Error fetching dashboard stats:', err);
-        let errorMessage = 'Failed to load dashboard statistics';
-        
+        console.error("Error fetching dashboard stats:", err);
+        let errorMessage = "Failed to load dashboard statistics";
+
         if (err instanceof Error) {
-          console.error('Error details:', {
+          console.error("Error details:", {
             message: err.message,
-            stack: err.stack
+            stack: err.stack,
           });
-          
-          if (err.message.includes('Authentication failed') || err.message.includes('401')) {
-            errorMessage = 'Session expired. Please login again.';
+
+          if (
+            err.message.includes("Authentication failed") ||
+            err.message.includes("401")
+          ) {
+            errorMessage = "Session expired. Please login again.";
             setTimeout(() => {
-              router.push('/');
+              router.push("/");
             }, 2000);
-          } else if (err.message.includes('permission') || err.message.includes('403')) {
-            errorMessage = 'You do not have permission to view dashboard statistics.';
-          } else if (err.message.includes('Network error')) {
-            errorMessage = 'Unable to connect to server. Please check your connection.';
+          } else if (
+            err.message.includes("permission") ||
+            err.message.includes("403")
+          ) {
+            errorMessage =
+              "You do not have permission to view dashboard statistics.";
+          } else if (err.message.includes("Network error")) {
+            errorMessage =
+              "Unable to connect to server. Please check your connection.";
           } else {
             errorMessage = err.message;
           }
         }
-        
+
         setError(errorMessage);
-        
+
         // DON'T set fallback stats when there's an error - let the error state show instead
         // The error display will show the retry button
       } finally {
@@ -194,10 +202,14 @@ export default function AdminPage() {
             </div>
           ) : error ? (
             <div className="glass-card p-8 text-center">
-              <p className="text-red-600 dark:text-red-400 mb-4">⚠️ Failed to load dashboard statistics</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
+              <p className="text-red-600 dark:text-red-400 mb-4">
+                ⚠️ Failed to load dashboard statistics
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {error}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Retry
@@ -208,17 +220,19 @@ export default function AdminPage() {
               {dashboardStatsConfig.map((config, index) => {
                 const IconComponent = config.icon;
                 const statData = dashboardStats?.[config.key];
-                const value = typeof statData === 'object' ? statData.value : statData;
-                const change = typeof statData === 'object' ? statData.change : '+0.0%';
-                
+                const value =
+                  typeof statData === "object" ? statData.value : statData;
+                const change =
+                  typeof statData === "object" ? statData.change : "+0.0%";
+
                 // Debug each stat
                 console.log(`Stat ${config.key}:`, {
                   statData,
                   value,
                   change,
-                  dashboardStats
+                  dashboardStats,
                 });
-                
+
                 return (
                   <motion.div
                     key={config.title}
@@ -246,7 +260,7 @@ export default function AdminPage() {
                         {config.title}
                       </p>
                       <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {value?.toLocaleString?.() || value || '0'}
+                        {value?.toLocaleString?.() || value || "0"}
                       </p>
                     </div>
 
@@ -338,130 +352,145 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex min-h-screen relative">
-      {/* Animated Background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" />
-        <div className="absolute inset-0 opacity-30 dark:opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-          <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 dark:bg-yellow-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000" />
-          <div className="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-300 dark:bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000" />
+    <Can permission="view_dashboard">
+      <div className="flex min-h-screen relative">
+        {/* Animated Background */}
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" />
+          <div className="absolute inset-0 opacity-30 dark:opacity-20">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 dark:bg-yellow-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000" />
+            <div className="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-300 dark:bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-4000" />
+          </div>
         </div>
-      </div>
 
-      <SideNav>
-        <SideNavButton
-          icon="home"
-          active={activeButton === "Dashboard"}
-          onClick={() => setActiveButton("Dashboard")}
-        >
-          Dashboard
-        </SideNavButton>
-
-        <SideNavButton
-          icon="student"
-          active={activeButton === "student"}
-          onClick={() => setActiveButton("student")}
-        >
-          Students
-        </SideNavButton>
-
-        <SideNavButton
-          icon="teacher"
-          active={activeButton === "teacher"}
-          onClick={() => setActiveButton("teacher")}
-        >
-          Teachers
-        </SideNavButton>
-
-        <SideNavButton
-          icon="user"
-          active={activeButton === "user"}
-          onClick={() => setActiveButton("user")}
-        >
-          Users
-        </SideNavButton>
-
-        <SideNavButton
-          icon="shield"
-          active={activeButton === "roles"}
-          onClick={() => setActiveButton("roles")}
-        >
-          Roles
-        </SideNavButton>
-
-        <SideNavButton
-          icon="calendar"
-          active={activeButton === "academic_year"}
-          onClick={() => setActiveButton("academic_year")}
-        >
-          Academic Year
-        </SideNavButton>
-
-        <SideNavButton
-          icon="auto_stories"
-          active={activeButton === "subjects"}
-          onClick={() => setActiveButton("subjects")}
-        >
-          Subjects
-        </SideNavButton>
-
-        <SideNavButton
-          icon="class"
-          active={activeButton === "classes"}
-          onClick={() => setActiveButton("classes")}
-        >
-          Classes
-        </SideNavButton>
-
-        <SideNavButton
-          icon="attendance"
-          active={activeButton === "attendance"}
-          onClick={() => setActiveButton("attendance")}
-        >
-          Student Attendance
-        </SideNavButton>
-
-        <SideNavButton
-          icon="user"
-          active={activeButton === "user_attendance"}
-          onClick={() => setActiveButton("user_attendance")}
-        >
-          User Attendance
-        </SideNavButton>
-
-        <SideNavButton
-          icon="teacher"
-          active={activeButton === "teacher_attendance"}
-          onClick={() => setActiveButton("teacher_attendance")}
-        >
-          Teacher Attendance
-        </SideNavButton>
-
-        <SideNavButton
-          icon="currency_dollar"
-          active={activeButton === "tuition_payments"}
-          onClick={() => setActiveButton("tuition_payments")}
-        >
-          Tuition Payments
-        </SideNavButton>
-      </SideNav>
-
-      <main className="flex-1 ml-64 min-h-screen relative z-10">
-        <div className="p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeButton}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+        <SideNav>
+          <Can permission="view_dashboard">
+            <SideNavButton
+              icon="home"
+              active={activeButton === "Dashboard"}
+              onClick={() => setActiveButton("Dashboard")}
             >
-              {renderDashboardContent()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </main>
-    </div>
+              Dashboard
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_students">
+            <SideNavButton
+              icon="student"
+              active={activeButton === "student"}
+              onClick={() => setActiveButton("student")}
+            >
+              Students
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_teachers">
+            <SideNavButton
+              icon="teacher"
+              active={activeButton === "teacher"}
+              onClick={() => setActiveButton("teacher")}
+            >
+              Teachers
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_users">
+            <SideNavButton
+              icon="user"
+              active={activeButton === "user"}
+              onClick={() => setActiveButton("user")}
+            >
+              Users
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_roles">
+            <SideNavButton
+              icon="shield"
+              active={activeButton === "roles"}
+              onClick={() => setActiveButton("roles")}
+            >
+              Roles
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_academic_years">
+            <SideNavButton
+              icon="calendar"
+              active={activeButton === "academic_year"}
+              onClick={() => setActiveButton("academic_year")}
+            >
+              Academic Year
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_subjects">
+            <SideNavButton
+              icon="auto_stories"
+              active={activeButton === "subjects"}
+              onClick={() => setActiveButton("subjects")}
+            >
+              Subjects
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_classes">
+            <SideNavButton
+              icon="class"
+              active={activeButton === "classes"}
+              onClick={() => setActiveButton("classes")}
+            >
+              Classes
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_student_attendance">
+            <SideNavButton
+              icon="attendance"
+              active={activeButton === "attendance"}
+              onClick={() => setActiveButton("attendance")}
+            >
+              Student Attendance
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_employee_attendance">
+            <SideNavButton
+              icon="user"
+              active={activeButton === "user_attendance"}
+              onClick={() => setActiveButton("user_attendance")}
+            >
+              User Attendance
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_teacher_attendance">
+            <SideNavButton
+              icon="teacher"
+              active={activeButton === "teacher_attendance"}
+              onClick={() => setActiveButton("teacher_attendance")}
+            >
+              Teacher Attendance
+            </SideNavButton>
+          </Can>
+          <Can permission="manage_tuition_payments">
+            <SideNavButton
+              icon="currency_dollar"
+              active={activeButton === "tuition_payments"}
+              onClick={() => setActiveButton("tuition_payments")}
+            >
+              Tuition Payments
+            </SideNavButton>
+          </Can>
+        </SideNav>
+
+        <main className="flex-1 ml-64 min-h-screen relative z-10">
+          <div className="p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeButton}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                {renderDashboardContent()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
+      </div>
+    </Can>
   );
 }
