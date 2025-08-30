@@ -19,6 +19,7 @@ interface PaymentModalProps {
   onSubmit: (payment: TuitionPaymentCreatePayload) => void;
   students: Student[];
   loading: boolean;
+  selectedStudent: string; // Add selectedStudent prop
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -27,28 +28,65 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   onSubmit,
   students,
   loading,
+  selectedStudent, // Add selectedStudent parameter
 }) => {
   const [formData, setFormData] = useState<TuitionPaymentCreatePayload>({
     amount: 0,
     payment_date: new Date().toISOString().split("T")[0],
     payment_method: "cash",
-    student_id: 0,
+    student_id: Number(selectedStudent) || 0, // Initialize with selectedStudent
   });
+
+  // Update formData when selectedStudent changes
+  useEffect(() => {
+    if (selectedStudent) {
+      setFormData(prev => ({
+        ...prev,
+        student_id: Number(selectedStudent)
+      }));
+    }
+  }, [selectedStudent]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.student_id && formData.amount > 0) {
-      onSubmit(formData);
+    
+    // Validate amount
+    if (!formData.amount || formData.amount <= 0) {
+      alert("Please enter a valid amount greater than 0.");
+      return;
+    }
+    
+    if (selectedStudent && formData.amount > 0) {
+      // Use selectedStudent instead of formData.student_id
+      const paymentData = {
+        ...formData,
+        student_id: Number(selectedStudent)
+      };
+      onSubmit(paymentData);
       setFormData({
         amount: 0,
         payment_date: new Date().toISOString().split("T")[0],
         payment_method: "cash",
-        student_id: 0,
+        student_id: Number(selectedStudent),
       });
     }
   };
 
-  if (!isOpen) return null;
+  // Reset form when modal is closed
+  const handleClose = () => {
+    setFormData({
+      amount: 0,
+      payment_date: new Date().toISOString().split("T")[0],
+      payment_method: "cash",
+      student_id: Number(selectedStudent) || 0,
+    });
+    onClose();
+  };
+
+  // Find the selected student object for display
+  const selectedStudentObj = students.find(s => s.id.toString() === selectedStudent);
+
+  if (!isOpen || !selectedStudent) return null;
 
   return (
     <AnimatePresence>
@@ -56,8 +94,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        onClick={handleClose}
         className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -73,34 +111,24 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             💰 Add New Payment
           </h3>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                className="block text-sm font-medium mb-2"
-                style={{ color: "var(--foreground-muted)" }}
-              >
-                Student
-              </label>
-              <select
-                required
-                value={formData.student_id}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    student_id: Number(e.target.value),
-                  })
-                }
-                className="modern-input w-full"
-              >
-                <option value={0}>Select a student...</option>
-                {students.map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.student_name} - Grade {student.grade_level}
-                  </option>
-                ))}
-              </select>
+          {/* Display selected student info instead of dropdown */}
+          {selectedStudentObj && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                Selected Student:
+              </div>
+              <div className="text-blue-900 dark:text-blue-100 font-semibold">
+                {selectedStudentObj.student_name} - Grade {selectedStudentObj.grade_level}
+              </div>
             </div>
+          )}
 
+          {/* Form Status Indicator */}
+          <div className="text-sm text-gray-600 dark:text-gray-400 text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg mb-4">
+            💰 Adding payment for <strong>{selectedStudentObj?.student_name}</strong>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
                 className="block text-sm font-medium mb-2"
@@ -166,7 +194,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel
@@ -174,7 +202,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <button
                 type="submit"
                 disabled={
-                  loading || !formData.student_id || formData.amount <= 0
+                  loading || !selectedStudent || formData.amount <= 0
                 }
                 className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -392,8 +420,8 @@ export default function TuitionPaymentManager() {
       selectedPaymentMethod === "" ||
       payment.payment_method === selectedPaymentMethod;
 
-    const matchesDateFrom = !dateFrom || payment.payment_date >= dateFrom;
-    const matchesDateTo = !dateTo || payment.payment_date <= dateTo;
+    const matchesDateFrom = !dateFrom || new Date(payment.payment_date) >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || new Date(payment.payment_date) <= new Date(dateTo);
 
     return (
       matchesSearch &&
@@ -636,7 +664,14 @@ export default function TuitionPaymentManager() {
             setDateFrom={setDateFrom}
             dateTo={dateTo}
             setDateTo={setDateTo}
-            onAddPaymentClick={() => setIsModalOpen(true)}
+            onAddPaymentClick={() => {
+              if (!selectedStudent) {
+                setErrorMessage("Please select a student first before adding a payment.");
+                setTimeout(() => setErrorMessage(""), 5000);
+                return;
+              }
+              setIsModalOpen(true);
+            }}
             onVerifyPayment={handleVerifyPayment}
             onDeletePayment={handleDeletePayment}
             pagination={paymentsPagination}
@@ -652,6 +687,7 @@ export default function TuitionPaymentManager() {
         onSubmit={handleAddPayment}
         students={students}
         loading={loading}
+        selectedStudent={selectedStudent}
       />
     </div>
   );

@@ -110,6 +110,20 @@ export default function PaymentHistory({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
+      {/* Debug Info - Remove this after fixing */}
+      <div className="mb-4 p-4 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg border border-yellow-300 dark:border-yellow-700">
+        <h4 className="font-bold text-yellow-800 dark:text-yellow-200 mb-2">Debug Info:</h4>
+        <div className="text-sm text-yellow-700 dark:text-yellow-300">
+          <div>Total Payments: {payments.length}</div>
+          <div>Filtered Payments: {filteredPayments.length}</div>
+          <div>Total Students: {students.length}</div>
+          <div>Search Term: &ldquo;{searchTerm}&rdquo;</div>
+          <div>Selected Student: &ldquo;{selectedStudent}&rdquo;</div>
+          <div>Selected Method: &ldquo;{selectedPaymentMethod}&rdquo;</div>
+          <div>Date From: &ldquo;{dateFrom}&rdquo;</div>
+          <div>Date To: &ldquo;{dateTo}&rdquo;</div>
+        </div>
+      </div>
       <Table
         title="Payment History"
         actions={
@@ -133,54 +147,64 @@ export default function PaymentHistory({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onAddPaymentClick}
-              disabled={students.length === 0 || loading}
+              disabled={students.length === 0 || loading || !selectedStudent}
               className="btn-primary flex items-center gap-2 disabled:opacity-50"
+              title={!selectedStudent ? "Please select a student first" : "Add a new payment"}
             >
               <AddColorIcon size={18} />
-              <span>Add Payment</span>
+              <span>{!selectedStudent ? "Select Student First" : "Add Payment"}</span>
             </motion.button>
           </div>
         }
         filter={
-          <div className="flex flex-wrap gap-4">
-            <select
-              value={selectedStudent}
-              onChange={(e) => setSelectedStudent(e.target.value)}
-              className="modern-input !w-auto min-w-32"
-            >
-              <option value="">👥 All Students</option>
-              {students.map((student) => (
-                <option key={student.id} value={student.id.toString()}>
-                  {student.student_name}
-                </option>
-              ))}
-            </select>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-4">
+              <select
+                value={selectedStudent}
+                onChange={(e) => setSelectedStudent(e.target.value)}
+                className="modern-input !w-auto min-w-32"
+              >
+                <option value="">👥 All Students</option>
+                {students.map((student) => (
+                  <option key={student.id} value={student.id.toString()}>
+                    {student.student_name}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              value={selectedPaymentMethod}
-              onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-              className="modern-input !w-auto min-w-32"
-            >
-              <option value="">💳 All Methods</option>
-              <option value="cash">💵 Cash</option>
-              <option value="bank_transfer">🏦 Bank Transfer</option>
-            </select>
+              <select
+                value={selectedPaymentMethod}
+                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                className="modern-input !w-auto min-w-32"
+              >
+                <option value="">💳 All Methods</option>
+                <option value="cash">💵 Cash</option>
+                <option value="bank_transfer">🏦 Bank Transfer</option>
+              </select>
 
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="modern-input !w-auto"
-              placeholder="From Date"
-            />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="modern-input !w-auto"
+                placeholder="From Date"
+              />
 
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="modern-input !w-auto"
-              placeholder="To Date"
-            />
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="modern-input !w-auto"
+                placeholder="To Date"
+              />
+            </div>
+            
+            {/* Helpful message for adding payments */}
+            {!selectedStudent && (
+              <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                💡 <strong>Tip:</strong> Select a student from the dropdown above to add a new payment for them.
+              </div>
+            )}
           </div>
         }
         tableHeader={
