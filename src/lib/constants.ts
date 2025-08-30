@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   USERS: {
     CREATE: "users",
     GET_ALL: "users/employees",
+    GET_PROFILE: "users/profile",
     DELETE: (id: number) => `users/${id}`,
     UPDATE: (id: number) => `users/${id}`,
   },
@@ -59,6 +60,10 @@ export const API_ENDPOINTS = {
     GET_ALL: "periods",
   },
 
+  SEMESTERS: {
+    GET_ALL: "semesters",
+  },
+
   BEHAVIOR: {
     CREATE: "behaviors",
   },
@@ -87,6 +92,7 @@ export const API_ENDPOINTS = {
     UPDATE_QUESTION: (id: number) => `questions/${id}`,
     DELETE_QUESTION: (id: number) => `questions/${id}`,
     GET_STUDENTS: "teachers/students",
+    INPUT_MARKS: "teachers/input-marks",
   },
 
   ROLES: {
@@ -145,5 +151,14 @@ export const API_ENDPOINTS = {
     GET_STATS: "tuition-payments/stats",
     GET_BY_DATE_RANGE: "tuition-payments/date-range",
     BULK_CREATE: "tuition-payments/bulk",
+  },
+
+  GRADES: {
+    CREATE: "grades",
+    GET_ALL: "grades",
+    GET_BY_ID: (id: number) => `grades/${id}`,
+    UPDATE: (id: number) => `grades/${id}`,
+    DELETE: (id: number) => `grades/${id}`,
+    GET_BY_STUDENT: (studentId: number) => `grades/student/${studentId}`,
   },
 };

@@ -10,6 +10,7 @@ interface StudentDisplay extends Student {
   class_name: string;
   attendance_percentage: number;
   marks: number;
+  class_id?: number; // Add optional class_id property
 }
 
 export default function Students() {
@@ -42,23 +43,23 @@ export default function Students() {
       }
 
       const fetchedStudents = await studentService.getStudentsByTeacher();
-      console.log('Fetched students:', fetchedStudents);
+      console.log("Fetched students:", fetchedStudents);
 
       // Transform the data to include display properties
       const transformedStudents: StudentDisplay[] = fetchedStudents.map(
         (student) => {
-          console.log('Processing student:', student);
+          console.log("Processing student:", student);
           const transformed = {
             ...student,
-            class_name: student.class_name || `Class ${student.class_id}`,
+            class_name: student.class_name || `Class ${student.id}`,
             attendance_percentage: student.attendance_percentage || 0,
             marks: 0, // Default marks, can be fetched separately if needed
           };
-          console.log('Transformed student:', transformed);
+          console.log("Transformed student:", transformed);
           return transformed;
         }
       );
-      console.log('Transformed students:', transformedStudents);
+      console.log("Transformed students:", transformedStudents);
 
       setStudents(transformedStudents);
       setError(null);
@@ -99,13 +100,13 @@ export default function Students() {
   };
 
   // Handle submitting marks
-  const handleSubmitMark = (mark: number, type: string) => {
-    if (selectedStudent) {
+  const handleSubmitMark = (success: boolean) => {
+    if (success) {
       console.log(
-        `Submitted mark ${mark} of type ${type} for student ${selectedStudent.student_name}`
+        `Successfully submitted marks for student ${selectedStudent?.student_name}`
       );
-      // Here you would typically update the student's marks in your database
-      // For this example, we'll just log the information
+      // Refresh the students data to show updated marks
+      fetchStudents();
     }
   };
 
@@ -273,6 +274,7 @@ export default function Students() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           studentName={selectedStudent.student_name}
+          studentId={selectedStudent.id}
           onSubmit={handleSubmitMark}
         />
       )}

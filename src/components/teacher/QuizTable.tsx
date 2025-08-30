@@ -109,58 +109,31 @@ export default function QuizTable() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-border">
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 ID
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Title
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Type
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Duration
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Total Marks
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Passing Marks
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Start Date
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 End Date
               </th>
-              <th
-                className="text-left py-3 px-4 font-semibold"
-                style={{ color: "var(--foreground)" }}
-              >
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-200">
                 Status
               </th>
             </tr>
