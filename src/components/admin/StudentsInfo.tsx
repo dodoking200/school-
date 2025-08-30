@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Table from "../ui/Table";
 import StudentModal from "./StudentModal";
+import ExcelUploadModal from "./ExcelUploadModal";
 import { studentService } from "@/lib/services/studentService";
 import { classService } from "@/lib/services/classService";
 import {
@@ -14,6 +15,7 @@ import {
   SearchColorIcon,
   AddColorIcon,
   EditColorIcon,
+  UploadColorIcon,
 } from "@/components/icons/ColorfulIcons";
 
 // Interface for the modal (keeping compatibility)
@@ -31,6 +33,7 @@ interface StudentForModal {
 
 export default function StudentInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] =
     useState<StudentForModal | null>(null);
   const [students, setStudents] = useState<StudentFromAPI[]>([]);
@@ -196,6 +199,19 @@ export default function StudentInfo() {
     setIsModalOpen(true);
   };
 
+  // Handle Excel file upload
+  const handleExcelUpload = async (file: File) => {
+    try {
+      const result = await studentService.bulkUploadStudents(file);
+      console.log("Bulk upload result:", result);
+      // Refresh the students list after successful upload
+      fetchStudents(currentPage);
+    } catch (error) {
+      console.error("Failed to upload Excel file:", error);
+      throw error; // Re-throw to let the modal handle the error display
+    }
+  };
+
   // Handle submitting the student form
   const handleSubmitStudent = async (studentData: {
     id?: number;
@@ -336,6 +352,13 @@ export default function StudentInfo() {
         classes={classes} // Pass all available classes to the modal
       />
 
+      <ExcelUploadModal
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        onUpload={handleExcelUpload}
+        title="Upload Students from Excel"
+      />
+
       {/* Error Message */}
       {errorMessage && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -389,6 +412,15 @@ export default function StudentInfo() {
                 Clear Filters
               </button>
             )}
+
+            {/* Excel Upload Button */}
+            <button
+              onClick={() => setIsExcelModalOpen(true)}
+              className="btn-secondary flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+            >
+              <UploadColorIcon size={18} />
+              <span>Upload Excel</span>
+            </button>
 
             {/* Modern Add Student Button */}
             <button

@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
     GET_BY_CLASS: (classId: number) => `students/class/${classId}`,
     SCHEDULE: "students/schedule",
     SEARCH_ADVANCED: "students/search/advanced", // POST endpoint
+    BULK_UPLOAD: "students/bulk-upload",
   },
 
   ATTENDANCE: {

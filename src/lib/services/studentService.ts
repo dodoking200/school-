@@ -195,4 +195,27 @@ export const studentService = {
       throw new Error("Failed to search students");
     }
   },
+
+  async bulkUploadStudents(file: File): Promise<{ message: string; count: number }> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await apiClient<{ message: string; count: number }>(
+        API_ENDPOINTS.STUDENTS.BULK_UPLOAD,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            // Don't set Content-Type header for FormData, let the browser set it
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to bulk upload students:", error);
+      throw new Error("Failed to bulk upload students");
+    }
+  },
 };

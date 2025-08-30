@@ -52,7 +52,8 @@ export async function apiClient<T>(
   const token = getToken();
 
   const headers = new Headers(options.headers);
-  if (!headers.has("Content-Type")) {
+  // Only set Content-Type to application/json if it's not FormData
+  if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
