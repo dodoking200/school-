@@ -93,7 +93,7 @@ export const API_ENDPOINTS = {
     UPDATE_QUESTION: (id: number) => `questions/${id}`,
     DELETE_QUESTION: (id: number) => `questions/${id}`,
     GET_STUDENTS: "teachers/students",
-    INPUT_MARKS: "teachers/input-marks",
+    INPUT_MARKS: "grades/assign-mark",
   },
 
   ROLES: {
@@ -180,65 +180,65 @@ export const USER_PERMISSIONS = {
   // ================================================================
   // CORE ACADEMIC MANAGEMENT (4 permissions)
   // ================================================================
-  MANAGE_ACADEMIC_YEARS: 'manage_academic_years',
-  MANAGE_SUBJECTS: 'manage_subjects',
-  MANAGE_CLASSES: 'manage_classes',
-  MANAGE_SCHEDULES: 'manage_schedules',
+  MANAGE_ACADEMIC_YEARS: "manage_academic_years",
+  MANAGE_SUBJECTS: "manage_subjects",
+  MANAGE_CLASSES: "manage_classes",
+  MANAGE_SCHEDULES: "manage_schedules",
 
   // ================================================================
   // PEOPLE MANAGEMENT (4 permissions)
   // ================================================================
-  MANAGE_STUDENTS: 'manage_students',
-  MANAGE_TEACHERS: 'manage_teachers',
-  MANAGE_USERS: 'manage_users',
-  MANAGE_ROLES: 'manage_roles',
+  MANAGE_STUDENTS: "manage_students",
+  MANAGE_TEACHERS: "manage_teachers",
+  MANAGE_USERS: "manage_users",
+  MANAGE_ROLES: "manage_roles",
 
   // ================================================================
   // ASSESSMENT SYSTEM (6 permissions)
   // ================================================================
-  MANAGE_EXAMS: 'manage_exams',
-  TAKE_EXAMS: 'take_exams',
-  VIEW_EXAM_RESULTS: 'view_exam_results',
-  MANAGE_GRADES: 'manage_grades',
-  MANAGE_QUESTIONS: 'manage_questions',
-  VIEW_OWN_GRADES: 'view_own_grades',
+  MANAGE_EXAMS: "manage_exams",
+  TAKE_EXAMS: "take_exams",
+  VIEW_EXAM_RESULTS: "view_exam_results",
+  MANAGE_GRADES: "manage_grades",
+  MANAGE_QUESTIONS: "manage_questions",
+  VIEW_OWN_GRADES: "view_own_grades",
 
   // ================================================================
   // ATTENDANCE SYSTEM (3 permissions)
   // ================================================================
-  MANAGE_STUDENT_ATTENDANCE: 'manage_student_attendance',
-  MANAGE_STAFF_ATTENDANCE: 'manage_staff_attendance',
-  VIEW_ATTENDANCE_REPORTS: 'view_attendance_reports',
+  MANAGE_STUDENT_ATTENDANCE: "manage_student_attendance",
+  MANAGE_STAFF_ATTENDANCE: "manage_staff_attendance",
+  VIEW_ATTENDANCE_REPORTS: "view_attendance_reports",
 
   // ================================================================
   // BEHAVIOR SYSTEM (2 permissions)
   // ================================================================
-  MANAGE_BEHAVIORS: 'manage_behaviors',
-  VIEW_OWN_BEHAVIORS: 'view_own_behaviors',
+  MANAGE_BEHAVIORS: "manage_behaviors",
+  VIEW_OWN_BEHAVIORS: "view_own_behaviors",
 
   // ================================================================
   // FINANCIAL SYSTEM (2 permissions)
   // ================================================================
-  MANAGE_TUITION_PAYMENTS: 'manage_tuition_payments',
-  VIEW_PAYMENT_REPORTS: 'view_payment_reports',
+  MANAGE_TUITION_PAYMENTS: "manage_tuition_payments",
+  VIEW_PAYMENT_REPORTS: "view_payment_reports",
 
   // ================================================================
   // COMMUNICATION SYSTEM (3 permissions)
   // ================================================================
-  MANAGE_NOTIFICATIONS: 'manage_notifications',
-  VIEW_NOTIFICATIONS: 'view_notifications',
-  MANAGE_FCM_TOKENS: 'manage_fcm_tokens',
+  MANAGE_NOTIFICATIONS: "manage_notifications",
+  VIEW_NOTIFICATIONS: "view_notifications",
+  MANAGE_FCM_TOKENS: "manage_fcm_tokens",
 
   // ================================================================
   // DASHBOARD AND ACCESS (7 permissions)
   // ================================================================
-  VIEW_DASHBOARD: 'view_dashboard',
-  STUDENT_MOBILE_APP: 'student_mobile_app',
-  ATTENDANCE_MOBILE_APP: 'attendance_mobile_app',
-  EXPORT_DATA: 'export_data',
-  MANAGE_PERMISSIONS: 'manage_permissions',
-  VIEW_OWN_SCHEDULE: 'view_own_schedule',
-  VIEW_SYSTEM_MESSAGES: 'view_system_messages',
+  VIEW_DASHBOARD: "view_dashboard",
+  STUDENT_MOBILE_APP: "student_mobile_app",
+  ATTENDANCE_MOBILE_APP: "attendance_mobile_app",
+  EXPORT_DATA: "export_data",
+  MANAGE_PERMISSIONS: "manage_permissions",
+  VIEW_OWN_SCHEDULE: "view_own_schedule",
+  VIEW_SYSTEM_MESSAGES: "view_system_messages",
 } as const;
 
 /**

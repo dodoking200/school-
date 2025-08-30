@@ -55,10 +55,8 @@ export const teacherService = {
   inputMarks: async (marksData: {
     student_id: number;
     subject_id: number;
-    semester_id: number;
-    min_score: number;
     max_score: number;
-    grade: number;
+    student_score: number;
     type: "worksheet" | "exam" | "quiz" | "assignment";
   }): Promise<void> => {
     await apiClient(API_ENDPOINTS.TEACHER.INPUT_MARKS, {
