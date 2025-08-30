@@ -23,6 +23,8 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { Can } from "@/lib/can";
+import { USER_PERMISSIONS } from "@/lib/constants";
+import PermissionGuard from "@/components/common/PermissionGuard";
 
 // Dashboard stats configuration (data will be loaded from API)
 const dashboardStatsConfig = [
@@ -446,7 +448,7 @@ export default function AdminPage() {
               Student Attendance
             </SideNavButton>
           </Can>
-          <Can permission="manage_employee_attendance">
+          <Can permission="manage_staff_attendance">
             <SideNavButton
               icon="user"
               active={activeButton === "user_attendance"}
@@ -455,7 +457,7 @@ export default function AdminPage() {
               User Attendance
             </SideNavButton>
           </Can>
-          <Can permission="manage_teacher_attendance">
+          <Can permission="manage_staff_attendance">
             <SideNavButton
               icon="teacher"
               active={activeButton === "teacher_attendance"}
