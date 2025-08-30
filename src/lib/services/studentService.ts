@@ -196,10 +196,12 @@ export const studentService = {
     }
   },
 
-  async bulkUploadStudents(file: File): Promise<{ message: string; count: number }> {
+  async bulkUploadStudents(
+    file: File
+  ): Promise<{ message: string; count: number }> {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("excelFile", file);
 
       const response = await apiClient<{ message: string; count: number }>(
         API_ENDPOINTS.STUDENTS.BULK_UPLOAD,
