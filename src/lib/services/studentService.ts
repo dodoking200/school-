@@ -128,9 +128,9 @@ export const studentService = {
     }
   },
 
-  async getStudentsByTeacher(): Promise<Student[]> {
+  async getStudentsByTeacher(): Promise<(Student & { total_marks: number })[]> {
     try {
-      const response = await apiClient<Student[]>(
+      const response = await apiClient<(Student & { total_marks: number })[]>(
         API_ENDPOINTS.TEACHER.GET_STUDENTS,
         {
           method: "GET",

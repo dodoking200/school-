@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/useAuth";
 interface StudentDisplay extends Student {
   class_name: string;
   attendance_percentage: number;
-  marks: number;
+  total_marks: number;
   class_id?: number; // Add optional class_id property
 }
 
@@ -53,7 +53,7 @@ export default function Students() {
             ...student,
             class_name: student.class_name || `Class ${student.id}`,
             attendance_percentage: student.attendance_percentage || 0,
-            marks: 0, // Default marks, can be fetched separately if needed
+            total_marks: student.total_marks || 0, // Use the total_marks from API
           };
           console.log("Transformed student:", transformed);
           return transformed;
@@ -212,8 +212,159 @@ export default function Students() {
     );
   }
 
+  // Calculate class statistics
+  const classStats = {
+    totalStudents: filteredStudents.length,
+    averageAttendance:
+      filteredStudents.length > 0
+        ? Math.round(
+            filteredStudents.reduce(
+              (sum, student) => sum + student.attendance_percentage,
+              0
+            ) / filteredStudents.length
+          )
+        : 0,
+    averageMarks:
+      filteredStudents.length > 0
+        ? Math.round(
+            filteredStudents.reduce(
+              (sum, student) => sum + student.total_marks,
+              0
+            ) / filteredStudents.length
+          )
+        : 0,
+    topPerformer:
+      filteredStudents.length > 0
+        ? filteredStudents.reduce((top, student) =>
+            student.total_marks > top.total_marks ? student : top
+          )
+        : null,
+  };
+
   return (
     <>
+      {/* Class Statistics Summary */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <svg
+                className="w-6 h-6 text-blue-600 dark:text-blue-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Total Students
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {classStats.totalStudents}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <svg
+                className="w-6 h-6 text-green-600 dark:text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Avg Attendance
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {classStats.averageAttendance}%
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <svg
+                className="w-6 h-6 text-purple-600 dark:text-purple-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Avg Marks
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {classStats.averageMarks}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+              <svg
+                className="w-6 h-6 text-yellow-600 dark:text-yellow-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Top Performer
+              </p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                {classStats.topPerformer
+                  ? classStats.topPerformer.student_name
+                  : "N/A"}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {classStats.topPerformer
+                  ? `${classStats.topPerformer.total_marks} pts`
+                  : ""}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Table
         title="Student"
         filter={classFilter}
@@ -225,7 +376,7 @@ export default function Students() {
             <th className="px-6 py-4 font-medium w-[20%]">Student Name</th>
             <th className="px-6 py-4 font-medium w-[20%]">Class</th>
             <th className="px-6 py-4 font-medium w-[20%]">Attendance</th>
-            <th className="px-6 py-4 font-medium w-[20%]">Marks</th>
+            <th className="px-6 py-4 font-medium w-[20%]">Total Marks</th>
             <th className="px-6 py-4 font-medium w-[20%]">Actions</th>
           </>
         }
@@ -240,19 +391,40 @@ export default function Students() {
                 <td className="px-6 py-4">{student.class_name}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <div
-                      className="h-2 bg-[var(--primary)]"
-                      style={{ width: `${student.attendance_percentage}%` }}
-                    />
-                    <span className="font-medium text-gray-800">
+                    <div className="w-16 bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          student.attendance_percentage >= 90
+                            ? "bg-green-500"
+                            : student.attendance_percentage >= 75
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{ width: `${student.attendance_percentage}%` }}
+                      />
+                    </div>
+                    <span
+                      className={`font-medium min-w-[3rem] ${
+                        student.attendance_percentage >= 90
+                          ? "text-green-600"
+                          : student.attendance_percentage >= 75
+                          ? "text-yellow-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {student.attendance_percentage}%
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="font-medium text-[var(--primary)]">
-                    {student.marks}
-                  </span>
+                  <div className="flex items-center">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full">
+                      <span className="font-bold text-lg">
+                        {student.total_marks}
+                      </span>
+                      <span className="text-xs ml-1 opacity-90">pts</span>
+                    </div>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <button
