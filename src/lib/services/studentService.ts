@@ -172,7 +172,7 @@ export const studentService = {
       total: number;
       totalPages: number;
     };
-    filters: any;
+    filters: Record<string, unknown>;
   }> {
     try {
       const response = await apiClient<{
@@ -183,7 +183,7 @@ export const studentService = {
           total: number;
           totalPages: number;
         };
-        filters: any;
+        filters: Record<string, unknown>;
       }>(API_ENDPOINTS.STUDENTS.SEARCH_ADVANCED, {
         method: "POST",
         body: JSON.stringify(params),

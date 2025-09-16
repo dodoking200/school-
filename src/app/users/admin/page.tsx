@@ -23,8 +23,6 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { Can } from "@/lib/can";
-import { USER_PERMISSIONS } from "@/lib/constants";
-import PermissionGuard from "@/components/common/PermissionGuard";
 
 // Dashboard stats configuration (data will be loaded from API)
 const dashboardStatsConfig = [
@@ -58,9 +56,21 @@ const dashboardStatsConfig = [
   },
 ];
 
+type StatPrimitive = number | string;
+type StatObject = { value: number | string; change?: string };
+type DashboardStats = {
+  totalStudents?: StatPrimitive | StatObject;
+  activeTeachers?: StatPrimitive | StatObject;
+  classesToday?: StatPrimitive | StatObject;
+  attendanceRate?: StatPrimitive | StatObject;
+  [key: string]: unknown;
+};
+
 export default function AdminPage() {
   const [activeButton, setActiveButton] = useState<string>("Dashboard");
-  const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -89,14 +99,22 @@ export default function AdminPage() {
         }
 
         // Use the existing apiClient which handles auth automatically
-        const response = await apiClient("/dashboard/stats");
+        const response = await apiClient<
+          DashboardStats | { data: DashboardStats }
+        >("/dashboard/stats");
 
         console.log("Dashboard API Response:", response);
 
         if (response.success && response.data) {
           console.log("API response.data:", response.data);
-          // The apiClient wraps the server response, so we need response.data.data
-          const statsData = response.data.data || response.data;
+          // Some endpoints wrap payload in { data: ... }. Support both shapes safely.
+          const payload = response.data as unknown;
+          const statsData =
+            payload &&
+            typeof payload === "object" &&
+            "data" in (payload as Record<string, unknown>)
+              ? ((payload as { data: DashboardStats }).data as DashboardStats)
+              : (payload as DashboardStats);
           console.log("Extracted stats data:", statsData);
           setDashboardStats(statsData);
         } else {
@@ -223,11 +241,17 @@ export default function AdminPage() {
                 const IconComponent = config.icon;
                 const statData = dashboardStats?.[config.key];
                 const value =
-                  typeof statData === "object" ? statData.value : statData;
+                  statData &&
+                  typeof statData === "object" &&
+                  "value" in statData
+                    ? (statData as { value: number | string }).value
+                    : statData;
                 const change =
-                  typeof statData === "object" ? statData.change : "+0.0%";
-
-                // Debug each stat
+                  statData &&
+                  typeof statData === "object" &&
+                  "change" in statData
+                    ? (statData as { change: string }).change
+                    : "+0.0%";
                 console.log(`Stat ${config.key}:`, {
                   statData,
                   value,
@@ -262,7 +286,11 @@ export default function AdminPage() {
                         {config.title}
                       </p>
                       <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {value?.toLocaleString?.() || value || "0"}
+                        {typeof value === "number" || typeof value === "string"
+                          ? typeof value === "number"
+                            ? value.toLocaleString()
+                            : value
+                          : "0"}
                       </p>
                     </div>
 
@@ -313,7 +341,7 @@ export default function AdminPage() {
                   desc: "Track and manage teacher attendance",
                   action: () => setActiveButton("teacher_attendance"),
                 },
-              ].map((action, index) => (
+              ].map((action) => (
                 <motion.button
                   key={action.title}
                   whileHover={{ scale: 1.02 }}

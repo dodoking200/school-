@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Role } from "@/types";
 import { roleService } from "@/lib/services/roleService";
-import { cn } from "@/lib/utils";
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -79,7 +78,7 @@ export default function RoleModal({
           exit={{ backdropFilter: "blur(0px)" }}
           className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/30 to-indigo-900/20"
         />
-        
+
         {/* Modal Container */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -92,7 +91,8 @@ export default function RoleModal({
           <div
             className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 rounded-3xl shadow-2xl p-8"
             style={{
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+              background:
+                "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
             }}
           >
             {/* Header */}
@@ -105,11 +105,15 @@ export default function RoleModal({
               <div className="flex items-center gap-4">
                 <div className="w-3 h-8 bg-gradient-primary rounded-full" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">Configure role permissions</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Configure role permissions
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -157,15 +161,17 @@ export default function RoleModal({
                 <div className="max-h-64 overflow-auto bg-white/5 dark:bg-gray-800/20 border border-white/20 dark:border-gray-700/20 rounded-2xl p-4 backdrop-blur-sm">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {allPermissions.map((permission) => (
-                      <motion.label 
-                        key={permission.id} 
+                      <motion.label
+                        key={permission.id}
                         className="flex items-center space-x-3 py-2 px-3 rounded-xl hover:bg-white/10 dark:hover:bg-gray-700/20 transition-colors cursor-pointer"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <input
                           type="checkbox"
-                          checked={selectedPermissionIds.includes(permission.id)}
+                          checked={selectedPermissionIds.includes(
+                            permission.id
+                          )}
                           onChange={() => togglePermission(permission.id)}
                           className="w-4 h-4 text-primary bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-primary dark:focus:ring-primary focus:ring-2"
                         />
@@ -193,9 +199,12 @@ export default function RoleModal({
                 >
                   ❌ Cancel
                 </motion.button>
-                
+
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   className="px-8 py-3 bg-gradient-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"

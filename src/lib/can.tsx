@@ -3,7 +3,6 @@
 import { useAuth } from "@/lib/useAuth";
 import { Permission } from "@/types";
 import { ReactNode } from "react";
-import { USER_PERMISSIONS } from "./constants";
 
 interface CanProps {
   children: ReactNode;

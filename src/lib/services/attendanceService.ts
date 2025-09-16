@@ -11,6 +11,25 @@ export interface AttendanceRecord {
   updated_at?: string;
 }
 
+type CreateAttendanceResponse = {
+  id?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+function isCreateAttendanceResponse(
+  data: unknown
+): data is CreateAttendanceResponse {
+  if (data === null || typeof data !== "object") return false;
+  const record = data as Record<string, unknown>;
+  const idOk = record.id === undefined || typeof record.id === "number";
+  const createdOk =
+    record.created_at === undefined || typeof record.created_at === "string";
+  const updatedOk =
+    record.updated_at === undefined || typeof record.updated_at === "string";
+  return idOk && createdOk && updatedOk;
+}
+
 export const attendanceService = {
   // Create attendance using the real API endpoint
   async createAttendance(
@@ -31,7 +50,12 @@ export const attendanceService = {
           }),
         }
       );
-      return response.data;
+      // Ensure the response data matches the expected return type
+      if (isCreateAttendanceResponse(response.data)) {
+        return response.data;
+      } else {
+        throw new Error("Unexpected response format from createAttendance");
+      }
     } catch (error) {
       console.error("Failed to create attendance:", error);
       throw error;
@@ -56,7 +80,13 @@ export const attendanceService = {
           method: "GET",
         }
       );
-      return response.data || [];
+      // Ensure the response data is an array of the expected shape
+      if (Array.isArray(response.data)) {
+        return response.data;
+      } else {
+        // If the response is not an array, return an empty array
+        return [];
+      }
     } catch (error) {
       console.error("Failed to fetch attendance by student ID:", error);
       return [];
@@ -72,7 +102,23 @@ export const attendanceService = {
           method: "GET",
         }
       );
-      return response.data || null;
+      // Ensure the response data matches the expected ClassAttendance shape
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        response.data !== null &&
+        typeof (response.data as { class_id?: unknown }).class_id ===
+          "number" &&
+        typeof (response.data as { class_name?: unknown }).class_name ===
+          "string" &&
+        typeof (response.data as { date?: unknown }).date === "string" &&
+        Array.isArray((response.data as { students?: unknown }).students)
+      ) {
+        return response.data as ClassAttendance;
+      } else {
+        // If the response is not as expected, return null
+        return null;
+      }
     } catch (error) {
       console.error("Failed to fetch attendance by class:", error);
       return null;
@@ -131,12 +177,12 @@ export const attendanceService = {
         );
 
         return {
-          class_id: attendanceData.class_id,
-          class_name: attendanceData.class_name,
-          date: attendanceData.date,
-          students: attendanceData.students,
-          id: result.id || id,
-          created_at: result.created_at || new Date().toISOString(),
+          class_id: attendanceData.class_id ?? 0,
+          class_name: attendanceData.class_name ?? "",
+          date: attendanceData.date ?? "",
+          students: attendanceData.students ?? [],
+          id: result.id ?? id,
+          created_at: result.created_at ?? new Date().toISOString(),
           updated_at: result.updated_at || new Date().toISOString(),
         };
       }
@@ -157,7 +203,7 @@ export const attendanceService = {
           method: "GET",
         }
       );
-      return response.data || [];
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       console.error("Failed to fetch class attendance history:", error);
       return [];
@@ -183,7 +229,28 @@ export const attendanceService = {
           }),
         }
       );
-      return response.data;
+      // Ensure the response data matches the expected type
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        ("id" in response.data ||
+          "created_at" in response.data ||
+          "updated_at" in response.data)
+      ) {
+        // Safely extract properties only if they exist on response.data
+        const result: {
+          id?: number;
+          created_at?: string;
+          updated_at?: string;
+        } = {};
+        if ("id" in response.data) result.id = response.data.id as number;
+        if ("created_at" in response.data)
+          result.created_at = response.data.created_at as string;
+        if ("updated_at" in response.data)
+          result.updated_at = response.data.updated_at as string;
+        return result;
+      }
+      throw new Error("Invalid response data from createUserAttendance");
     } catch (error) {
       console.error("Failed to create user attendance:", error);
       throw error;
@@ -209,7 +276,28 @@ export const attendanceService = {
           }),
         }
       );
-      return response.data;
+      // Ensure the response data matches the expected type
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        ("id" in response.data ||
+          "created_at" in response.data ||
+          "updated_at" in response.data)
+      ) {
+        // Safely extract properties only if they exist on response.data
+        const result: {
+          id?: number;
+          created_at?: string;
+          updated_at?: string;
+        } = {};
+        if ("id" in response.data) result.id = response.data.id as number;
+        if ("created_at" in response.data)
+          result.created_at = response.data.created_at as string;
+        if ("updated_at" in response.data)
+          result.updated_at = response.data.updated_at as string;
+        return result;
+      }
+      throw new Error("Invalid response data from createTeacherAttendance");
     } catch (error) {
       console.error("Failed to create teacher attendance:", error);
       throw error;

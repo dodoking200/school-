@@ -2,7 +2,6 @@ import { Subject, Teacher, TeacherCreatePayload } from "@/types";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { cn } from "@/lib/utils";
 
 interface TeacherModalProps {
   isOpen: boolean;
@@ -157,7 +156,7 @@ export default function TeacherModal({
           exit={{ backdropFilter: "blur(0px)" }}
           className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/30 to-indigo-900/20"
         />
-        
+
         {/* Modal Container */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -170,7 +169,8 @@ export default function TeacherModal({
           <div
             className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 rounded-3xl shadow-2xl p-8"
             style={{
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+              background:
+                "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
             }}
           >
             {/* Header */}
@@ -183,11 +183,15 @@ export default function TeacherModal({
               <div className="flex items-center gap-4">
                 <div className="w-3 h-8 bg-gradient-primary rounded-full" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">Complete the form with teacher information</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Complete the form with teacher information
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -214,7 +218,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     👤 Full Name
                   </label>
                   <input
@@ -236,7 +243,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 }}
                 >
-                  <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     📧 Email Address
                   </label>
                   <input
@@ -258,7 +268,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <label htmlFor="phone" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     📱 Phone Number
                   </label>
                   <input
@@ -280,7 +293,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.45 }}
                 >
-                  <label htmlFor="birth_date" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="birth_date"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🎂 Birth Date
                   </label>
                   <input
@@ -301,7 +317,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <label htmlFor="specialization" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="specialization"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🎯 Specialization
                   </label>
                   <input
@@ -323,7 +342,10 @@ export default function TeacherModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.55 }}
                 >
-                  <label htmlFor="qualification" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="qualification"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🎓 Qualification
                   </label>
                   <input
@@ -346,7 +368,10 @@ export default function TeacherModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
               >
-                <label htmlFor="hire_date" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  htmlFor="hire_date"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
                   📅 Hire Date
                 </label>
                 <input
@@ -373,8 +398,8 @@ export default function TeacherModal({
                 <div className="max-h-40 overflow-auto bg-white/5 dark:bg-gray-800/20 border border-white/20 dark:border-gray-700/20 rounded-2xl p-4 backdrop-blur-sm">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {subjects.map((s) => (
-                      <motion.label 
-                        key={s.id} 
+                      <motion.label
+                        key={s.id}
                         className="flex items-center space-x-2 py-2 px-3 rounded-xl hover:bg-white/10 dark:hover:bg-gray-700/20 transition-colors cursor-pointer"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -386,7 +411,9 @@ export default function TeacherModal({
                           disabled={isLoading}
                           className="w-4 h-4 text-primary bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded focus:ring-primary dark:focus:ring-primary focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
-                        <span className="text-gray-700 dark:text-gray-200 font-medium">{s.name}</span>
+                        <span className="text-gray-700 dark:text-gray-200 font-medium">
+                          {s.name}
+                        </span>
                       </motion.label>
                     ))}
                   </div>
@@ -410,9 +437,12 @@ export default function TeacherModal({
                 >
                   ❌ Cancel
                 </motion.button>
-                
+
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={isLoading}

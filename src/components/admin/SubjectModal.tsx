@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Subject } from "@/types";
-import { cn } from "@/lib/utils";
 
 interface SubjectModalProps {
   isOpen: boolean;
@@ -78,8 +77,12 @@ export default function SubjectModal({
               <div className="flex items-center gap-4">
                 <div className="w-3 h-8 bg-gradient-primary rounded-full" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">Configure subject information</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Configure subject information
+                  </p>
                 </div>
               </div>
               <motion.button
@@ -95,7 +98,10 @@ export default function SubjectModal({
 
             <motion.form onSubmit={handleSubmit} className="space-y-6">
               <motion.div>
-                <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  htmlFor="name"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
                   📚 Subject Name
                 </label>
                 <input
@@ -112,7 +118,10 @@ export default function SubjectModal({
               </motion.div>
 
               <motion.div>
-                <label htmlFor="grade" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  htmlFor="grade"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
                   🎓 Grade Level
                 </label>
                 <select
@@ -144,7 +153,10 @@ export default function SubjectModal({
                   ❌ Cancel
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={isLoading}

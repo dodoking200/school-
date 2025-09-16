@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Class } from "@/types";
-import { cn } from "@/lib/utils";
 
 interface ClassModalProps {
   isOpen: boolean;
@@ -90,7 +89,7 @@ export default function ClassModal({
           exit={{ backdropFilter: "blur(0px)" }}
           className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/30 to-indigo-900/20"
         />
-        
+
         {/* Modal Container */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -103,7 +102,8 @@ export default function ClassModal({
           <div
             className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 rounded-3xl shadow-2xl p-8"
             style={{
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+              background:
+                "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
             }}
           >
             {/* Header */}
@@ -116,11 +116,15 @@ export default function ClassModal({
               <div className="flex items-center gap-4">
                 <div className="w-3 h-8 bg-gradient-primary rounded-full" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">Configure classroom settings</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Configure classroom settings
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -145,7 +149,10 @@ export default function ClassModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label htmlFor="class_name" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  htmlFor="class_name"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
                   🏫 Class Name
                 </label>
                 <input
@@ -168,7 +175,10 @@ export default function ClassModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 }}
                 >
-                  <label htmlFor="floor_number" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="floor_number"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🏢 Floor Number
                   </label>
                   <input
@@ -190,7 +200,10 @@ export default function ClassModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <label htmlFor="level_grade" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="level_grade"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🎓 Grade Level
                   </label>
                   <input
@@ -224,9 +237,12 @@ export default function ClassModal({
                 >
                   ❌ Cancel
                 </motion.button>
-                
+
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   className="px-8 py-3 bg-gradient-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"

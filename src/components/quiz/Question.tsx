@@ -37,7 +37,7 @@ export default function Question({
         className="glass-card !p-6 border-l-4 border-primary"
         style={{ borderLeftColor: "var(--primary)" }}
       >
-        <h3 
+        <h3
           className="text-xl font-bold leading-relaxed"
           style={{ color: "var(--foreground)" }}
         >
@@ -57,25 +57,20 @@ export default function Question({
               transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
               className={`relative overflow-hidden cursor-pointer transition-all duration-300 rounded-xl ${
                 isSelected
-                  ? 'ring-2 ring-primary transform scale-[1.02]'
-                  : 'hover:transform hover:scale-[1.01]'
+                  ? "ring-2 ring-primary transform scale-[1.02]"
+                  : "hover:transform hover:scale-[1.01]"
               }`}
-              style={{
-                ringColor: isSelected ? "var(--primary)" : 'transparent',
-              }}
               onClick={() => onAnswerSelect(question.id, option.id)}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div 
+              <div
                 className={`glass-card !p-4 flex items-center space-x-4 transition-all duration-300 ${
-                  isSelected 
-                    ? 'shadow-xl' 
-                    : 'hover:shadow-lg'
+                  isSelected ? "shadow-xl" : "hover:shadow-lg"
                 }`}
                 style={{
-                  background: isSelected 
-                    ? "var(--primary-light)" 
+                  background: isSelected
+                    ? "var(--primary-light)"
                     : "var(--card-bg)",
                 }}
               >
@@ -92,13 +87,17 @@ export default function Question({
                   />
                   <motion.div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                      isSelected 
-                        ? 'border-primary bg-primary shadow-lg' 
-                        : 'border-gray-300 hover:border-primary'
+                      isSelected
+                        ? "border-primary bg-primary shadow-lg"
+                        : "border-gray-300 hover:border-primary"
                     }`}
                     style={{
-                      borderColor: isSelected ? "var(--primary)" : "var(--foreground-muted)",
-                      backgroundColor: isSelected ? "var(--primary)" : "transparent",
+                      borderColor: isSelected
+                        ? "var(--primary)"
+                        : "var(--foreground-muted)",
+                      backgroundColor: isSelected
+                        ? "var(--primary)"
+                        : "transparent",
                     }}
                     initial={false}
                     animate={{
@@ -119,15 +118,13 @@ export default function Question({
                 </div>
 
                 {/* Option Text */}
-                <label 
-                  htmlFor={`q${question.id}-o${option.id}`} 
+                <label
+                  htmlFor={`q${question.id}-o${option.id}`}
                   className={`flex-1 text-base font-medium cursor-pointer transition-colors duration-300 ${
-                    isSelected ? 'text-primary' : ''
+                    isSelected ? "text-primary" : ""
                   }`}
                   style={{
-                    color: isSelected 
-                      ? "var(--primary)" 
-                      : "var(--foreground)"
+                    color: isSelected ? "var(--primary)" : "var(--foreground)",
                   }}
                 >
                   {option.text}
@@ -141,7 +138,7 @@ export default function Question({
                     transition={{ duration: 0.3 }}
                     className="flex-shrink-0"
                   >
-                    <div 
+                    <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: "var(--primary)" }}
                     ></div>

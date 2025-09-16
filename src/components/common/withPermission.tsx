@@ -1,8 +1,8 @@
 // components/common/withPermission.tsx
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/useAuth';
-import { Permission } from '@/types';
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/useAuth";
+import { Permission } from "@/types";
 
 interface WithPermissionOptions {
   /** Single permission required to access the page */
@@ -22,14 +22,14 @@ interface WithPermissionOptions {
 /**
  * Higher-order component that protects pages with permission requirements.
  * Automatically redirects unauthorized users to a specified route.
- * 
+ *
  * @example
  * // Protect a page that requires student management permissions
  * export default withPermission(StudentsPage, {
  *   permission: USER_PERMISSIONS.MANAGE_STUDENTS,
  *   redirectTo: '/dashboard'
  * });
- * 
+ *
  * @example
  * // Protect a page that requires any exam-related permission
  * export default withPermission(ExamsPage, {
@@ -39,7 +39,7 @@ interface WithPermissionOptions {
  *     USER_PERMISSIONS.VIEW_EXAM_RESULTS
  *   ]
  * });
- * 
+ *
  * @example
  * // Protect a page that requires multiple permissions
  * export default withPermission(AdminPanel, {
@@ -58,19 +58,19 @@ export function withPermission<P extends object>(
     permission,
     anyPermissions,
     allPermissions,
-    redirectTo = '/dashboard',
+    redirectTo = "/dashboard",
     unauthorizedComponent: UnauthorizedComponent,
     showLoading = true,
   } = options;
 
   const PermissionProtectedComponent: React.FC<P> = (props) => {
     const router = useRouter();
-    const { 
-      hasPermission, 
-      hasAnyPermission, 
-      hasAllPermissions, 
+    const {
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
       getToken,
-      getCurrentUser 
+      getCurrentUser,
     } = useAuth();
     const [isChecking, setIsChecking] = React.useState(true);
     const [hasAccess, setHasAccess] = React.useState(false);
@@ -80,9 +80,9 @@ export function withPermission<P extends object>(
         // Check if user is authenticated
         const token = getToken();
         const user = getCurrentUser();
-        
+
         if (!token || !user) {
-          router.push('/');
+          router.push("/");
           return;
         }
 
@@ -148,7 +148,9 @@ export function withPermission<P extends object>(
   };
 
   // Set display name for debugging
-  PermissionProtectedComponent.displayName = `withPermission(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+  PermissionProtectedComponent.displayName = `withPermission(${
+    WrappedComponent.displayName || WrappedComponent.name || "Component"
+  })`;
 
   return PermissionProtectedComponent;
 }
@@ -179,7 +181,7 @@ export const DefaultUnauthorizedPage: React.FC = () => {
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
         <p className="text-gray-600 mb-6">
-          You don't have the necessary permissions to access this page.
+          You don&apos;t have the necessary permissions to access this page.
         </p>
         <button
           onClick={() => router.back()}
@@ -188,7 +190,7 @@ export const DefaultUnauthorizedPage: React.FC = () => {
           Go Back
         </button>
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={() => router.push("/dashboard")}
           className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
         >
           Dashboard

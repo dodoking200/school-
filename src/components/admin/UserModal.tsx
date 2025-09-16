@@ -2,7 +2,6 @@ import { Role } from "@/types";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { cn } from "@/lib/utils";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -79,33 +78,33 @@ export default function UserModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Client-side validation
     if (!formData.name || formData.name.length < 3) {
       alert("Name must be at least 3 characters long");
       return;
     }
-    
+
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
       alert("Please enter a valid email address");
       return;
     }
-    
+
     if (!formData.phone || formData.phone.length < 10) {
       alert("Phone number must be at least 10 characters long");
       return;
     }
-    
+
     if (!formData.birthdate) {
       alert("Please select a birth date");
       return;
     }
-    
+
     if (!formData.role_id || formData.role_id === 0) {
       alert("Please select a valid role");
       return;
     }
-    
+
     onSubmit({
       ...(user ? { id: user.id } : {}),
       ...formData,
@@ -130,7 +129,7 @@ export default function UserModal({
           exit={{ backdropFilter: "blur(0px)" }}
           className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/30 to-indigo-900/20"
         />
-        
+
         {/* Modal Container */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -143,7 +142,8 @@ export default function UserModal({
           <div
             className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 rounded-3xl shadow-2xl p-8"
             style={{
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+              background:
+                "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
             }}
           >
             {/* Header */}
@@ -156,11 +156,15 @@ export default function UserModal({
               <div className="flex items-center gap-4">
                 <div className="w-3 h-8 bg-gradient-primary rounded-full" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">Manage user account information</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Manage user account information
+                  </p>
                 </div>
               </div>
-              
+
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
@@ -187,7 +191,10 @@ export default function UserModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     👤 Full Name
                   </label>
                   <input
@@ -208,7 +215,10 @@ export default function UserModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.35 }}
                 >
-                  <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     📧 Email Address
                   </label>
                   <input
@@ -229,7 +239,10 @@ export default function UserModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <label htmlFor="role_id" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="role_id"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     🗺️ User Role
                   </label>
                   <select
@@ -259,7 +272,10 @@ export default function UserModal({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.45 }}
                 >
-                  <label htmlFor="phone" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
                     📱 Phone Number
                   </label>
                   <input
@@ -281,7 +297,10 @@ export default function UserModal({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <label htmlFor="birthdate" className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  htmlFor="birthdate"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
                   🎂 Birth Date
                 </label>
                 <input
@@ -311,9 +330,12 @@ export default function UserModal({
                 >
                   ❌ Cancel
                 </motion.button>
-                
+
                 <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   className="px-8 py-3 bg-gradient-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"

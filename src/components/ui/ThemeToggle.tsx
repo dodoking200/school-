@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
 
   return (
     <motion.button
@@ -17,27 +17,27 @@ export default function ThemeToggle() {
       <motion.div
         className="absolute inset-0 rounded-full"
         animate={{
-          background: isDark 
-            ? "linear-gradient(45deg, #1e293b, #334155)" 
-            : "linear-gradient(45deg, #e2e8f0, #cbd5e1)"
+          background: isDark
+            ? "linear-gradient(45deg, #1e293b, #334155)"
+            : "linear-gradient(45deg, #e2e8f0, #cbd5e1)",
         }}
         transition={{ duration: 0.3 }}
       />
-      
+
       {/* Thumb */}
       <motion.div
         className="relative w-6 h-6 rounded-full shadow-lg flex items-center justify-center z-10"
         animate={{
           x: isDark ? 32 : 0,
-          background: isDark 
+          background: isDark
             ? "linear-gradient(45deg, #4338ca, #6366f1)"
-            : "linear-gradient(45deg, #f59e0b, #f97316)"
+            : "linear-gradient(45deg, #f59e0b, #f97316)",
         }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 500, 
+        transition={{
+          type: "spring",
+          stiffness: 500,
           damping: 30,
-          duration: 0.3
+          duration: 0.3,
         }}
       >
         {/* Icon */}
@@ -54,9 +54,9 @@ export default function ThemeToggle() {
               />
             </svg>
           ) : (
-            // Sun Icon  
+            // Sun Icon
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="5" fill="white"/>
+              <circle cx="12" cy="12" r="5" fill="white" />
               <path
                 d="m12 1 0 2m0 18 0 2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12l2 0m18 0 2 0M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
                 stroke="white"
@@ -67,14 +67,14 @@ export default function ThemeToggle() {
           )}
         </motion.div>
       </motion.div>
-      
+
       {/* Background Decoration */}
       <motion.div
         className="absolute inset-1 rounded-full opacity-20"
         animate={{
           background: isDark
             ? "radial-gradient(circle, #8b5cf6, transparent)"
-            : "radial-gradient(circle, #f59e0b, transparent)"
+            : "radial-gradient(circle, #f59e0b, transparent)",
         }}
         transition={{ duration: 0.3 }}
       />

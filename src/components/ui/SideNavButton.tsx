@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import {
   HomeColorIcon,
   StudentsColorIcon,
@@ -15,8 +15,7 @@ import {
 } from "@/components/icons/ColorfulIcons";
 import { cn } from "@/lib/utils";
 
-interface SideNavButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SideNavButtonProps extends HTMLMotionProps<"button"> {
   icon: string;
   children: React.ReactNode;
   active?: boolean;
@@ -79,9 +78,9 @@ export function SideNavButton({
   children,
   active = false,
   onClick,
-  className,
   ...props
-}: SideNavButtonProps) {
+}: Omit<SideNavButtonProps, "className"> & { className?: string }) {
+  const { className } = props as { className?: string };
   const iconConfig = iconMap[icon as keyof typeof iconMap] || iconMap.home;
   const IconComponent = iconConfig.icon;
 
