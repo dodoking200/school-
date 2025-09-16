@@ -57,7 +57,6 @@ export default function TeacherAttendance() {
         student_id: student.id,
         student_name: student.student_name,
         status: "present" as AttendanceStatus,
-        notes: "",
       }));
       setAttendance(initialAttendance);
     } catch (err) {
@@ -102,13 +101,7 @@ export default function TeacherAttendance() {
     );
   };
 
-  const handleNotesChange = (studentId: number, notes: string) => {
-    setAttendance((prev) =>
-      prev.map((student) =>
-        student.student_id === studentId ? { ...student, notes } : student
-      )
-    );
-  };
+
 
   const handleBulkAction = (status: AttendanceStatus) => {
     setAttendance((prev) =>
@@ -154,15 +147,30 @@ export default function TeacherAttendance() {
   const getStatusColor = (status: AttendanceStatus) => {
     switch (status) {
       case "present":
-        return "bg-green-100 text-green-800";
+        return "text-white font-semibold";
       case "absent":
-        return "bg-red-100 text-red-800";
+        return "text-white font-semibold";
       case "late":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-white font-semibold";
       case "excused":
-        return "bg-blue-100 text-blue-800";
+        return "text-white font-semibold";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-white font-semibold";
+    }
+  };
+
+  const getStatusStyle = (status: AttendanceStatus) => {
+    switch (status) {
+      case "present":
+        return { backgroundColor: "var(--success)" };
+      case "absent":
+        return { backgroundColor: "var(--danger)" };
+      case "late":
+        return { backgroundColor: "var(--warning)" };
+      case "excused":
+        return { backgroundColor: "var(--primary)" };
+      default:
+        return { backgroundColor: "var(--foreground-muted)" };
     }
   };
 
@@ -177,19 +185,19 @@ export default function TeacherAttendance() {
   return (
     <div className="space-y-6">
       {/* Header and Controls */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+      <div className="glass-card">
+        <h2 className="text-2xl font-semibold mb-4" style={{ color: "var(--foreground)" }}>
           Take Attendance
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Class Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
               Select Class
             </label>
             <select
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="modern-input w-full px-3 py-2"
               value={selectedClass?.id.toString() || ""}
               onChange={(e) => handleClassChange(e.target.value)}
             >
@@ -204,12 +212,12 @@ export default function TeacherAttendance() {
 
           {/* Date Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: "var(--foreground-muted)" }}>
               Date
             </label>
             <input
               type="date"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="modern-input w-full px-3 py-2"
               value={selectedDate}
               onChange={(e) => handleDateChange(e.target.value)}
             />
@@ -220,7 +228,7 @@ export default function TeacherAttendance() {
             <button
               onClick={handleSaveAttendance}
               disabled={!selectedClass || loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="btn-primary w-full px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading
                 ? "Saving..."
@@ -234,24 +242,27 @@ export default function TeacherAttendance() {
         {/* Bulk Actions */}
         {selectedClass && (
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="text-sm font-medium text-gray-700 mr-2">
+            <span className="text-sm font-medium mr-2" style={{ color: "var(--foreground-muted)" }}>
               Quick Actions:
             </span>
             <button
               onClick={() => handleBulkAction("present")}
-              className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm hover:bg-green-200 transition-colors"
+              className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--success-light)", color: "var(--success)" }}
             >
               Mark All Present
             </button>
             <button
               onClick={() => handleBulkAction("absent")}
-              className="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm hover:bg-red-200 transition-colors"
+              className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--danger-light)", color: "var(--danger)" }}
             >
               Mark All Absent
             </button>
             <button
               onClick={() => handleBulkAction("late")}
-              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm hover:bg-yellow-200 transition-colors"
+              className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--warning-light)", color: "var(--warning)" }}
             >
               Mark All Late
             </button>
@@ -260,8 +271,8 @@ export default function TeacherAttendance() {
 
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="text-sm text-red-700">{error}</div>
+          <div className="glass-card" style={{ backgroundColor: "var(--danger-light)" }}>
+            <div className="text-sm" style={{ color: "var(--danger)" }}>{error}</div>
           </div>
         )}
       </div>
@@ -274,18 +285,16 @@ export default function TeacherAttendance() {
           ).toLocaleDateString()}`}
           responsive={true}
           emptyMessage="No students found in this class"
-          tableWrapperClassName="bg-white shadow-lg"
+          tableWrapperClassName="glass-card"
           tableHeader={
             <>
-              <th className="px-6 py-4 text-left text-sm font-medium text-black uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
                 Student Name
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium text-black uppercase tracking-wider">
+              <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
                 Status
               </th>
-              <th className="px-6 py-4 text-center text-sm font-medium text-black uppercase tracking-wider">
-                Notes
-              </th>
+
             </>
           }
           tableContent={
@@ -293,9 +302,9 @@ export default function TeacherAttendance() {
               {attendance.map((student, index) => (
                 <tr
                   key={index}
-                  className="hover:bg-gray-50 transition duration-150 ease-in-out"
+                  className="theme-table-row"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
                     {student.student_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -309,7 +318,11 @@ export default function TeacherAttendance() {
                       }
                       className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
                         student.status
-                      )} border-0 focus:ring-2 focus:ring-blue-500`}
+                      )} border-0`}
+                      style={{
+                        ...getStatusStyle(student.status),
+                        color: "white"
+                      }}
                     >
                       <option value="present">Present</option>
                       <option value="absent">Absent</option>
@@ -317,17 +330,7 @@ export default function TeacherAttendance() {
                       <option value="excused">Excused</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="text"
-                      placeholder="Add notes..."
-                      value={student.notes || ""}
-                      onChange={(e) =>
-                        handleNotesChange(student.student_id, e.target.value)
-                      }
-                      className="w-full px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </td>
+
                 </tr>
               ))}
             </>
@@ -337,44 +340,44 @@ export default function TeacherAttendance() {
 
       {/* Attendance Summary */}
       {selectedClass && attendance.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="glass-card">
+          <h3 className="text-lg font-semibold mb-4" style={{ color: "var(--foreground)" }}>
             Attendance Summary
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
                 {attendance.length}
               </div>
-              <div className="text-sm text-gray-600">Total Students</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Students</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--success)" }}>
                 {attendance.filter((s) => s.status === "present").length}
               </div>
-              <div className="text-sm text-gray-600">Present</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Present</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--danger)" }}>
                 {attendance.filter((s) => s.status === "absent").length}
               </div>
-              <div className="text-sm text-gray-600">Absent</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Absent</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--warning)" }}>
                 {attendance.filter((s) => s.status === "late").length}
               </div>
-              <div className="text-sm text-gray-600">Late</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Late</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
                 {attendance.filter((s) => s.status === "excused").length}
               </div>
-              <div className="text-sm text-gray-600">Excused</div>
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Excused</div>
             </div>
           </div>
           <div className="mt-4 text-center">
-            <div className="text-3xl font-bold text-blue-600">
+            <div className="text-3xl font-bold" style={{ color: "var(--primary)" }}>
               {Math.round(
                 (attendance.filter((s) => s.status === "present").length /
                   attendance.length) *
@@ -382,7 +385,7 @@ export default function TeacherAttendance() {
               )}
               %
             </div>
-            <div className="text-sm text-gray-600">Attendance Rate</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Attendance Rate</div>
           </div>
         </div>
       )}

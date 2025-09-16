@@ -74,6 +74,16 @@ export type AcademicYearCreatePayload = {
   full_tuition: number;
 };
 
+export type Semester = {
+  id: number;
+  start_date: string;
+  end_date: string;
+  academic_year_id: number;
+  semester_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Class = {
   id: number;
   class_name: string;
@@ -83,7 +93,7 @@ export type Class = {
 
 export type Student = {
   id: number;
-  name: string;
+  student_name: string; // Changed from 'name' to 'student_name' to match API response
   email: string;
   phone: string;
   birth_date: string;
@@ -200,6 +210,20 @@ export type StudentAttendance = {
   notes?: string;
 };
 
+export type UserAttendance = {
+  user_id: number;
+  user_name: string;
+  status: AttendanceStatus;
+  notes?: string;
+};
+
+export type TeacherAttendance = {
+  teacher_id: number;
+  teacher_name: string;
+  status: AttendanceStatus;
+  notes?: string;
+};
+
 export type ClassAttendance = {
   id?: number;
   class_id: number;
@@ -267,3 +291,107 @@ export type StudentCreatePayload = {
 };
 
 export type StudentUpdatePayload = Partial<StudentCreatePayload>;
+
+// Behavior Types
+export type BehaviorType =
+  | "Exam Issues"
+  | "Attendance Problems"
+  | "Academic Integrity"
+  | "Behavior Concerns"
+  | "Social Skills"
+  | "Work Habits"
+  | "Practical Skills"
+  | "Good Behavior";
+
+export type Behavior = {
+  id: number;
+  student_id: number;
+  description: string;
+  date: string;
+  type: BehaviorType;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type BehaviorCreatePayload = {
+  student_id: number;
+  description: string;
+  type: BehaviorType;
+};
+
+// Exam Types
+export type ExamQuestion = {
+  question_id: number;
+  mark: number;
+};
+
+export type ExamCreatePayload = {
+  title: string;
+  description: string;
+  semester_id: number;
+  subject_id: number;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  exam_type: string;
+  questions: ExamQuestion[];
+};
+
+// New types for upcoming quizzes and exams
+export type UpcomingQuiz = {
+  id: number;
+  uuid: string;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  subject_name: string;
+  subject_resources: string;
+  curriculum_id: number;
+};
+
+export type UpcomingExam = {
+  id: number;
+  uuid: string;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  announced: boolean;
+  subject_name: string;
+  subject_resources: string;
+  curriculum_id: number;
+};
+
+// Exam type for the /exams/exams API response
+export type Exam = {
+  id: number;
+  subject_id: number;
+  semester_id: number;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  passing_mark: number;
+  start_datetime: string;
+  end_datetime: string;
+  created_at: string;
+  updated_at: string;
+  announced: boolean;
+  exam_type: string;
+  uuid: string;
+};

@@ -3,6 +3,7 @@ import Table from "../ui/Table";
 import SubjectModal from "./SubjectModal";
 import { Subject } from "@/types";
 import { subjectService } from "@/lib/services/subjectService";
+import { AddColorIcon, EditColorIcon, DeleteColorIcon } from "@/components/icons/ColorfulIcons";
 
 export default function SubjectsInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -108,9 +109,10 @@ export default function SubjectsInfo() {
         actions={
           <button
             onClick={handleAddSubject}
-            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-md"
+            className="btn-primary flex items-center gap-2"
           >
-            Add Subject
+            <AddColorIcon size={18} />
+            <span>Add Subject</span>
           </button>
         }
         filter={null}
@@ -169,18 +171,22 @@ export default function SubjectsInfo() {
                     {subject.grade || "No grade"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      className="text-indigo-600 hover:text-indigo-900"
-                      onClick={() => handleEditSubject(subject)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-900 ml-4"
-                      onClick={() => handleDeleteSubject(subject.id)}
-                    >
-                      Remove
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleEditSubject(subject)}
+                      >
+                        <EditColorIcon size={16} />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
+                        onClick={() => handleDeleteSubject(subject.id)}
+                      >
+                        <DeleteColorIcon size={16} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

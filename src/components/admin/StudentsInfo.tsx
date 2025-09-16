@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Table from "../ui/Table";
 import StudentModal from "./StudentModal";
+import ExcelUploadModal from "./ExcelUploadModal";
 import { studentService } from "@/lib/services/studentService";
 import { classService } from "@/lib/services/classService";
 import {
@@ -10,6 +11,12 @@ import {
   StudentUpdatePayload,
   Class,
 } from "@/types";
+import {
+  SearchColorIcon,
+  AddColorIcon,
+  EditColorIcon,
+  UploadColorIcon,
+} from "@/components/icons/ColorfulIcons";
 
 // Interface for the modal (keeping compatibility)
 interface StudentForModal {
@@ -26,6 +33,7 @@ interface StudentForModal {
 
 export default function StudentInfo() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isExcelModalOpen, setIsExcelModalOpen] = useState<boolean>(false);
   const [selectedStudent, setSelectedStudent] =
     useState<StudentForModal | null>(null);
   const [students, setStudents] = useState<StudentFromAPI[]>([]);
@@ -47,28 +55,50 @@ export default function StudentInfo() {
   const fetchStudents = async (page: number = 1) => {
     setLoading(true);
     try {
-      const paginationData: PaginationRequest = {
-        table: "students",
-        page: page,
-        pageSize: studentsPerPage,
-        orderBy: "name",
-        orderDirection: "asc",
-        filters: {
-          grade_level: selectedGrade ? parseInt(selectedGrade) : undefined,
-          class_id: selectedClass ? parseInt(selectedClass) : undefined,
-        },
-      };
+      // Use advanced search if there are search terms or filters
+      if (searchTerm || selectedGrade || selectedClass) {
+        const searchParams = {
+          name: searchTerm || "",
+          page: page,
+          pageSize: studentsPerPage,
+          sortBy: "name",
+          sortOrder: "asc" as const,
+        };
 
-      const response = await studentService.getStudentsPaginated(
-        paginationData
-      );
+        const response = await studentService.searchStudentsAdvanced(
+          searchParams
+        );
 
-      setStudents(response.data);
-      setTotalPages(response.totalPages);
-      setTotalStudents(parseInt(response.total));
-      setHasNextPage(response.hasNextPage);
-      setHasPreviousPage(response.hasPreviousPage);
-      setCurrentPage(response.page);
+        setStudents(response.students);
+        setTotalPages(response.pagination.totalPages);
+        setTotalStudents(response.pagination.total);
+        setHasNextPage(
+          response.pagination.page < response.pagination.totalPages
+        );
+        setHasPreviousPage(response.pagination.page > 1);
+        setCurrentPage(response.pagination.page);
+      } else {
+        // Use regular pagination if no search terms
+        const paginationData: PaginationRequest = {
+          table: "students",
+          page: page,
+          pageSize: studentsPerPage,
+          orderBy: "name",
+          orderDirection: "asc",
+          filters: {},
+        };
+
+        const response = await studentService.getStudentsPaginated(
+          paginationData
+        );
+
+        setStudents(response.data);
+        setTotalPages(response.totalPages);
+        setTotalStudents(parseInt(response.total));
+        setHasNextPage(response.hasNextPage);
+        setHasPreviousPage(response.hasPreviousPage);
+        setCurrentPage(response.page);
+      }
     } catch (error) {
       console.error("Failed to fetch students:", error);
       // Fallback to empty state
@@ -103,7 +133,7 @@ export default function StudentInfo() {
   useEffect(() => {
     setCurrentPage(1);
     fetchStudents(1);
-  }, [selectedGrade, selectedClass]);
+  }, [selectedGrade, selectedClass, searchTerm]);
 
   // Get unique grades for filter options
   const uniqueGrades = [
@@ -127,6 +157,20 @@ export default function StudentInfo() {
   const handlePageChange = (pageNumber: number) => {
     fetchStudents(pageNumber);
   };
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (searchValue: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setSearchTerm(searchValue);
+        }, 300);
+      };
+    })(),
+    []
+  );
 
   // Handle opening the modal for adding a new student
   const handleAddStudent = () => {
@@ -153,6 +197,19 @@ export default function StudentInfo() {
     };
     setSelectedStudent(modalStudent);
     setIsModalOpen(true);
+  };
+
+  // Handle Excel file upload
+  const handleExcelUpload = async (file: File) => {
+    try {
+      const result = await studentService.bulkUploadStudents(file);
+      console.log("Bulk upload result:", result);
+      // Refresh the students list after successful upload
+      fetchStudents(currentPage);
+    } catch (error) {
+      console.error("Failed to upload Excel file:", error);
+      throw error; // Re-throw to let the modal handle the error display
+    }
   };
 
   // Handle submitting the student form
@@ -280,13 +337,6 @@ export default function StudentInfo() {
     }
   };
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    if (selectedGrade || searchTerm) {
-      fetchStudents(1);
-    }
-  }, [selectedGrade, searchTerm]);
-
   // Calculate pagination info for filtered results
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
@@ -302,6 +352,13 @@ export default function StudentInfo() {
         classes={classes} // Pass all available classes to the modal
       />
 
+      <ExcelUploadModal
+        isOpen={isExcelModalOpen}
+        onClose={() => setIsExcelModalOpen(false)}
+        onUpload={handleExcelUpload}
+        title="Upload Students from Excel"
+      />
+
       {/* Error Message */}
       {errorMessage && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -312,30 +369,33 @@ export default function StudentInfo() {
         title="Student Info"
         actions={
           <div className="flex items-center space-x-4">
-            {/* Search Bar */}
+            {/* Modern Search Bar */}
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Search students by name, email, or phone..."
+                defaultValue={searchTerm}
+                onChange={(e) => debouncedSearch(e.target.value)}
+                className="modern-input w-64 pl-12 pr-4 text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400"
               />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <SearchColorIcon size={18} />
               </div>
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    const input = document.querySelector(
+                      'input[placeholder*="Search students"]'
+                    ) as HTMLInputElement;
+                    if (input) input.value = "";
+                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             {/* Clear Filters Button */}
@@ -353,17 +413,36 @@ export default function StudentInfo() {
               </button>
             )}
 
-            {/* Add Student Button */}
+            {/* Excel Upload Button */}
+            <button
+              onClick={() => setIsExcelModalOpen(true)}
+              className="btn-secondary flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+            >
+              <UploadColorIcon size={18} />
+              <span>Upload Excel</span>
+            </button>
+
+            {/* Modern Add Student Button */}
             <button
               onClick={handleAddStudent}
               disabled={classesLoading || classes.length === 0}
-              className={`px-4 py-2 rounded-md ${
+              className={`btn-primary flex items-center gap-2 ${
                 classesLoading || classes.length === 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
-              } text-white`}
+                  ? "opacity-50 cursor-not-allowed transform-none"
+                  : ""
+              }`}
             >
-              {classesLoading ? "Loading..." : "Add Student"}
+              {classesLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="loading-spinner w-4 h-4" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <AddColorIcon size={18} />
+                  <span>Add Student</span>
+                </>
+              )}
             </button>
           </div>
         }
@@ -372,12 +451,12 @@ export default function StudentInfo() {
             <select
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="modern-input !w-auto min-w-32"
             >
-              <option value="">All Grades</option>
+              <option value="">🎓 All Grades</option>
               {uniqueGrades.map((grade) => (
                 <option key={grade} value={grade}>
-                  {grade}
+                  Grade {grade}
                 </option>
               ))}
             </select>
@@ -385,9 +464,9 @@ export default function StudentInfo() {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-600 py-1 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="modern-input !w-auto min-w-32"
             >
-              <option value="">All Classes</option>
+              <option value="">🏫 All Classes</option>
               {classes.map((cls) => (
                 <option key={cls.id} value={cls.id}>
                   {cls.class_name}
@@ -400,45 +479,45 @@ export default function StudentInfo() {
           <>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Name
+              👤 Name
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Email
+              📧 Email
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Grade Level
+              🎓 Grade Level
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Class Name
+              🏫 Class Name
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Phone
+              📱 Phone
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Birth Date
+              🎂 Birth Date
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-4 text-left text-sm font-bold text-white tracking-wide"
             >
-              Actions
+              ⚡ Actions
             </th>
           </>
         }
@@ -466,32 +545,35 @@ export default function StudentInfo() {
               filteredStudents.map((student) => (
                 <tr
                   key={student.id}
-                  className=" text-left hover:bg-gray-50 transition duration-150"
+                  className="text-left hover:bg-primary-50/50 hover:scale-[1.01] transition-all duration-200 group"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900 group-hover:text-primary-600">
                     {student.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {student.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {student.grade_level}
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <span className="inline-flex px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                      Grade {student.grade_level}
+                    </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {student.class_name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {student.phone}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-600">
                     {student.birth_date}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm">
                     <button
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-sm flex items-center gap-2"
                       onClick={() => handleEditStudent(student)}
                     >
-                      Edit
+                      <EditColorIcon size={16} />
+                      <span>Edit</span>
                     </button>
                   </td>
                 </tr>
@@ -509,40 +591,50 @@ export default function StudentInfo() {
             {Math.min(indexOfLastStudent, filteredStudents.length)} of{" "}
             {totalStudents} results
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
+            {/* First Page Button */}
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to first page"
+            >
+              First
+            </button>
+
             {/* Previous Page Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={!hasPreviousPage}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to previous page"
             >
               Previous
             </button>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 border text-sm font-medium rounded-md ${
-                    currentPage === pageNumber
-                      ? "bg-indigo-600 text-white border-indigo-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              )
-            )}
+            {/* Current Page Display */}
+            <div className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
 
             {/* Next Page Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={!hasNextPage}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to next page"
             >
               Next
+            </button>
+
+            {/* Last Page Button */}
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Go to last page"
+            >
+              Last
             </button>
           </div>
         </div>

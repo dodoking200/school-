@@ -1,13 +1,17 @@
 import { apiClient } from "../apiClient";
 import { API_ENDPOINTS } from "../constants";
 
-export interface StudentScheduleData {
-  day_id: number;
-  day_name: string;
+export interface Subject {
   period_id: number;
   start_time: string;
   end_time: string;
   subject_name: string;
+}
+
+export interface StudentScheduleData {
+  day_id: number;
+  day_name: string;
+  subjects: Subject[];
 }
 
 export const studentScheduleService = {

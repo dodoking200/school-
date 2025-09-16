@@ -35,16 +35,16 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <Header />
       {/* Main container for content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         {/* About Academy Heights Section */}
         <section className="min-h-3/12 mb-12 md:mb-20 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-200 mb-4">
             About Academy Heights
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto md:mx-0">
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto md:mx-0">
             Discover our rich history, unwavering mission, core values, and the
             dedicated individuals who shape our community.
           </p>
@@ -52,10 +52,10 @@ export default function AboutPage() {
 
         {/* Our History Section */}
         <section className="min-h-3/12 mb-12 md:mb-20">
-          <h2 className="text-3xl font-semibold text-gray-700 mb-6 text-center md:text-left">
+          <h2 className="text-3xl font-semibold text-gray-700 dark:text-gray-300 mb-6 text-center md:text-left">
             Our History
           </h2>
-          <p className="text-gray-600 leading-relaxed mb-8 text-center md:text-left">
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8 text-center md:text-left">
             Academy Heights was founded in 1985 by Dr. Eleanor Vance with a
             vision to create a nurturing and challenging educational
             environment. Starting as a small institution with just 50 students,
@@ -65,7 +65,7 @@ export default function AboutPage() {
             community.
           </p>
           {/* Images for Our History */}
-          <div className="grid bg-white md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid bg-white dark:bg-gray-800 md:grid-cols-2 gap-6 md:gap-8 p-6 rounded-lg">
             <div className="relative h-80 md:h-80 w-full rounded-lg overflow-hidden shadow-lg">
               {/* Replace with actual image path */}
               <Image
@@ -89,10 +89,10 @@ export default function AboutPage() {
 
         {/* Mission Statement Section */}
         <section className="min-h-3/12 mb-12 md:mb-20">
-          <h2 className="text-3xl font-semibold text-gray-700 mb-6 text-center md:text-left">
+          <h2 className="text-3xl font-semibold text-gray-700 dark:text-gray-300 mb-6 text-center md:text-left">
             Mission Statement
           </h2>
-          <p className="text-gray-600 leading-relaxed text-center md:text-left">
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-center md:text-left">
             Our mission is to inspire and empower students to achieve their full
             potential, fostering intellectual curiosity, creativity, and a
             lifelong love of learning. We are dedicated to cultivating
@@ -103,22 +103,22 @@ export default function AboutPage() {
 
         {/* Core Values Section */}
         <section className="min-h-3/12">
-          <h2 className="text-3xl font-semibold text-gray-700 mb-8 text-center md:text-left">
+          <h2 className="text-3xl font-semibold text-gray-700 dark:text-gray-300 mb-8 text-center md:text-left">
             Core Values
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {coreValues.map((value) => (
               <div
                 key={value.title}
-                className="bg-white p-6 rounded-4xl shadow-md text-center hover:shadow-xl transition-shadow duration-300"
+                className="bg-white dark:bg-gray-800 p-6 rounded-4xl shadow-md text-center hover:shadow-xl transition-shadow duration-300"
               >
                 <div className="flex justify-center items-center mb-4">
                   {value.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
                   {value.title}
                 </h3>
-                <p className="text-gray-600 text-sm">{value.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">{value.description}</p>
               </div>
             ))}
           </div>

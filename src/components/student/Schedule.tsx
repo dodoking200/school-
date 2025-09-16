@@ -3,19 +3,13 @@ import Table from "../ui/Table";
 import {
   studentScheduleService,
   StudentScheduleData,
+  Subject,
 } from "../../lib/services/studentScheduleService";
 import { toast } from "react-toastify";
 
-interface OrganizedScheduleData {
-  [dayName: string]: {
-    [timeSlot: string]: StudentScheduleData;
-  };
-}
-
 export default function Schedule() {
-  const [scheduleData, setScheduleData] = useState<OrganizedScheduleData>({});
+  const [scheduleData, setScheduleData] = useState<StudentScheduleData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState<string[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
 
   // Fetch schedule data from student schedule endpoint
@@ -24,33 +18,25 @@ export default function Schedule() {
       setLoading(true);
       const data = await studentScheduleService.getStudentSchedule();
 
-      // Organize data by day and time slot
-      const organizedData: OrganizedScheduleData = {};
-      const uniqueDays = new Set<string>();
+      // Extract all unique time slots across all days
       const uniqueTimeSlots = new Set<string>();
-
-      data.forEach((item: StudentScheduleData) => {
-        const dayName = item.day_name;
-        const timeSlot = `${item.start_time} - ${item.end_time}`;
-
-        uniqueDays.add(dayName);
-        uniqueTimeSlots.add(timeSlot);
-
-        if (!organizedData[dayName]) {
-          organizedData[dayName] = {};
-        }
-        organizedData[dayName][timeSlot] = item;
+      
+      data.forEach((day) => {
+        day.subjects.forEach((subject) => {
+          const timeSlot = `${subject.start_time} - ${subject.end_time}`;
+          uniqueTimeSlots.add(timeSlot);
+        });
       });
 
-      setDays(Array.from(uniqueDays).sort());
-      setTimeSlots(
-        Array.from(uniqueTimeSlots).sort((a, b) => {
-          const timeA = a.split(" - ")[0];
-          const timeB = b.split(" - ")[0];
-          return timeA.localeCompare(timeB);
-        })
-      );
-      setScheduleData(organizedData);
+      // Sort time slots by start time
+      const sortedTimeSlots = Array.from(uniqueTimeSlots).sort((a, b) => {
+        const timeA = a.split(" - ")[0];
+        const timeB = b.split(" - ")[0];
+        return timeA.localeCompare(timeB);
+      });
+
+      setTimeSlots(sortedTimeSlots);
+      setScheduleData(data);
     } catch (err: unknown) {
       console.error("Failed to fetch schedule data:", err);
       const errorMessage =
@@ -64,6 +50,17 @@ export default function Schedule() {
   useEffect(() => {
     fetchScheduleData();
   }, [fetchScheduleData]);
+
+  // Helper function to find subject for a specific day and time slot
+  const getSubjectForTimeSlot = (dayName: string, timeSlot: string): Subject | undefined => {
+    const day = scheduleData.find((d) => d.day_name.toLowerCase() === dayName.toLowerCase());
+    if (!day) return undefined;
+    
+    return day.subjects.find((subject) => {
+      const subjectTimeSlot = `${subject.start_time} - ${subject.end_time}`;
+      return subjectTimeSlot === timeSlot;
+    });
+  };
 
   if (loading) {
     return (
@@ -86,7 +83,7 @@ export default function Schedule() {
         </button>
       </div>
 
-      {days.length === 0 ? (
+      {scheduleData.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           No schedule data available.
         </div>
@@ -97,7 +94,7 @@ export default function Schedule() {
             <>
               <th
                 scope="col"
-                className="px-6 py-4  text-center text-sm  text-black font-bold uppercase tracking-wider"
+                className="px-6 py-4 text-center text-sm text-black font-bold uppercase tracking-wider"
               >
                 Day
               </th>
@@ -105,7 +102,7 @@ export default function Schedule() {
                 <th
                   key={timeSlot}
                   scope="col"
-                  className="px-6 py-4  text-center text-sm font-medium text-black uppercase tracking-wider"
+                  className="px-6 py-4 text-center text-sm font-medium text-black uppercase tracking-wider"
                 >
                   {timeSlot}
                 </th>
@@ -114,25 +111,25 @@ export default function Schedule() {
           }
           tableContent={
             <>
-              {days.map((day) => (
+              {scheduleData.map((dayData) => (
                 <tr
-                  key={day}
+                  key={dayData.day_id}
                   className="hover:bg-gray-50 transition duration-150 ease-in-out"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap  font-medium text-gray-900">
-                    {day}
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900 capitalize">
+                    {dayData.day_name}
                   </td>
                   {timeSlots.map((timeSlot) => {
-                    const scheduleItem = scheduleData[day]?.[timeSlot];
+                    const subject = getSubjectForTimeSlot(dayData.day_name, timeSlot);
                     return (
                       <td
                         key={timeSlot}
-                        className="px-6 py-4 whitespace-nowrap  text-gray-500"
+                        className="px-6 py-4 whitespace-nowrap text-gray-500"
                       >
-                        {scheduleItem ? (
+                        {subject ? (
                           <div className="text-center">
                             <p className="font-medium text-blue-600">
-                              {scheduleItem.subject_name}
+                              {subject.subject_name || 'N/A'}
                             </p>
                           </div>
                         ) : (

@@ -128,9 +128,9 @@ export const studentService = {
     }
   },
 
-  async getStudentsByTeacher(): Promise<Student[]> {
+  async getStudentsByTeacher(): Promise<(Student & { total_marks: number })[]> {
     try {
-      const response = await apiClient<Student[]>(
+      const response = await apiClient<(Student & { total_marks: number })[]>(
         API_ENDPOINTS.TEACHER.GET_STUDENTS,
         {
           method: "GET",
@@ -155,6 +155,69 @@ export const studentService = {
     } catch (error) {
       console.error("Failed to fetch student marks:", error);
       throw new Error("Failed to fetch student marks");
+    }
+  },
+
+  async searchStudentsAdvanced(params: {
+    name?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }): Promise<{
+    students: StudentFromAPI[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+    filters: Record<string, unknown>;
+  }> {
+    try {
+      const response = await apiClient<{
+        students: StudentFromAPI[];
+        pagination: {
+          page: number;
+          pageSize: number;
+          total: number;
+          totalPages: number;
+        };
+        filters: Record<string, unknown>;
+      }>(API_ENDPOINTS.STUDENTS.SEARCH_ADVANCED, {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to search students:", error);
+      throw new Error("Failed to search students");
+    }
+  },
+
+  async bulkUploadStudents(
+    file: File
+  ): Promise<{ message: string; count: number }> {
+    try {
+      const formData = new FormData();
+      formData.append("excelFile", file);
+
+      const response = await apiClient<{ message: string; count: number }>(
+        API_ENDPOINTS.STUDENTS.BULK_UPLOAD,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            // Don't set Content-Type header for FormData, let the browser set it
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to bulk upload students:", error);
+      throw new Error("Failed to bulk upload students");
     }
   },
 };

@@ -3,13 +3,13 @@ import Image from "next/image";
 
 export default function BestStudentSection() {
   return (
-    <section className="min-h-[600px] py-16 px-8 bg-gray-100 flex flex-col md:flex-row items-center justify-center gap-12">
+    <section className="min-h-[600px] py-16 px-8 bg-gray-100 dark:bg-gray-900 flex flex-col md:flex-row items-center justify-center gap-12">
       <div className="text-center md:text-left max-w-md">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Best Student</h2>
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">Best Student</h2>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-300 mb-2">
           Ghaith Aljbban- Academic Excellence Award
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Ghaith Aljbban, a senior, has consistently demonstrated exceptional
           academic performance and leadership qualities.
         </p>

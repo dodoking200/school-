@@ -24,7 +24,7 @@ const news = [
 
 export default function NewsPage() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header />
       <div className="flex flex-wrap  min-h-screen justify-center items-center gap-8 m-10 ">
         {news.map((x) => (

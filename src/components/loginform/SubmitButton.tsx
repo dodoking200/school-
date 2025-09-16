@@ -8,11 +8,19 @@ export function SubmitButton({ isLoading }: SubmitButtonProps) {
     <button
       type="submit"
       disabled={isLoading}
-      className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-4xl text-white bg-[var(--primary)] hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-hover)] mt-6 ${
-        isLoading ? "opacity-70 cursor-not-allowed" : ""
-      }`}
+      className={`btn-primary w-full py-3 px-6 text-base font-semibold transition-all duration-300 hover:transform hover:translateY(-1px) hover:shadow-xl flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none`}
     >
-      {isLoading ? "Logging in..." : "Login"}
+      {isLoading ? (
+        <>
+          <div className="loading-spinner w-4 h-4 !border-white !border-t-transparent" />
+          <span>Signing In...</span>
+        </>
+      ) : (
+        <>
+          <span>🚀</span>
+          <span>Sign In</span>
+        </>
+      )}
     </button>
   );
 }

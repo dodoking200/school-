@@ -1,0 +1,6 @@
+# Next.js on Netlify uses the Next plugin for routing. Keep this minimal.
+# You can add custom redirects below as needed.
+# Example: Force HTTPS
+# http://* https://:splat 301!
+
+

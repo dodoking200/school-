@@ -3,8 +3,8 @@ import TeacherCard from "../ui/TeacherCard";
 
 export default function TeachersSection() {
   return (
-    <section className="py-16 px-8 bg-white min-h-[600px] flex-auto   justify-center content-center ">
-      <h2 className="text-3xl font-bold text-gray-800 text-center mb-12">
+    <section className="py-16 px-8 bg-white dark:bg-gray-800 min-h-[600px] flex-auto justify-center content-center ">
+      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 text-center mb-12">
         Our Teachers
       </h2>
 

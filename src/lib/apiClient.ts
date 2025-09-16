@@ -4,8 +4,8 @@ import { ApiResponse } from "@/types"; // ✅ Import the type
 
 // Get the base URL from environment variables
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://school-back-end-5e44.onrender.com/api";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://school-back-end-5e44.onrender.com/api";
+  // "https://school-back-end-5e44.onrender.com/api";
 
 /**
  * Builds a full API URL by combining the base URL with the endpoint
@@ -52,7 +52,8 @@ export async function apiClient<T>(
   const token = getToken();
 
   const headers = new Headers(options.headers);
-  if (!headers.has("Content-Type")) {
+  // Only set Content-Type to application/json if it's not FormData
+  if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -69,11 +70,29 @@ export async function apiClient<T>(
     method: options.method || "GET",
   });
 
+  // Log the request body if present
+
   try {
     const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
+
+    // Log response details regardless of success/failure
+    console.log("API Response Details:", {
+      endpoint,
+      fullUrl,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      ok: response.ok,
+      url: response.url,
+      type: response.type,
+      redirected: response.redirected,
+    });
+    if (options.body) {
+      console.log("Request Body:", options.body);
+    }
 
     // Add debug logging for non-JSON responses
     if (!response.ok) {
@@ -83,6 +102,8 @@ export async function apiClient<T>(
       try {
         // Try to get response text for debugging
         responseText = await response.text();
+        console.log("Error Response Text:", responseText);
+
         const errorData = JSON.parse(responseText);
 
         // Handle validation errors (array of validation messages)
@@ -120,12 +141,18 @@ export async function apiClient<T>(
         status: response.status,
         endpoint,
         fullUrl,
+        responseText: responseText.substring(0, 1000), // Log first 1000 chars of response
       });
 
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    // Get response text first for logging
+    const responseText = await response.text();
+    console.log("Success Response Text:", responseText);
+
+    // Parse the response text as JSON
+    const data = JSON.parse(responseText);
 
     // Log successful response
     console.log("API Response Success:", {
@@ -135,6 +162,7 @@ export async function apiClient<T>(
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
       data,
+      responseText: responseText.substring(0, 1000), // Log first 1000 chars of response
     });
 
     return {
@@ -163,3 +191,107 @@ export async function apiClient<T>(
     throw error;
   }
 }
+
+// Quiz-specific API functions
+export interface QuizAuthRequest {
+  email: string;
+  password: string;
+  quizId: string;
+}
+
+export interface QuizAuthResponse {
+  success: boolean;
+  message: string;
+  quiz: {
+    id: number;
+    uuid: string;
+    title: string;
+    description: string;
+    time_limit: number;
+    total_mark: number;
+  };
+  student: {
+    id: number;
+    user_id: number;
+    name: string;
+  };
+}
+
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  type: string;
+  mark: number;
+  options: {
+    id: string;
+    text: string;
+  }[];
+}
+
+export interface QuizData {
+  id: string;
+  title: string;
+  description: string;
+  time_limit: number;
+  total_mark: number;
+  questions: QuizQuestion[];
+}
+
+export interface QuizSubmissionRequest {
+  email: string;
+  answers: {
+    questionId: number;
+    optionId: string;
+  }[];
+}
+
+export interface QuizSubmissionResponse {
+  success: boolean;
+  totalScore: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  passed: boolean;
+  passingScore: number;
+  results: {
+    questionId: number;
+    isCorrect: boolean;
+    markAwarded: number;
+    correctOptionId: number;
+  }[];
+}
+
+export const quizApi = {
+  async authenticateQuizAccess(
+    data: QuizAuthRequest
+  ): Promise<ApiResponse<QuizAuthResponse>> {
+    return apiClient<QuizAuthResponse>("/exams/quiz/authenticate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getQuizData(
+    quizId: string,
+    email: string
+  ): Promise<ApiResponse<QuizData>> {
+    return apiClient<QuizData>(
+      `/exams/quiz/${quizId}/data?email=${encodeURIComponent(email)}`
+    );
+  },
+
+  async submitQuizAnswers(
+    quizId: string,
+    data: QuizSubmissionRequest
+  ): Promise<ApiResponse<QuizSubmissionResponse>> {
+    return apiClient<QuizSubmissionResponse>(`/exams/quiz/${quizId}/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  },
+};

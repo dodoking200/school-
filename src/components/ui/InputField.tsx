@@ -19,13 +19,22 @@ export default function InputField({
   error,
   type = "text",
 }: InputFieldProps) {
+  const getIcon = () => {
+    switch (type) {
+      case "email": return "📧";
+      case "password": return "🔒";
+      default: return "📝";
+    }
+  };
+
   return (
-    <div className="pt-4">
+    <div>
       <label
         htmlFor={label}
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className="block text-sm font-semibold mb-2"
+        style={{ color: "var(--foreground)" }}
       >
-        {label}
+        {getIcon()} {label}
       </label>
       <input
         id={label}
@@ -33,14 +42,21 @@ export default function InputField({
         type={type}
         autoComplete={label}
         required
-        className={`appearance-none rounded-lg relative block w-full px-3 py-3 border ${
-          error ? "border-red-500" : "border-gray-300"
-        } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[var(--primary)] focus:border-[var(--primary)] focus:z-10 sm:text-sm`}
-        placeholder={`Enter your ${label}`}
+        className={`modern-input w-full transition-all duration-300 ${
+          error ? "!border-red-500 !ring-red-200" : ""
+        }`}
+        style={{
+          borderColor: error ? "var(--danger)" : "var(--card-border)",
+        }}
+        placeholder={`Enter your ${label.toLowerCase()}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && (
+        <p className="text-sm mt-1 flex items-center gap-1" style={{ color: "var(--danger)" }}>
+          <span>⚠️</span> {error}
+        </p>
+      )}
     </div>
   );
 }

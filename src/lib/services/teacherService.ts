@@ -51,4 +51,17 @@ export const teacherService = {
       method: "DELETE",
     });
   },
+
+  inputMarks: async (marksData: {
+    student_id: number;
+    subject_id: number;
+    max_score: number;
+    student_score: number;
+    type: "worksheet" | "exam" | "quiz" | "assignment";
+  }): Promise<void> => {
+    await apiClient(API_ENDPOINTS.TEACHER.INPUT_MARKS, {
+      method: "POST",
+      body: JSON.stringify(marksData),
+    });
+  },
 };

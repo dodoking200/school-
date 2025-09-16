@@ -275,7 +275,7 @@ export default function StudentsListModal({
                             Recent Attendance Records
                           </h5>
                           <div className="max-h-48 overflow-y-auto">
-                            {studentAttendance.slice(0, 10).map((record) => (
+                            {studentAttendance.map((record) => (
                               <div
                                 key={record.id}
                                 className="flex items-center justify-between py-2 border-b border-gray-100"

@@ -5,7 +5,7 @@ import React from "react";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header />
       <ContactUs />
       <Footer />

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Class } from "@/types";
 
 interface StudentModalProps {
@@ -94,187 +96,295 @@ export default function StudentModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-500"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        {/* Animated Background Blur */}
+        <motion.div
+          initial={{ backdropFilter: "blur(0px)" }}
+          animate={{ backdropFilter: "blur(20px)" }}
+          exit={{ backdropFilter: "blur(0px)" }}
+          className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/30 to-indigo-900/20"
+        />
+
+        {/* Modal Container */}
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          transition={{ type: "spring", duration: 0.5 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-2xl"
+        >
+          <div
+            className="bg-white/10 dark:bg-gray-900/10 backdrop-blur-2xl border border-white/20 dark:border-gray-700/20 rounded-3xl shadow-2xl p-8"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+            }}
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            {/* Header */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-between items-center mb-8"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+              <div className="flex items-center gap-4">
+                <div className="w-3 h-8 bg-gradient-primary rounded-full" />
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-1">
+                    Complete the form with student information
+                  </p>
+                </div>
+              </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              required
-            />
-          </div>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-800/30 flex items-center justify-center transition-colors duration-200"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </motion.button>
+            </motion.div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+            {/* Form Content */}
+            <motion.form
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              onSubmit={handleSubmit}
+              className="space-y-6"
             >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              required
-            />
-          </div>
+              {/* Grid Layout for Form Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <label
+                    htmlFor="name"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    👤 Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="modern-input"
+                    placeholder="Enter student's full name"
+                    required
+                  />
+                </motion.div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="grade_level"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Grade
-            </label>
-            <select
-              id="grade_level"
-              name="grade_level"
-              value={formData.grade_level}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-            >
-              <option value={9}>9</option>
-              <option value={10}>10</option>
-              <option value={11}>11</option>
-              <option value={12}>12</option>
-            </select>
-          </div>
+                {/* Email Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  <label
+                    htmlFor="email"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    📧 Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="modern-input"
+                    placeholder="student@example.com"
+                    required
+                  />
+                </motion.div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="class_name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Class Name
-            </label>
-            <select
-              id="class_name"
-              name="class_name"
-              value={formData.class_name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              required
-            >
-              {classes && classes.length > 0 ? (
-                classes.map((cls) => (
-                  <option key={cls.id} value={cls.class_name}>
-                    {cls.class_name}
-                  </option>
-                ))
-              ) : (
-                <option value="">No classes available</option>
-              )}
-            </select>
-          </div>
+                {/* Grade Level Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <label
+                    htmlFor="grade_level"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    🎓 Grade Level
+                  </label>
+                  <select
+                    id="grade_level"
+                    name="grade_level"
+                    value={formData.grade_level}
+                    onChange={handleChange}
+                    className="modern-input"
+                  >
+                    <option value={9}>Grade 9 🌟</option>
+                    <option value={10}>Grade 10 💫</option>
+                    <option value={11}>Grade 11 ✨</option>
+                    <option value={12}>Grade 12 🎯</option>
+                  </select>
+                </motion.div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Phone
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              required
-            />
-          </div>
+                {/* Class Name Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.45 }}
+                >
+                  <label
+                    htmlFor="class_name"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    🏫 Class Assignment
+                  </label>
+                  <select
+                    id="class_name"
+                    name="class_name"
+                    value={formData.class_name}
+                    onChange={handleChange}
+                    className="modern-input"
+                    required
+                  >
+                    {classes && classes.length > 0 ? (
+                      classes.map((cls) => (
+                        <option key={cls.id} value={cls.class_name}>
+                          {cls.class_name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No classes available</option>
+                    )}
+                  </select>
+                </motion.div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="birth_date"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Birthdate
-            </label>
-            <input
-              type="date"
-              id="birth_date"
-              name="birth_date"
-              value={formData.birth_date}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              required
-            />
-          </div>
+                {/* Phone Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <label
+                    htmlFor="phone"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    📱 Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="modern-input"
+                    placeholder="(555) 123-4567"
+                    required
+                  />
+                </motion.div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="discount_percentage"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Discount Percentage
-            </label>
-            <input
-              type="number"
-              id="discount_percentage"
-              name="discount_percentage"
-              min="0"
-              max="100"
-              value={formData.discount_percentage}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-            />
-          </div>
+                {/* Birth Date Field */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.55 }}
+                >
+                  <label
+                    htmlFor="birth_date"
+                    className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                  >
+                    🎂 Birth Date
+                  </label>
+                  <input
+                    type="date"
+                    id="birth_date"
+                    name="birth_date"
+                    value={formData.birth_date}
+                    onChange={handleChange}
+                    className="modern-input"
+                    required
+                  />
+                </motion.div>
+              </div>
 
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[var(--primary)] border border-transparent rounded-md text-sm font-medium text-white hover:bg-[var(--primary-hover)]"
-            >
-              Save
-            </button>
+              {/* Discount Field (Full Width) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <label
+                  htmlFor="discount_percentage"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                >
+                  💰 Discount Percentage
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    id="discount_percentage"
+                    name="discount_percentage"
+                    min="0"
+                    max="100"
+                    value={formData.discount_percentage}
+                    onChange={handleChange}
+                    className="modern-input pr-12"
+                    placeholder="0"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 dark:text-gray-400 font-semibold">
+                    %
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="flex justify-end gap-4 pt-6 border-t border-white/10 dark:border-gray-700/20"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  onClick={onClose}
+                  className="px-8 py-3 bg-white/10 dark:bg-gray-800/20 border border-white/20 dark:border-gray-700/20 rounded-2xl font-semibold text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 backdrop-blur-sm"
+                >
+                  ❌ Cancel
+                </motion.button>
+
+                <motion.button
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  className="px-8 py-3 bg-gradient-primary text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  ✨ Save Student
+                </motion.button>
+              </motion.div>
+            </motion.form>
           </div>
-        </form>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

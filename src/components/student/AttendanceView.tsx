@@ -42,15 +42,30 @@ export default function AttendanceView() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "present":
-        return "bg-green-100 text-green-800";
+        return "text-white font-semibold";
       case "absent":
-        return "bg-red-100 text-red-800";
+        return "text-white font-semibold";
       case "late":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-white font-semibold";
       case "excused":
-        return "bg-blue-100 text-blue-800";
+        return "text-white font-semibold";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "text-white font-semibold";
+    }
+  };
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "present":
+        return { backgroundColor: "var(--success)", color: "white" };
+      case "absent":
+        return { backgroundColor: "var(--danger)", color: "white" };
+      case "late":
+        return { backgroundColor: "var(--warning)", color: "white" };
+      case "excused":
+        return { backgroundColor: "var(--primary)", color: "white" };
+      default:
+        return { backgroundColor: "var(--foreground-muted)", color: "white" };
     }
   };
 
@@ -107,16 +122,16 @@ export default function AttendanceView() {
   return (
     <div className="space-y-6">
       {/* Header and Month Selection */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="glass-card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-2xl font-semibold" style={{ color: "var(--foreground)" }}>
             My Attendance
           </h2>
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-medium text-gray-700">Month:</label>
+            <label className="text-sm font-medium" style={{ color: "var(--foreground-muted)" }}>Month:</label>
             <input
               type="month"
-              className="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="modern-input px-3 py-2"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
             />
@@ -125,44 +140,44 @@ export default function AttendanceView() {
 
         {/* Attendance Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
               {stats.total}
             </div>
-            <div className="text-sm text-gray-600">Total Days</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Total Days</div>
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--success)" }}>
               {stats.present}
             </div>
-            <div className="text-sm text-gray-600">Present</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Present</div>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--danger)" }}>
               {stats.absent}
             </div>
-            <div className="text-sm text-gray-600">Absent</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Absent</div>
           </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--warning)" }}>
               {stats.late}
             </div>
-            <div className="text-sm text-gray-600">Late</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Late</div>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="text-center">
+            <div className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
               {stats.excused}
             </div>
-            <div className="text-sm text-gray-600">Excused</div>
+            <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Excused</div>
           </div>
         </div>
 
         {/* Overall Attendance Rate */}
         <div className="mt-4 text-center">
-          <div className="text-3xl font-bold text-blue-600">
+          <div className="text-3xl font-bold" style={{ color: "var(--primary)" }}>
             {stats.percentage}%
           </div>
-          <div className="text-sm text-gray-600">Overall Attendance Rate</div>
+          <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>Overall Attendance Rate</div>
         </div>
       </div>
 
@@ -173,16 +188,16 @@ export default function AttendanceView() {
         ).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`}
         responsive={true}
         emptyMessage="No attendance records found for this month"
-        tableWrapperClassName="bg-white shadow-lg"
+        tableWrapperClassName="glass-card"
         tableHeader={
           <>
-            <th className="px-6 py-4 text-left text-sm font-medium text-black uppercase tracking-wider">
+            <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
               Date
             </th>
-            <th className="px-6 py-4 text-center text-sm font-medium text-black uppercase tracking-wider">
+            <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
               Status
             </th>
-            <th className="px-6 py-4 text-center text-sm font-medium text-black uppercase tracking-wider">
+            <th className="px-6 py-4 text-center text-sm font-medium uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
               Day of Week
             </th>
           </>
@@ -192,9 +207,9 @@ export default function AttendanceView() {
             {attendance.map((record, index) => (
               <tr
                 key={index}
-                className="hover:bg-gray-50 transition duration-150 ease-in-out"
+                className="theme-table-row"
               >
-                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap font-medium" style={{ color: "var(--foreground)" }}>
                   {new Date(record.date).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
@@ -206,13 +221,14 @@ export default function AttendanceView() {
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                       record.status
                     )}`}
+                    style={getStatusStyle(record.status)}
                   >
                     <span className="mr-1">{getStatusIcon(record.status)}</span>
                     {record.status.charAt(0).toUpperCase() +
                       record.status.slice(1)}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-center" style={{ color: "var(--foreground-muted)" }}>
                   {new Date(record.date).toLocaleDateString("en-US", {
                     weekday: "long",
                   })}
@@ -225,11 +241,12 @@ export default function AttendanceView() {
 
       {/* No Records Message */}
       {attendance.length === 0 && !loading && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="glass-card">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg
-                className="h-5 w-5 text-yellow-400"
+                className="h-5 w-5" 
+                style={{ color: "var(--warning)" }}
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -241,10 +258,10 @@ export default function AttendanceView() {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-yellow-800">
+              <h3 className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
                 No Attendance Records
               </h3>
-              <div className="text-sm text-yellow-700">
+              <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>
                 No attendance records found for the selected month. This could
                 mean attendance hasn't been taken yet or there are no records
                 for this period.

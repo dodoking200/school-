@@ -20,8 +20,8 @@ export default function TeacherCard({
         height={300}
         className="w-60 h-60 rounded-full mx-auto mb-4 object-cover"
       />
-      <h3 className="text-xl font-semibold text-gray-800">{teacherName}</h3>
-      <p className="text-gray-600 text-sm">{children}</p>
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{teacherName}</h3>
+      <p className="text-gray-600 dark:text-gray-400 text-sm">{children}</p>
     </div>
   );
 }
